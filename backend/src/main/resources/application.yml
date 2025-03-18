@@ -1,0 +1,26 @@
+spring:
+  application:
+    name: prana
+  config:
+    import: classpath:/env.yml
+  datasource:
+    url: jdbc:mysql://j12a103.p.ssafy.io:3316/prana
+    username: ${PRANA_MYSQL_USER}
+    password: ${PRANA_MYSQL_PASSWORD}
+  jpa:
+    open-in-view: false
+    properties:
+      #      hibernate.generate_statistics: true
+      hibernate.log_slow_query: 1000
+      hibernate.highlight_sql: true
+      jakarta.persistence.schema-generation.database.action: none
+      jakarta.persistence.schema-generation.scripts.action: none
+      jakarta.persistence.create-database-schemas: false
+
+
+logging:
+  level:
+    com.prana: trace
+    org.hibernate.SQL_SLOW: info
+    org.hibernate.SQL: debug
+    org.hibernate.orm.jdbc.bind: trace
