@@ -12,9 +12,9 @@ class OnboardingPage extends StatelessWidget {
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             Image.asset('assets/images/logo.png'),
-            SizedBox(height: 20), // 이미지와 텍스트 사이 간격
+            SizedBox(height: 20),
             Text(
-              '영혼을 정화하는 시간',
+              '요가로 깨우는 생명의 에너지',
               style: TextStyle(
                 color: Colors.white,
                 fontSize: 20,
@@ -32,11 +32,9 @@ class OnboardingPage extends StatelessWidget {
             ),
             SizedBox(height: 4),
             GestureDetector(
-              onTap: () {
-                print('카카오로 시작하기 클릭');
-              },
+              onTap: () {},
               child: Image.asset(
-                'assets/images/kakao_login_medium_narrow.png', 
+                'assets/images/kakao_login_medium_narrow.png',
                 height: 45,
                 fit: BoxFit.fitHeight,
               ),
