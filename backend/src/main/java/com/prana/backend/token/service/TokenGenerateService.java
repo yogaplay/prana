@@ -21,6 +21,12 @@ public class TokenGenerateService {
     private final PranaTokenProvider pranaTokenProvider;
     private final UserRepository userRepository;
 
+    /**
+     * 토큰 생성을 책임진다.
+     *
+     * @param kakaoAccessTokenInfo 카카오 정보
+     * @return 새로운 프라나 (액세스,리프레쉬) 토큰을 담은 TokenResponse
+     */
     @Transactional
     public TokenResponse generatePranaToken(KakaoAccessTokenInfo kakaoAccessTokenInfo) {
         Optional<User> optionalUser = userRepository.findByKakaoId(kakaoAccessTokenInfo.getId());
@@ -33,9 +39,9 @@ public class TokenGenerateService {
         Integer userId = user.getUserId();
         // userId 를 가지는 토큰 생성
 
-        String pranaAccessToken = pranaTokenProvider.createJwtToken(userId, 1000L * 60 * 60, "access_token");
-        String pranaRefreshToken = pranaTokenProvider.createJwtToken(userId, 1000L * 60 * 60 * 24 * 30, "refresh_token");
-        return new TokenResponse(pranaAccessToken, pranaRefreshToken);
-
+        String pranaAccessToken = pranaTokenProvider.createJwtToken(userId, 1000L * 60 * 60, PranaTokenProvider.TOKEN_TYPE.ACCESS_TOKEN);
+        String pranaRefreshToken = pranaTokenProvider.createJwtToken(userId, 1000L * 60 * 60 * 24 * 30, PranaTokenProvider.TOKEN_TYPE.REFRESH_TOKEN);
+        return new TokenResponse(pranaAccessToken, pranaRefreshToken, optionalUser.isEmpty());
     }
+
 }

@@ -18,8 +18,9 @@ public class GlobalExceptionHandler {
 
     /**
      * PranaException 예외 처리
-     * @param e
-     * @return
+     *
+     * @param e PranaException
+     * @return ResponseEntity<Map < String, Object>>
      */
     @ExceptionHandler(PranaException.class)
     public ResponseEntity<Map<String, Object>> handlePranaException(PranaException e) {
@@ -31,13 +32,14 @@ public class GlobalExceptionHandler {
         response.put("details", e.getDetails());
         response.put("timestamp", LocalDateTime.now());
 
-        return ResponseEntity.status(e.getErrorCode().getCode()/ 100).body(response);
+        return ResponseEntity.status(e.getErrorCode().getCode() / 100).body(response);
     }
 
     /**
      * Validation 에외 처리 (MethodArgumentNotValidException)
-     * @param ex
-     * @return
+     *
+     * @param ex MethodArgumentNotValidException
+     * @return ResponseEntity<Map < String, Object>>
      */
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public ResponseEntity<Map<String, Object>> handleValidationException(MethodArgumentNotValidException ex) {
@@ -59,13 +61,14 @@ public class GlobalExceptionHandler {
                 .collect(Collectors.toList());
         response.put("fieldErrors", fieldErrors);
 
-        return ResponseEntity.status(APIErrorCode.INVALID_INPUT.getCode()/100).body(response);
+        return ResponseEntity.status(APIErrorCode.INVALID_INPUT.getCode() / 100).body(response);
     }
 
     /**
      * 모든 예외 (Exception) 처리 ( 서버 내부 오류 )
-     * @param ex
-     * @return
+     *
+     * @param ex Exception
+     * @return ResponseEntity<Map < String, Object>>
      */
     @ExceptionHandler(Exception.class)
     public ResponseEntity<Map<String, Object>> handleGlobalException(Exception ex) {

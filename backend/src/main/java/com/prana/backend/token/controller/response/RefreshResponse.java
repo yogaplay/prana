@@ -1,6 +1,5 @@
 package com.prana.backend.token.controller.response;
 
-
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -10,8 +9,6 @@ import lombok.Setter;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-public class TokenResponse {
+public class RefreshResponse {
     private String pranaAccessToken;
-    private String pranaRefreshToken;
-    private Boolean isFirst;
 }
