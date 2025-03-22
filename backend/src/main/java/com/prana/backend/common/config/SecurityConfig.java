@@ -28,7 +28,7 @@ public class SecurityConfig {
                 .httpBasic(AbstractHttpConfigurer::disable)
                 .addFilterBefore(pranaAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)
                 .authorizeHttpRequests((request) -> request
-                        .requestMatchers("/api/token/**", "/swagger-ui/**", "/v3/api-docs/**", "/swagger-resources/**").permitAll()
+                        .requestMatchers("/api/token/**", "/swagger-ui/**", "/v3/api-docs/**", "/swagger-resources/**", "/", "/index.html").permitAll()
                         .anyRequest().authenticated()
                 )
                 .exceptionHandling(exception -> exception
