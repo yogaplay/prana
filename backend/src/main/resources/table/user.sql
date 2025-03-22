@@ -8,7 +8,7 @@ CREATE TABLE user
     gender   CHAR(1),                        -- 성별 (M, F)
     kakao_id INT          NOT NULL,          -- 카카오 회원번호 LONG
 
-    CONSTRAINT chk_gender CHECK (gender IN ('M', 'F'))
+    CONSTRAINT chk_u_gender CHECK (gender IN ('M', 'F'))
 );
 
 

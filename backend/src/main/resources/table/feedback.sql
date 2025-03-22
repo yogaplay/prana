@@ -19,8 +19,8 @@ CREATE TABLE feedback
                         'ANKLE_RIGHT') NOT NULL,                           -- 피드백을 제공하는 신체 부위 (예: '허리', '어깨' 등)
     created_at  TIMESTAMP              NOT NULL DEFAULT CURRENT_TIMESTAMP, -- 피드백 생성 시간 (기본값: 현재 시간)
 
-    CONSTRAINT fk_user FOREIGN KEY (user_id) REFERENCES user (user_id),    -- 외래 키 (user 테이블)
-    CONSTRAINT fk_yoga FOREIGN KEY (yoga_id) REFERENCES yoga (yoga_id)     -- 외래 키 (yoga 테이블)
+    CONSTRAINT fk_f_user FOREIGN KEY (user_id) REFERENCES user (user_id),    -- 외래 키 (user 테이블)
+    CONSTRAINT fk_f_yoga FOREIGN KEY (yoga_id) REFERENCES yoga (yoga_id)     -- 외래 키 (yoga 테이블)
 );
 
 
