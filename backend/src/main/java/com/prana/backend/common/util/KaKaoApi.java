@@ -1,10 +1,12 @@
 package com.prana.backend.common.util;
 
+import com.prana.backend.common.exception.general.KakaoException;
 import com.prana.backend.token.service.dto.KakaoAccessTokenInfo;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.*;
 import org.springframework.stereotype.Component;
+import org.springframework.web.client.RestClientException;
 import org.springframework.web.client.RestTemplate;
 
 @Slf4j
@@ -19,17 +21,22 @@ public class KaKaoApi {
     public KakaoAccessTokenInfo getKakaoAccessTokenInfo(String accessToken) {
         HttpHeaders headers = new HttpHeaders();
         headers.set("Authorization", "Bearer " + accessToken);
-        ResponseEntity<KakaoAccessTokenInfo> response = restTemplate.exchange(
-                KAKAO_API_URL,
-                HttpMethod.GET,
-                new HttpEntity<>(headers),
-                KakaoAccessTokenInfo.class
-        );
-        if (response.getStatusCode() == HttpStatus.OK) {
-            return response.getBody();
-        } else {
-            return null;
+        try {
+            ResponseEntity<KakaoAccessTokenInfo> response = restTemplate.exchange(
+                    KAKAO_API_URL,
+                    HttpMethod.GET,
+                    new HttpEntity<>(headers),
+                    KakaoAccessTokenInfo.class
+            );
+            if (response.getStatusCode() == HttpStatus.OK) {
+                return response.getBody();
+            } else {
+                throw new KakaoException();
+            }
+        } catch (RestClientException e) {
+            log.error(e.getMessage(), e);
         }
+        return null;
     }
 
 }

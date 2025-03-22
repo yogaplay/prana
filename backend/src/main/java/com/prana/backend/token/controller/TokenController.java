@@ -1,6 +1,8 @@
 package com.prana.backend.token.controller;
 
+import com.prana.backend.token.controller.request.RefreshRequest;
 import com.prana.backend.token.controller.request.TokenRequest;
+import com.prana.backend.token.controller.response.RefreshResponse;
 import com.prana.backend.token.controller.response.TokenResponse;
 import com.prana.backend.token.service.TokenService;
 import jakarta.validation.Valid;
@@ -21,6 +23,11 @@ public class TokenController {
     @PostMapping("/generate")
     public ResponseEntity<TokenResponse> generate(@Valid @RequestBody TokenRequest tokenRequest) {
         return tokenService.generate(tokenRequest);
+    }
+
+    @PostMapping("/refresh")
+    public ResponseEntity<RefreshResponse> refresh(@Valid @RequestBody RefreshRequest refreshRequest) {
+        return tokenService.refresh(refreshRequest);
     }
 
 }

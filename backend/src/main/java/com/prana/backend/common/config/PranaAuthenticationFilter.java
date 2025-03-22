@@ -26,7 +26,7 @@ public class PranaAuthenticationFilter extends OncePerRequestFilter {
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
 
         String token = resolveToken(request); // 토큰을 요청에서 추출하는 메서드
-        if (token != null && pranaTokenProvider.validateToken(token)) {
+        if (token != null && pranaTokenProvider.validateToken(token) && pranaTokenProvider.isNotExpired(token)) {
             Integer userId = pranaTokenProvider.getUserIdFromToken(token); // JWT 에서 사용자 ID를 추출
 
             UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(new PranaPrincipal(userId), null, null); // 인증 객체 생성
