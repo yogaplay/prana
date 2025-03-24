@@ -1,4 +1,4 @@
-package com.prana.backend.userSequence.repository;
+package com.prana.backend.user_sequence.repository;
 
 import com.prana.backend.entity.UserSequence;
 import org.springframework.data.jpa.repository.JpaRepository;

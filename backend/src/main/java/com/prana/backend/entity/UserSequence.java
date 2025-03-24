@@ -29,9 +29,11 @@ public class UserSequence {
     @JoinColumn(name = "sequence_id", nullable = false)
     private Sequence sequence;
 
+    @Builder.Default
     @Column(name = "result_status", nullable = false, length = 1)
     private char resultStatus = 'N';
 
+    @Builder.Default
     @Column(name = "last_point", nullable = false)
     private int lastPoint = 0;
 

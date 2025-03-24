@@ -1,12 +1,11 @@
-package com.prana.backend.yogaSequence.controller;
+package com.prana.backend.yoga_sequence.controller;
 
 import com.prana.backend.common.PranaPrincipal;
-import com.prana.backend.yogaSequence.controller.request.CheckSequenceRequest;
-import com.prana.backend.yogaSequence.controller.request.YogaSequenceRequest;
-import com.prana.backend.yogaSequence.controller.response.SequenceResponse;
-import com.prana.backend.yogaSequence.controller.response.UserSequenceResponse;
-import com.prana.backend.yogaSequence.controller.response.YogaSequenceResponse;
-import com.prana.backend.yogaSequence.service.YogaSequenceService;
+import com.prana.backend.yoga_sequence.controller.request.CheckSequenceRequest;
+import com.prana.backend.yoga_sequence.controller.request.YogaSequenceRequest;
+import com.prana.backend.yoga_sequence.controller.response.SequenceResponse;
+import com.prana.backend.yoga_sequence.controller.response.UserSequenceResponse;
+import com.prana.backend.yoga_sequence.service.YogaSequenceService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -14,8 +13,6 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-
-import java.util.List;
 
 @RestController
 @RequiredArgsConstructor
@@ -25,7 +22,6 @@ public class YogaSequenceController {
     private final YogaSequenceService yogaService;
 
     /**
-     *
      * @param request (sequenceId)
      * @return 시퀀스에 대한 정보와 해당 시퀀스의 요가 정보를 반환
      */
@@ -36,8 +32,7 @@ public class YogaSequenceController {
     }
 
     /**
-     *
-     * @param prana (User 정보)
+     * @param prana   (User 정보)
      * @param request (SequenceId)
      * @return 요가 수행 결과인 userSequenceId 반환
      */
@@ -48,7 +43,6 @@ public class YogaSequenceController {
     }
 
     /**
-     *
      * @param request (userSequenceId)
      * @return 저장 성공 시, 200 ok 반환
      */

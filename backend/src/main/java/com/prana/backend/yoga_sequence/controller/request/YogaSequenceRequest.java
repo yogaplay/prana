@@ -1,4 +1,4 @@
-package com.prana.backend.yogaSequence.controller.request;
+package com.prana.backend.yoga_sequence.controller.request;
 
 import lombok.Getter;
 

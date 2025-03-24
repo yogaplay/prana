@@ -1,4 +1,4 @@
-package com.prana.backend.yogaSequence.service;
+package com.prana.backend.yoga_sequence.service;
 
 import com.prana.backend.common.exception.sequence.SequenceNotFoundException;
 import com.prana.backend.common.exception.user.UserNotFoundException;
@@ -7,18 +7,17 @@ import com.prana.backend.entity.User;
 import com.prana.backend.entity.UserSequence;
 import com.prana.backend.sequence.repository.SequenceRepository;
 import com.prana.backend.user.repository.UserRepository;
-import com.prana.backend.userSequence.repository.UserSequenceRepository;
-import com.prana.backend.yogaSequence.controller.response.SequenceResponse;
-import com.prana.backend.yogaSequence.controller.response.UserSequenceResponse;
-import com.prana.backend.yogaSequence.controller.response.YogaSequenceResponse;
-import com.prana.backend.yogaSequence.repository.YogaSequenceRepository;
+import com.prana.backend.user_sequence.repository.UserSequenceRepository;
+import com.prana.backend.yoga_sequence.controller.response.SequenceResponse;
+import com.prana.backend.yoga_sequence.controller.response.UserSequenceResponse;
+import com.prana.backend.yoga_sequence.controller.response.YogaSequenceResponse;
+import com.prana.backend.yoga_sequence.repository.YogaSequenceRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
-import java.util.Date;
 import java.util.List;
 
 @Service

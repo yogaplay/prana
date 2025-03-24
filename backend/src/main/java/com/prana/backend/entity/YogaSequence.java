@@ -4,13 +4,15 @@ package com.prana.backend.entity;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 @Entity
-@AllArgsConstructor
-@NoArgsConstructor
-@Builder
 @Table(name = "yoga_sequence")
+@Getter
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
 public class YogaSequence {
 
     @Id

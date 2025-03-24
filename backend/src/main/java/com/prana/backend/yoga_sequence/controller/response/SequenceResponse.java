@@ -1,4 +1,4 @@
-package com.prana.backend.yogaSequence.controller.response;
+package com.prana.backend.yoga_sequence.controller.response;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -8,9 +8,9 @@ import lombok.NoArgsConstructor;
 import java.util.List;
 
 @Getter
-@AllArgsConstructor
-@NoArgsConstructor
 @Builder
+@NoArgsConstructor
+@AllArgsConstructor
 public class SequenceResponse {
     private int sequenceId;
     private String sequenceName;
