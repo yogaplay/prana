@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'features/onboarding/pages/onboarding_page.dart';
+import 'package:frontend/screens/main_screen.dart';
 
 class App extends StatelessWidget {
   const App({super.key});
@@ -9,7 +9,7 @@ class App extends StatelessWidget {
     return MaterialApp(
       title: 'Prana',
       theme: ThemeData(fontFamily: 'Pretendard'),
-      home: OnboardingPage(),
+      home: MainScreen(),
     );
   }
 }
