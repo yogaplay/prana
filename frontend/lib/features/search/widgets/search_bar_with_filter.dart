@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:frontend/constants/app_colors.dart';
 
 class SearchBarWithFilter extends StatelessWidget {
   const SearchBarWithFilter({super.key});
@@ -17,11 +18,11 @@ class SearchBarWithFilter extends StatelessWidget {
                 contentPadding: EdgeInsets.symmetric(vertical: 0),
                 enabledBorder: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(12),
-                  borderSide: BorderSide(color: Colors.grey),
+                  borderSide: BorderSide(color: AppColors.graytext),
                 ),
                 focusedBorder: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(12),
-                  borderSide: BorderSide(color: Colors.grey, width: 2),
+                  borderSide: BorderSide(color: AppColors.graytext, width: 2),
                 ),
               ),
             ),

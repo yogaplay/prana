@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:frontend/constants/app_colors.dart';
 import 'package:frontend/features/search/models/yoga_item.dart';
 
 class YogaCard extends StatelessWidget {
@@ -31,7 +32,7 @@ class YogaCard extends StatelessWidget {
             ),
           ),
           SizedBox(height: 4),
-          Text(item.duration, style: TextStyle(color: Colors.grey)),
+          Text(item.duration, style: TextStyle(color: AppColors.graytext)),
         ],
       ),
     );

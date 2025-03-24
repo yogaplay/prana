@@ -5,7 +5,6 @@ import 'package:frontend/core/providers/providers.dart';
 import 'package:frontend/routes.dart';
 import 'features/auth/screens/onboarding_screen.dart';
 import 'package:frontend/screens/main_screen.dart';
-import 'package:frontend/features/search/screens/search_main_screen.dart';
 
 class App extends ConsumerWidget {
   const App({super.key});

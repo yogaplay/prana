@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:frontend/features/home/screens/home_screen.dart';
+import 'package:frontend/features/search/screens/search_main_screen.dart';
 import 'package:frontend/screens/activity_page.dart';
 import 'package:frontend/screens/explore_page.dart';
 import 'package:frontend/screens/info_page.dart';
@@ -17,7 +18,7 @@ class _MainScreenState extends State<MainScreen> {
 
   final List<Widget> _pages = [
     HomeScreen(),
-    ExploerPage(),
+    SearchMainScreen(),
     ActivityPage(),
     InfoPage(),
   ];

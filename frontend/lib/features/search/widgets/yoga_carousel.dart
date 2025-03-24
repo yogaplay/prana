@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:frontend/constants/app_colors.dart';
 import 'package:frontend/features/search/models/yoga_item.dart';
 import 'package:frontend/features/search/widgets/yoga_card.dart';
 
@@ -32,8 +33,8 @@ class YogaCarousel extends StatelessWidget {
                 onPressed: onSeeAll,
                 child: Row(
                   children: [
-                    Text('전체 보기', style: TextStyle(color: Colors.grey)),
-                    Icon(color: Colors.grey, Icons.chevron_right),
+                    Text('전체 보기', style: TextStyle(color: AppColors.graytext)),
+                    Icon(color: AppColors.graytext, Icons.chevron_right),
                   ],
                 ),
               ),
