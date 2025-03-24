@@ -34,6 +34,7 @@ public class TokenGenerateService {
                 User.builder()
                         .nickname(RandomName.getName())
                         .kakaoId(kakaoAccessTokenInfo.getId())
+                        .streakDays(0)
                         .build()
         ));
         Integer userId = user.getId();

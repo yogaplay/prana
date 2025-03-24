@@ -5,6 +5,8 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+import java.util.List;
+
 @Getter
 @Setter
 @NoArgsConstructor
@@ -15,5 +17,6 @@ public class StarResponse {
     private String sequenceName;
     private String image;
     private boolean star;
+    private List<String> tagList;
 
 }
