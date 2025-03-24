@@ -4,7 +4,7 @@ import com.prana.backend.common.util.PranaTokenProvider;
 import com.prana.backend.common.util.RandomName;
 import com.prana.backend.token.controller.response.TokenResponse;
 import com.prana.backend.token.service.dto.KakaoAccessTokenInfo;
-import com.prana.backend.user.User;
+import com.prana.backend.entity.User;
 import com.prana.backend.user.repository.UserRepository;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -36,7 +36,7 @@ public class TokenGenerateService {
                         .kakaoId(kakaoAccessTokenInfo.getId())
                         .build()
         ));
-        Integer userId = user.getUserId();
+        Integer userId = user.getId();
         // userId 를 가지는 토큰 생성
 
         String pranaAccessToken = pranaTokenProvider.createJwtToken(userId, 1000L * 60 * 60, PranaTokenProvider.TOKEN_TYPE.ACCESS_TOKEN);

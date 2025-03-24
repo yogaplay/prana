@@ -1,7 +1,7 @@
 package com.prana.backend.user.repository;
 
 
-import com.prana.backend.user.User;
+import com.prana.backend.entity.User;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.Optional;

@@ -15,6 +15,13 @@ public class UserService {
 
     private SignUpRepository signUpRepository;
 
+    /**
+     * 최초 회원정보 입력
+     *
+     * @param userId        사용자 Id
+     * @param signUpRequest SignUpRequest
+     * @return ResponseEntity<Void>
+     */
     @Transactional
     public ResponseEntity<Void> signUp(Integer userId, SignUpRequest signUpRequest) {
         signUpRepository.signUp(userId, signUpRequest);
