@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:frontend/features/home/pages/home_page.dart';
+import 'package:frontend/features/home/screens/home_screen.dart';
 import 'package:frontend/screens/activity_page.dart';
 import 'package:frontend/screens/explore_page.dart';
 import 'package:frontend/screens/profile_page.dart';
@@ -16,7 +16,7 @@ class _MainScreenState extends State<MainScreen> {
   int _selectedIndex = 0;
 
   final List<Widget> _pages = [
-    HomePage(),
+    HomeScreen(),
     ExploerPage(),
     ActivityPage(),
     ProfilePage(),

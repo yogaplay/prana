@@ -5,10 +5,38 @@ plugins {
     id("dev.flutter.flutter-gradle-plugin")
 }
 
+// 환경 변수를 저장할 맵 생성
+val dartEnvironmentVariables = mutableMapOf<String, String?>(
+    "KAKAO_NATIVE_APP_KEY" to null
+)
+
+// .env 파일 읽기
+try {
+    val envFile = project.file("../../.env")
+    if (envFile.exists()) {
+        envFile.readLines().forEach { line ->
+            if (line.isNotEmpty() && !line.startsWith("#")) {
+                val parts = line.split("=", limit = 2)
+                if (parts.size == 2) {
+                    val key = parts[0].trim()
+                    val value = parts[1].trim().replace("\"", "")  // 따옴표 제거
+                    
+                    // 환경 변수를 맵에 할당
+                    if (key == "KAKAO_NATIVE_APP_KEY") {
+                        dartEnvironmentVariables["KAKAO_NATIVE_APP_KEY"] = value
+                    }
+                }
+            }
+        }
+    }
+} catch (e: Exception) {
+    println("Error reading .env file: ${e.message}")
+}
+
 android {
     namespace = "com.example.frontend"
     compileSdk = flutter.compileSdkVersion
-    ndkVersion = flutter.ndkVersion
+    ndkVersion = "27.0.12077973"
 
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_11
@@ -28,6 +56,9 @@ android {
         targetSdk = flutter.targetSdkVersion
         versionCode = flutter.versionCode
         versionName = flutter.versionName
+
+        manifestPlaceholders["Prana"] = "io.flutter.app.FlutterApplication"
+        manifestPlaceholders["KAKAO_NATIVE_APP_KEY"] = dartEnvironmentVariables["KAKAO_NATIVE_APP_KEY"] ?: ""
     }
 
     buildTypes {
