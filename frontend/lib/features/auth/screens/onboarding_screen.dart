@@ -1,9 +1,10 @@
 import 'package:flutter/material.dart';
-import 'package:frontend/services/auth_service.dart';
+import 'package:frontend/features/auth/services/auth_service.dart';
+import 'package:frontend/features/home/screens/home_screen.dart';
 
 class OnboardingScreen extends StatelessWidget {
   const OnboardingScreen({super.key});
-  
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -48,19 +49,28 @@ class OnboardingScreen extends StatelessWidget {
 
   Future<void> _handleKakaoLogin(BuildContext context) async {
     final authService = AuthService();
-    
+
     try {
       final kakaoToken = await authService.startWithKakao();
-      final authResponse = await authService.getAuthTokens(kakaoToken.accessToken);
+      final authResponse = await authService.getAuthTokens(
+        kakaoToken.accessToken,
+      );
       await authService.saveAuthData(authResponse);
       if (authResponse.isFirst) {
         // 회원가입 추가 정보 입력 페이지 이동
       } else {
         // 홈 화면 이동
+        _navigateToHome(context);
       }
       print("회원가입 성공!!");
     } catch (error) {
       print('로그인 실패 $error');
     }
+  }
+
+  void _navigateToHome(BuildContext context) {
+    Navigator.of(
+      context,
+    ).pushReplacement(MaterialPageRoute(builder: (context) => HomeScreen()));
   }
 }
