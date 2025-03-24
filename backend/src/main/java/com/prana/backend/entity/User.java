@@ -1,4 +1,4 @@
-package com.prana.backend.user;
+package com.prana.backend.entity;
 
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
@@ -17,7 +17,7 @@ public class User {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "user_id")
-    private Integer userId;
+    private Integer id;
 
     @Column(name = "nickname", nullable = false, length = 100)
     private String nickname;
@@ -36,5 +36,8 @@ public class User {
 
     @Column(name = "kakao_id", nullable = false)
     private Long kakaoId;
+
+    @Column(name = "streak_days", nullable = false)
+    private Integer streakDays;
 
 }

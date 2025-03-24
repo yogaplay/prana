@@ -1,6 +1,6 @@
 package com.prana.backend.user.repository;
 
-import com.prana.backend.user.QUser;
+import com.prana.backend.entity.QUser;
 import com.prana.backend.user.controller.request.SignUpRequest;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import lombok.RequiredArgsConstructor;
@@ -19,7 +19,7 @@ public class SignUpRepository {
                 .set(user.age, signUpRequest.getAge())
                 .set(user.weight, signUpRequest.getWeight())
                 .set(user.gender, signUpRequest.getGender())
-                .where(user.userId.eq(userId))
+                .where(user.id.eq(userId))
                 .execute();
     }
 
