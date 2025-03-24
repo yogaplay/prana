@@ -14,7 +14,6 @@ public enum APIErrorCode implements ErrorCode {
     INVALID_REFRESH_TOKEN(40111, "유효하지 않은 Refresh Token입니다."),
     INVALID_ACCESS_TOKEN(40112, "유효하지 않은 Access Token입니다."),
     UNREGISTERED_USER(40113, "등록되지 않은 사용자입니다."),
-    INVALID_KAKAO_ACCESS_TOKEN(40114, "유효하지 않은 Kakao Access Token입니다."),
 
     // 403 Forbidden
     FORBIDDEN(40300, "Forbidden"),
@@ -23,6 +22,7 @@ public enum APIErrorCode implements ErrorCode {
     // 404 Not Found
     NOT_FOUND(40400, "Not Found"),
     USER_NOT_FOUND(40410, "존재하지 않는 사용자입니다."),
+    SEQUENCE_NOT_FOUND(40411, "존재하지 않는 시퀀스입니다."),
 
     // 409 Conflict
     CONFLICT(40900, "Conflict"),
