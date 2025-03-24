@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:frontend/widgets/button.dart';
 
 class ActivityPage extends StatelessWidget {
   const ActivityPage({super.key});
