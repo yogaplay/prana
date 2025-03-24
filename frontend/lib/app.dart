@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:frontend/constants/app_colors.dart';
 import 'package:frontend/core/providers/providers.dart';
 import 'package:frontend/routes.dart';
+import 'features/activity/pages/activity_page.dart';
 
 class App extends ConsumerWidget {
   const App({super.key});
