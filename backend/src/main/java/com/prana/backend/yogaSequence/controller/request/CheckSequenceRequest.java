@@ -4,6 +4,5 @@ import lombok.Getter;
 
 @Getter
 public class CheckSequenceRequest {
-    private int sequenceId;
-    private int yogaId;
+    private int userSequenceId;
 }

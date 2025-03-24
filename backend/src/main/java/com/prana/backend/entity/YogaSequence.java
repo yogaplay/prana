@@ -1,8 +1,6 @@
-package com.prana.backend.yogaSequence;
+package com.prana.backend.entity;
 
 
-import com.prana.backend.sequence.Sequence;
-import com.prana.backend.yoga.Yoga;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;

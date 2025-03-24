@@ -1,16 +1,24 @@
 package com.prana.backend.yogaSequence.service;
 
+import com.prana.backend.common.exception.sequence.SequenceNotFoundException;
 import com.prana.backend.common.exception.user.UserNotFoundException;
-import com.prana.backend.userSequence.UserSequence;
+import com.prana.backend.entity.Sequence;
+import com.prana.backend.entity.User;
+import com.prana.backend.entity.UserSequence;
+import com.prana.backend.sequence.repository.SequenceRepository;
+import com.prana.backend.user.repository.UserRepository;
 import com.prana.backend.userSequence.repository.UserSequenceRepository;
+import com.prana.backend.yogaSequence.controller.response.SequenceResponse;
+import com.prana.backend.yogaSequence.controller.response.UserSequenceResponse;
 import com.prana.backend.yogaSequence.controller.response.YogaSequenceResponse;
 import com.prana.backend.yogaSequence.repository.YogaSequenceRepository;
-import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDate;
+import java.util.Date;
 import java.util.List;
 
 @Service
@@ -20,19 +28,42 @@ import java.util.List;
 public class YogaSequenceService {
     private final YogaSequenceRepository yogaSequenceRepository;
     private final UserSequenceRepository userSequenceRepository;
+    private final SequenceRepository sequenceRepository;
+    private final UserRepository userRepository;
 
-    public List<YogaSequenceResponse> getYogaSequenceResponses(Integer userId, Integer sequenceId) {
-        return yogaSequenceRepository.findYogaBySequenceIdOrderByOrder(sequenceId);
+    public SequenceResponse getYogaSequence(Integer sequenceId) {
+        List<YogaSequenceResponse> yogaSequence = yogaSequenceRepository.findYogaBySequenceIdOrderByOrder(sequenceId);
+        Sequence sequence = sequenceRepository.findById(sequenceId).orElseThrow(SequenceNotFoundException::new);
+
+        return SequenceResponse.builder()
+                .sequenceId(sequence.getId())
+                .yogaCnt(sequence.getYogaCount())
+                .sequenceName(sequence.getName())
+                .time(sequence.getTime())
+                .description(sequence.getDescription())
+                .yogaSequence(yogaSequence)
+                .build();
     }
 
-    public void checkYogaSequence(Integer userId, Integer sequenceId) {
-        UserSequence userSequence = userSequenceRepository.findById(userId)
-                .orElseThrow(UserNotFoundException::new);
+    public UserSequenceResponse saveUserSequence(Integer sequenceId, Integer userId) {
+        User user = userRepository.findById(userId).orElseThrow(UserNotFoundException::new);
+        Sequence sequence = sequenceRepository.findById(sequenceId).orElseThrow(SequenceNotFoundException::new);
 
-        // 2. 필드 업데이트 (체크로직은 엔티티 내에 구현되어 있다고 가정)
-        userSequence.setResultStatus(newResultStatus);
-        userSequence.setLastPoint(newLastPoint);
-        userSequence.setCreatedDate(newCreatedDate);
-        // 트랜잭션 종료 시 자동으로 dirty checking에 의해 업데이트 됨.
+        UserSequence userSequence = UserSequence.builder()
+                .user(user)
+                .sequence(sequence)
+                .createdDate(LocalDate.now())
+                .build();
+        userSequenceRepository.save(userSequence);
+
+        return UserSequenceResponse.builder()
+                .userSequenceId(userSequence.getId()).build();
+    }
+
+    public void checkYogaSequence(Integer userSequenceId) {
+        UserSequence userSequence = userSequenceRepository
+                .findById(userSequenceId).orElseThrow(UserNotFoundException::new);
+
+        userSequence.setLastPoint(userSequence.getLastPoint() + 1);
     }
 }

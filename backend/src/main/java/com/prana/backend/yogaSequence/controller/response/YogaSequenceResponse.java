@@ -12,5 +12,6 @@ public class YogaSequenceResponse {
     private int yogaId;
     private String yogaName;
     private String video;
+    private String image;
     private String scription;
 }

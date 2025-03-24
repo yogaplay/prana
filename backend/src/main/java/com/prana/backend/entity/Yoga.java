@@ -1,4 +1,4 @@
-package com.prana.backend.yoga;
+package com.prana.backend.entity;
 
 
 import jakarta.persistence.*;
