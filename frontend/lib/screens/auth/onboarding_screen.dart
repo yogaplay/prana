@@ -51,8 +51,14 @@ class OnboardingScreen extends StatelessWidget {
     
     try {
       final kakaoToken = await authService.startWithKakao();
-      final AuthResponse = await authService.getAuthTokens(kakaoToken.accessToken);
-      
+      final authResponse = await authService.getAuthTokens(kakaoToken.accessToken);
+      await authService.saveAuthData(authResponse);
+      if (authResponse.isFirst) {
+        // 회원가입 추가 정보 입력 페이지 이동
+      } else {
+        // 홈 화면 이동
+      }
+      print("회원가입 성공!!");
     } catch (error) {
       print('로그인 실패 $error');
     }

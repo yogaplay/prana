@@ -26,6 +26,10 @@ class AuthResponse {
 class AuthService {
   final FlutterSecureStorage _storage = const FlutterSecureStorage();
 
+  static const String _accessToken = 'prana_access_token';
+  static const String _refreshToken = 'prana_refresh_token';
+  static const String _isFirst = 'prana_is_first';
+
   // 카카오 로그인
   Future<OAuthToken> startWithKakao() async {
     try {
@@ -45,20 +49,44 @@ class AuthService {
     }
   }
 
-  // 백엔드 서버로 카카오 토큰 전송 -> 프란 서비스 토큰 받아오기
+  // 백엔드 서버로 카카오 토큰 전송 -> 서비스 토큰 받아오기
   Future<AuthResponse> getAuthTokens(String kakaoToken) async {
     final response = await http.post(
       Uri.parse('https://j12a103.p.ssafy.io:8444/api/token/generate'),
       headers: {'Content-Type': 'application/json'},
       body: json.encode({'kakaoAccessToken': kakaoToken}),
     );
-    print('서버 응답 상태 코드: ${response.statusCode}');
-    print('서버 응답 본문: ${response.body}');
+    // print('서버 응답 상태 코드: ${response.statusCode}');
+    // print('서버 응답 본문: ${response.body}');
     if (response.statusCode == 200) {
       final responseData = json.decode(response.body);
       return AuthResponse.fromJson(responseData);
     } else {
       throw Exception('인증 토큰 발급 실패 ${response.statusCode}');
+    }
+  }
+
+  Future<void> saveAuthData(AuthResponse authResponse) async {
+    await _storage.write(key: _accessToken, value: authResponse.pranaAccessToken);
+    await _storage.write(key: _refreshToken, value: authResponse.pranaRefreshToken);
+    await _storage.write(key: _isFirst, value: authResponse.isFirst.toString());
+  
+    Future<String?> getAccessToken() async{
+      return await _storage.read(key: _accessToken);
+    }
+
+    Future<String?> getRefreshToken() async {
+      return await _storage.read(key: _refreshToken);
+    }
+
+    Future<bool> isFirstLogin() async {
+      final isFirst = await _storage.read(key: _isFirst);
+      return isFirst == 'true';
+    }
+
+    Future<bool> isLoggedIn() async {
+      final token = await getAccessToken();
+      return token != null && token.isNotEmpty;
     }
   }
 }
