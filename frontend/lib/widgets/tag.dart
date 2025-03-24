@@ -3,15 +3,26 @@ import 'package:frontend/constants/app_colors.dart';
 
 class Tag extends StatelessWidget {
   final String label;
+  final bool isSelected;
+  final bool hasBorder;
 
-  const Tag({super.key, required this.label});
+  const Tag({
+    super.key,
+    required this.label,
+    this.isSelected = true,
+    this.hasBorder = false,
+  });
 
   @override
   Widget build(BuildContext context) {
+    final bgColor = isSelected ? AppColors.secondary : Colors.transparent;
+    final borderColor = hasBorder ? AppColors.graytext : Colors.transparent;
+
     return Container(
       padding: EdgeInsets.symmetric(horizontal: 12, vertical: 4),
       decoration: BoxDecoration(
-        color: AppColors.secondary,
+        color: bgColor,
+        border: Border.all(color: borderColor),
         borderRadius: BorderRadius.circular(20),
       ),
       child: Text(

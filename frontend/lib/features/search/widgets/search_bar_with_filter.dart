@@ -1,8 +1,18 @@
 import 'package:flutter/material.dart';
 import 'package:frontend/constants/app_colors.dart';
+import 'package:frontend/features/search/widgets/filter_bottom_sheet.dart';
 
 class SearchBarWithFilter extends StatelessWidget {
-  const SearchBarWithFilter({super.key});
+  final bool readOnly;
+  final VoidCallback? onTap;
+  final FocusNode? focusNode;
+
+  const SearchBarWithFilter({
+    super.key,
+    this.readOnly = false,
+    this.onTap,
+    this.focusNode,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -12,6 +22,10 @@ class SearchBarWithFilter extends StatelessWidget {
         children: [
           Expanded(
             child: TextField(
+              readOnly: readOnly,
+              onTap: onTap,
+              focusNode: focusNode,
+              autofocus: focusNode != null,
               decoration: InputDecoration(
                 hintText: '검색어를 입력하세요',
                 prefixIcon: Icon(Icons.search),
@@ -28,7 +42,17 @@ class SearchBarWithFilter extends StatelessWidget {
             ),
           ),
           SizedBox(width: 12),
-          IconButton(onPressed: () {}, icon: Icon(Icons.filter_alt_outlined)),
+          IconButton(
+            onPressed: () {
+              showModalBottomSheet(
+                context: context,
+                isScrollControlled: true,
+                backgroundColor: Colors.transparent,
+                builder: (_) => FilterBottomSheet(),
+              );
+            },
+            icon: Icon(Icons.filter_alt_outlined),
+          ),
         ],
       ),
     );
