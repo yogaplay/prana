@@ -35,6 +35,10 @@ public class HomeService {
         ReportResponse report = reportRepository.report(userId);
         List<RecentResponse> recentList = recentRepository.recent(userId);
         List<StarResponse> starList = starRepository.star(userId);
+        // N + 1
+        for (StarResponse star : starList) {
+            star.setTagList(starRepository.starTagList(star.getSequenceId()));
+        }
         HomeResponse homeResponse = HomeResponse
                 .builder()
                 .report(report)

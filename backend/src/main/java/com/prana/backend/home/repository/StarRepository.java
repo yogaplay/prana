@@ -1,15 +1,19 @@
 package com.prana.backend.home.repository;
 
 import com.prana.backend.entity.QSequence;
+import com.prana.backend.entity.QSequenceTag;
 import com.prana.backend.entity.QStar;
+import com.prana.backend.entity.QTag;
 import com.prana.backend.home.controller.response.StarResponse;
 import com.querydsl.core.types.Projections;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
 
+@Slf4j
 @Repository
 @RequiredArgsConstructor
 public class StarRepository {
@@ -36,6 +40,21 @@ public class StarRepository {
                 .limit(1)
                 .fetch();
 
+    }
+
+
+    public List<String> starTagList(Integer sequenceId) {
+
+        QTag tag = QTag.tag;
+        QSequenceTag sequenceTag = QSequenceTag.sequenceTag;
+
+        return queryFactory
+                .select(tag.name)
+                .from(sequenceTag)
+                .join(tag).on(sequenceTag.tag.eq(tag))
+                .where(sequenceTag.sequence.id.eq(sequenceId))
+                .orderBy(tag.type.asc(), tag.id.asc())
+                .fetch();
     }
 
 
