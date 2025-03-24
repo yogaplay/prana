@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:frontend/constants/app_colors.dart';
 
 class Navbar extends StatelessWidget {
   final int currentIndex;
@@ -55,14 +56,14 @@ class _NavItem extends StatelessWidget {
         Container(
           padding: EdgeInsets.symmetric(horizontal: 20, vertical: 8),
           decoration: BoxDecoration(
-            color: isSelected ? Color(0xFFE8FAF1) : Colors.transparent,
+            color: isSelected ? AppColors.secondary : Colors.transparent,
             shape: BoxShape.rectangle,
             borderRadius: BorderRadius.circular(20),
           ),
-          child: Icon(icon, color: Colors.black),
+          child: Icon(icon, color: AppColors.blackText),
         ),
         SizedBox(height: 4),
-        Text(label, style: TextStyle(color: Colors.black, fontSize: 14)),
+        Text(label, style: TextStyle(color: AppColors.blackText, fontSize: 14)),
       ],
     );
   }

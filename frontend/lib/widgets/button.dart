@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:frontend/constants/app_colors.dart';
 
 class Button extends StatelessWidget {
   final String text;
@@ -17,9 +18,9 @@ class Button extends StatelessWidget {
     return ElevatedButton(
       onPressed: isDisabled ? null : onPressed,
       style: ElevatedButton.styleFrom(
-        backgroundColor: Color(0xFF7ECECA),
+        backgroundColor: AppColors.primary,
         foregroundColor: Colors.white,
-        disabledBackgroundColor: Colors.grey[300],
+        disabledBackgroundColor: AppColors.lightGray,
         disabledForegroundColor: Colors.white,
         padding: EdgeInsets.symmetric(horizontal: 32, vertical: 12),
         textStyle: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),

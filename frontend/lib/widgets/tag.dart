@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:frontend/constants/app_colors.dart';
 
 class Tag extends StatelessWidget {
   final String label;
@@ -10,13 +11,13 @@ class Tag extends StatelessWidget {
     return Container(
       padding: EdgeInsets.symmetric(horizontal: 12, vertical: 4),
       decoration: BoxDecoration(
-        color: Color(0xFFE8FAF1),
+        color: AppColors.secondary,
         borderRadius: BorderRadius.circular(20),
       ),
       child: Text(
         label,
         style: TextStyle(
-          color: Colors.black,
+          color: AppColors.blackText,
           fontSize: 14,
           fontWeight: FontWeight.w500,
         ),
