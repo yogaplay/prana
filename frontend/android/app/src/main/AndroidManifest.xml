@@ -1,7 +1,8 @@
-<manifest xmlns:android="http://schemas.android.com/apk/res/android">
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    package="com.example.frontend"> 
     <application
         android:label="frontend"
-        android:name="${Prana}"
+        android:name=".Application"
         android:icon="@mipmap/ic_launcher">
 <!-- 카카오 로그인 커스텀 URL 스킴 설정 -->
         <activity android:name="com.kakao.sdk.flutter.AuthCodeCustomTabsActivity" 

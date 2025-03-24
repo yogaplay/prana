@@ -41,7 +41,7 @@ class AuthService {
         return await UserApi.instance.loginWithKakaoAccount();
       }
     } catch (error) {
-      throw error;
+      rethrow;
     }
   }
 
@@ -52,7 +52,8 @@ class AuthService {
       headers: {'Content-Type': 'application/json'},
       body: json.encode({'kakaoAccessToken': kakaoToken}),
     );
-
+    print('서버 응답 상태 코드: ${response.statusCode}');
+    print('서버 응답 본문: ${response.body}');
     if (response.statusCode == 200) {
       final responseData = json.decode(response.body);
       return AuthResponse.fromJson(responseData);
