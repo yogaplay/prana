@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
-import 'features/onboarding/pages/onboarding_page.dart';
+import 'package:frontend/constants/app_colors.dart';
+import 'package:frontend/screens/main_screen.dart';
 
 class App extends StatelessWidget {
   const App({super.key});
@@ -8,8 +9,11 @@ class App extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       title: 'Prana',
-      theme: ThemeData(fontFamily: 'Pretendard'),
-      home: OnboardingPage(),
+      theme: ThemeData(
+        fontFamily: 'Pretendard',
+        scaffoldBackgroundColor: AppColors.background,
+      ),
+      home: MainScreen(),
     );
   }
 }
