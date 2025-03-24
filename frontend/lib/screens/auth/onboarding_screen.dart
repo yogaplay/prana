@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:frontend/services/auth_service.dart';
 
-class OnboardingPage extends StatelessWidget {
-  const OnboardingPage({super.key});
-
+class OnboardingScreen extends StatelessWidget {
+  const OnboardingScreen({super.key});
+  
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -32,7 +33,7 @@ class OnboardingPage extends StatelessWidget {
             ),
             SizedBox(height: 4),
             GestureDetector(
-              onTap: () {},
+              onTap: () => _handleKakaoLogin(context),
               child: Image.asset(
                 'assets/images/kakao_login_medium_narrow.png',
                 height: 45,
@@ -43,5 +44,17 @@ class OnboardingPage extends StatelessWidget {
         ),
       ),
     );
+  }
+
+  Future<void> _handleKakaoLogin(BuildContext context) async {
+    final authService = AuthService();
+    
+    try {
+      final kakaoToken = await authService.startWithKakao();
+      final AuthResponse = await authService.getAuthTokens(kakaoToken.accessToken);
+      
+    } catch (error) {
+      print('로그인 실패 $error');
+    }
   }
 }
