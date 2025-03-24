@@ -33,11 +33,9 @@ class HomeScreen extends StatelessWidget {
             _buildReportCard(context),
             _buildSectionWithSeeAll('최근', context, _buildRecentActivity()),
             _buildSectionWithSeeAll('즐겨찾기', context, _buildFavoriteWorkout()),
-            _buildSectionWithSeeAll('커스텀 세트', context, _buildCustomSetGrid()),
           ],
         ),
       ),
-      bottomNavigationBar: _buildBottomNavigationBar(),
     );
   }
 
@@ -167,44 +165,6 @@ class HomeScreen extends StatelessWidget {
           trailing: Icon(Icons.star, color: Color(0xff7ECECA)),
         );
       }).toList(),
-    );
-  }
-
-  Widget _buildCustomSetGrid() {
-    return GridView.builder(
-      shrinkWrap: true,
-      physics: NeverScrollableScrollPhysics(),
-      gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-        crossAxisCount: 2,
-        crossAxisSpacing: 8,
-        mainAxisSpacing: 8,
-      ),
-      itemCount: customSets.length,
-      itemBuilder: (context, index) {
-        return Container(
-          decoration: BoxDecoration(
-            color: Colors.white,
-            borderRadius: BorderRadius.circular(12),
-            boxShadow: [BoxShadow(color: Colors.grey.withOpacity(0.2), blurRadius: 5)],
-          ),
-          child: Center(
-            child: Text(customSets[index], style: TextStyle(fontFamily: 'Pretendard', fontSize: 16, fontWeight: FontWeight.bold)),
-          ),
-        );
-      },
-    );
-  }
-
-  Widget _buildBottomNavigationBar() {
-    return BottomNavigationBar(
-      type: BottomNavigationBarType.fixed,
-      items: [
-        BottomNavigationBarItem(icon: Icon(Icons.home), label: '홈'),
-        BottomNavigationBarItem(icon: Icon(Icons.explore), label: '둘러보기'),
-        BottomNavigationBarItem(icon: Icon(Icons.fitness_center), label: '활동'),
-        BottomNavigationBarItem(icon: Icon(Icons.videogame_asset), label: '게임하기'),
-        BottomNavigationBarItem(icon: Icon(Icons.person), label: '내 정보'),
-      ],
     );
   }
 
