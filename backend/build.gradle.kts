@@ -35,6 +35,11 @@ dependencies {
     testImplementation("org.springframework.boot:spring-boot-starter-test")
     testImplementation("org.springframework.security:spring-security-test")
     testRuntimeOnly("org.junit.platform:junit-platform-launcher")
+
+    val querydslVersion = "5.1.0"
+    implementation("com.querydsl:querydsl-jpa:${querydslVersion}:jakarta")
+    annotationProcessor("com.querydsl:querydsl-apt:${querydslVersion}:jakarta")
+    annotationProcessor("jakarta.persistence:jakarta.persistence-api")
 }
 
 tasks.withType<Test> {
