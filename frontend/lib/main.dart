@@ -10,13 +10,8 @@ void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   KakaoSdk.init(nativeAppKey: dotenv.env['KAKAO_NATIVE_APP_KEY'] ?? '');
 
-  
   String keyHash = await KakaoSdk.origin;
   print('키 해시: $keyHash');
-  
-  runApp(
-    ProviderScope(
-      child: App(),
-    )
-  );
+
+  runApp(ProviderScope(child: App()));
 }

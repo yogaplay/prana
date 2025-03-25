@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:frontend/features/auth/services/auth_service.dart';
 import 'package:frontend/features/home/screens/home_screen.dart';
+import 'package:go_router/go_router.dart';
 
 class OnboardingScreen extends StatelessWidget {
   const OnboardingScreen({super.key});
@@ -57,20 +58,13 @@ class OnboardingScreen extends StatelessWidget {
       );
       await authService.saveAuthData(authResponse);
       if (authResponse.isFirst) {
-        // 회원가입 추가 정보 입력 페이지 이동
+        context.goNamed("signup");
       } else {
-        // 홈 화면 이동
-        _navigateToHome(context);
+        context.goNamed("home");
       }
       print("회원가입 성공!!");
     } catch (error) {
       print('로그인 실패 $error');
     }
-  }
-
-  void _navigateToHome(BuildContext context) {
-    Navigator.of(
-      context,
-    ).pushReplacement(MaterialPageRoute(builder: (context) => HomeScreen()));
   }
 }
