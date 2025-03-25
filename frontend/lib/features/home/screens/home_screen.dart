@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import '../models/home_model.dart';
 import '../services/home_service.dart';
+import 'package:frontend/features/auth/services/auth_service.dart';
+
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
 
@@ -9,16 +11,39 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen> {
-  late Future<ReportResponse> _reportFuture;
+  Future<ReportResponse>? _reportFuture;
 
   @override
   void initState() {
     super.initState();
-    _reportFuture = HomeService.fetchHomeData();
+    _loadDataWithToken();
   }
 
+  final _authService = AuthService();
+
+  void _loadDataWithToken() async {
+    final token = await _authService.getAccessToken();
+    print('▶️ 가져온 토큰: $token');
+    if (token == null) {
+      // 토큰 없을 때 처리 (예: 로그인 페이지 이동 등)
+      print('❗ 토큰 없음! 로그인 필요');
+      return;
+    }
+
+    setState(() {
+      _reportFuture = HomeService.fetchHomeData(
+
+        token: 'Bearer $token',
+      );
+    });
+  }
   @override
   Widget build(BuildContext context) {
+    if (_reportFuture == null) {
+    return const Scaffold(
+      body: Center(child: CircularProgressIndicator()),
+    );
+  }
     return FutureBuilder<ReportResponse>(
       future: _reportFuture,
       builder: (context, snapshot) {

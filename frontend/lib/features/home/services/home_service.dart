@@ -12,7 +12,8 @@ class HomeService {
       'Content-Type': 'application/json',
       'Authorization': 'Bearer $token', // ✅ 꼭 Bearer 붙이기
     };
-
+    print('사용 중인 토큰: $token');
+    print('요청 URL: $url');
     final response = await http.get(url, headers: headers);
 
     if (response.statusCode == 200) {
