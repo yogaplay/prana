@@ -2,7 +2,6 @@
     package="com.example.frontend"> 
     <application
         android:label="frontend"
-        android:name=".Application"
         android:icon="@mipmap/ic_launcher">
 <!-- 카카오 로그인 커스텀 URL 스킴 설정 -->
         <activity android:name="com.kakao.sdk.flutter.AuthCodeCustomTabsActivity" 
