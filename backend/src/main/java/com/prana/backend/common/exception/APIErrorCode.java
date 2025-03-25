@@ -3,7 +3,7 @@ package com.prana.backend.common.exception;
 import lombok.Getter;
 
 @Getter
-public enum APIErrorCode implements ErrorCode {
+public enum APIErrorCode {
     // 400 Bad Request
     BAD_REQUEST(40000, "Bad Request"),
     INVALID_INPUT(40001, "유효하지 않은 값입니다."),
