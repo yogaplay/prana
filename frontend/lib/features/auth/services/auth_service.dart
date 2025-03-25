@@ -56,8 +56,8 @@ class AuthService {
       headers: {'Content-Type': 'application/json'},
       body: json.encode({'kakaoAccessToken': kakaoToken}),
     );
-    // print('서버 응답 상태 코드: ${response.statusCode}');
-    // print('서버 응답 본문: ${response.body}');
+    print('서버 응답 상태 코드: ${response.statusCode}');
+    print('서버 응답 본문: ${response.body}');
     if (response.statusCode == 200) {
       final responseData = json.decode(response.body);
       return AuthResponse.fromJson(responseData);
@@ -67,26 +67,32 @@ class AuthService {
   }
 
   Future<void> saveAuthData(AuthResponse authResponse) async {
-    await _storage.write(key: _accessToken, value: authResponse.pranaAccessToken);
-    await _storage.write(key: _refreshToken, value: authResponse.pranaRefreshToken);
+    await _storage.write(
+      key: _accessToken,
+      value: authResponse.pranaAccessToken,
+    );
+    await _storage.write(
+      key: _refreshToken,
+      value: authResponse.pranaRefreshToken,
+    );
     await _storage.write(key: _isFirst, value: authResponse.isFirst.toString());
-  
-    Future<String?> getAccessToken() async{
-      return await _storage.read(key: _accessToken);
-    }
+  }
 
-    Future<String?> getRefreshToken() async {
-      return await _storage.read(key: _refreshToken);
-    }
+  Future<String?> getAccessToken() async {
+    return await _storage.read(key: _accessToken);
+  }
 
-    Future<bool> isFirstLogin() async {
-      final isFirst = await _storage.read(key: _isFirst);
-      return isFirst == 'true';
-    }
+  Future<String?> getRefreshToken() async {
+    return await _storage.read(key: _refreshToken);
+  }
 
-    Future<bool> isLoggedIn() async {
-      final token = await getAccessToken();
-      return token != null && token.isNotEmpty;
-    }
+  Future<bool> isFirstLogin() async {
+    final isFirst = await _storage.read(key: _isFirst);
+    return isFirst == 'true';
+  }
+
+  Future<bool> isLoggedIn() async {
+    final token = await getAccessToken();
+    return token != null && token.isNotEmpty;
   }
 }

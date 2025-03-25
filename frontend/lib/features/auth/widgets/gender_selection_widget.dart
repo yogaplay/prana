@@ -18,9 +18,9 @@ class GenderSelectionWidget extends StatelessWidget {
         Row(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            _buildGenderOption('여자', 'f'),
+            _buildGenderOption('여자', 'F'),
             SizedBox(width: 60),
-            _buildGenderOption('남자', 'm'),
+            _buildGenderOption('남자', 'M'),
           ],
         ),
       ],
@@ -40,7 +40,7 @@ class GenderSelectionWidget extends StatelessWidget {
             height: 120,
             child: Center(
               child:
-                  genderValue == 'f'
+                  genderValue == 'F'
                       ? Icon(
                         Icons.female,
                         size: iconSize,

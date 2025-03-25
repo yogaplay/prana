@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:frontend/features/auth/services/auth_service.dart';
-import 'package:frontend/features/home/screens/home_screen.dart';
 import 'package:go_router/go_router.dart';
 
 class OnboardingScreen extends StatelessWidget {
