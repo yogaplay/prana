@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:frontend/constants/app_colors.dart';
 import 'package:frontend/features/auth/widgets/gender_selection_widget.dart';
 import 'package:frontend/features/auth/widgets/info_input_field.dart';
 import 'package:frontend/widgets/button.dart';
@@ -79,6 +80,15 @@ class _SignupScreenState extends State<SignupScreen> {
               SizedBox(height: 45),
 
               Button(text: '확인', onPressed: () => {}),
+              SizedBox(height: 7),
+              Text(
+                '나중에 입력하기',
+                style: TextStyle(
+                  color: AppColors.graytext,
+                  decoration: TextDecoration.underline,
+                  fontSize: 16,
+                ),
+              ),
             ],
           ),
         ),
