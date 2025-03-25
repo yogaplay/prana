@@ -1,10 +1,7 @@
 package com.prana.backend.entity;
 
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 @Entity
 @Table(name = "user")
@@ -37,6 +34,7 @@ public class User {
     @Column(name = "kakao_id", nullable = false)
     private Long kakaoId;
 
+    @Setter
     @Column(name = "streak_days", nullable = false)
     private Integer streakDays;
 

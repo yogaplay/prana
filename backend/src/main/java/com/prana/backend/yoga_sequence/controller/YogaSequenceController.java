@@ -11,6 +11,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -26,7 +27,7 @@ public class YogaSequenceController {
      * @return 시퀀스에 대한 정보와 해당 시퀀스의 요가 정보를 반환
      */
     @PostMapping("/sequence")
-    public ResponseEntity<SequenceResponse> getYogaSequence(YogaSequenceRequest request) {
+    public ResponseEntity<SequenceResponse> getYogaSequence(@RequestBody YogaSequenceRequest request) {
         SequenceResponse responses = yogaService.getYogaSequence(request.getSequenceId());
         return ResponseEntity.status(HttpStatus.OK).body(responses);
     }
@@ -37,7 +38,7 @@ public class YogaSequenceController {
      * @return 요가 수행 결과인 userSequenceId 반환
      */
     @PostMapping("/start")
-    public ResponseEntity<UserSequenceResponse> startYogaSequence(@AuthenticationPrincipal PranaPrincipal prana, YogaSequenceRequest request) {
+    public ResponseEntity<UserSequenceResponse> startYogaSequence(@AuthenticationPrincipal PranaPrincipal prana, @RequestBody YogaSequenceRequest request) {
         return ResponseEntity.status(HttpStatus.OK)
                 .body(yogaService.saveUserSequence(request.getSequenceId(), prana.getUserId()));
     }
@@ -47,7 +48,7 @@ public class YogaSequenceController {
      * @return 저장 성공 시, 200 ok 반환
      */
     @PostMapping("/pose")
-    public ResponseEntity<String> checkYogaSequence(CheckSequenceRequest request) {
+    public ResponseEntity<String> checkYogaSequence(@RequestBody CheckSequenceRequest request) {
         yogaService.checkYogaSequence(request.getUserSequenceId());
         return ResponseEntity.status(HttpStatus.OK).body("200 OK");
     }
