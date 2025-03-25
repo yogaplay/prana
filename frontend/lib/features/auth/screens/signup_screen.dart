@@ -4,6 +4,7 @@ import 'package:frontend/features/auth/services/signup_service.dart';
 import 'package:frontend/features/auth/widgets/gender_selection_widget.dart';
 import 'package:frontend/features/auth/widgets/info_input_field.dart';
 import 'package:frontend/widgets/button.dart';
+import 'package:go_router/go_router.dart';
 
 class SignupScreen extends StatefulWidget {
   const SignupScreen({super.key});
@@ -102,12 +103,17 @@ class _SignupScreenState extends State<SignupScreen> {
 
               Button(text: '확인', onPressed: _onSignup),
               SizedBox(height: 7),
-              Text(
-                '나중에 입력하기',
-                style: TextStyle(
-                  color: AppColors.graytext,
-                  decoration: TextDecoration.underline,
-                  fontSize: 16,
+              TextButton(
+                onPressed: () {
+                  context.goNamed("home");
+                },
+                child: Text(
+                  '나중에 입력하기',
+                  style: TextStyle(
+                    color: AppColors.graytext,
+                    decoration: TextDecoration.underline,
+                    fontSize: 16,
+                  ),
                 ),
               ),
             ],
