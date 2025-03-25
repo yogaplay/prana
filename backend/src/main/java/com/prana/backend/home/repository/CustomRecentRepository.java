@@ -12,7 +12,7 @@ import java.util.List;
 
 @Repository
 @RequiredArgsConstructor
-public class RecentRepository {
+public class CustomRecentRepository {
 
     private final JPAQueryFactory queryFactory;
 
