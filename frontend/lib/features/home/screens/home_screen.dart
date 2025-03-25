@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import '../models/home_model.dart';
 import '../services/home_service.dart';
-
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
 
