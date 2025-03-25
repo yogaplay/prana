@@ -4,6 +4,7 @@ import com.prana.backend.common.exception.general.BadRequestException;
 import com.prana.backend.entity.Sequence;
 import com.prana.backend.entity.Star;
 import com.prana.backend.entity.User;
+import com.prana.backend.home.controller.request.PagedRecentRequest;
 import com.prana.backend.home.controller.request.PagedStarRequest;
 import com.prana.backend.home.controller.request.StaringRequest;
 import com.prana.backend.home.controller.response.*;
@@ -12,6 +13,7 @@ import com.prana.backend.home.repository.CustomReportRepository;
 import com.prana.backend.home.repository.CustomStarRepository;
 import com.prana.backend.home.repository.StarRepository;
 import com.prana.backend.sequence.repository.SequenceRepository;
+import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
@@ -31,9 +33,9 @@ public class HomeService {
 
     private final CustomReportRepository customReportRepository;
     private final CustomRecentRepository customRecentRepository;
+    private final CustomStarRepository customStarRepository;
     private final StarRepository starRepository;
     private final SequenceRepository sequenceRepository;
-    private final CustomStarRepository customStarRepository;
 
     /**
      * 홈 화면에 필요한 3가지 [리포트, 최근, 즐겨찾기]
@@ -113,5 +115,19 @@ public class HomeService {
             );
             return ResponseEntity.ok().body(new StaringResponse(request.getSequenceId(), true));
         }
+    }
+
+    @Transactional(readOnly = true)
+    public ResponseEntity<PagedResponse<RecentResponse>> pagedRecent(@Valid PagedRecentRequest request, Integer userId) {
+        Pageable pageable = PageRequest.of(request.getPage(), request.getSize());
+        Page<RecentResponse> page = customRecentRepository.pagedRecent(pageable, userId);
+        PagedResponse<RecentResponse> response = new PagedResponse<>(
+                page.getContent(),
+                page.getNumber(),
+                page.getSize(),
+                page.getTotalElements(),
+                page.getTotalPages()
+        );
+        return ResponseEntity.ok().body(response);
     }
 }
