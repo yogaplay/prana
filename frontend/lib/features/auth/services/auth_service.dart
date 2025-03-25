@@ -66,6 +66,31 @@ class AuthService {
     }
   }
 
+  // 토큰 재발급
+  Future<AuthResponse> refreshToken() async {
+    final refreshToken = await getRefreshToken();
+
+    if (refreshToken == null) {
+      throw Exception('리프레시 토큰 없음');
+    }
+
+    final response = await http.post(
+      Uri.parse('https://j12a103.p.ssafy.io:8444/api/token/refresh'),
+      headers: {'Content-Type': 'application/json'},
+      body: json.encode({'pranaRefreshToken': refreshToken}),
+    );
+
+    if (response.statusCode == 200) {
+      final responseData = json.decode(response.body);
+      final authResponse = AuthResponse.fromJson(responseData);
+
+      await saveAuthData(authResponse);
+      return authResponse;
+    } else {
+      throw Exception('토큰 재발급 실패 ${response.statusCode} ${response.body}');
+    }
+  }
+
   Future<void> saveAuthData(AuthResponse authResponse) async {
     await _storage.write(
       key: _accessToken,
