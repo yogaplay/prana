@@ -4,14 +4,21 @@ import 'package:frontend/widgets/button.dart';
 import 'package:frontend/widgets/tag.dart';
 
 class FilterBottomSheet extends StatefulWidget {
-  const FilterBottomSheet({super.key});
+  final Function(List<String> selectedFilters) onApply;
+  final List<String> initialSelectedFilters;
+
+  const FilterBottomSheet({
+    super.key,
+    required this.onApply,
+    this.initialSelectedFilters = const [],
+  });
 
   @override
   State<FilterBottomSheet> createState() => _FilterBottomSheetState();
 }
 
 class _FilterBottomSheetState extends State<FilterBottomSheet> {
-  final Set<String> selectedTags = {};
+  late Set<String> selectedTags = {};
 
   Widget _buildChips(List<String> options) {
     return Wrap(
@@ -37,6 +44,12 @@ class _FilterBottomSheetState extends State<FilterBottomSheet> {
             );
           }).toList(),
     );
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    selectedTags = widget.initialSelectedFilters.toSet();
   }
 
   @override
@@ -97,7 +110,7 @@ class _FilterBottomSheetState extends State<FilterBottomSheet> {
                       child: Button(
                         text: '적용하기',
                         onPressed: () {
-                          Navigator.pop(context);
+                          widget.onApply(selectedTags.toList());
                         },
                       ),
                     ),
