@@ -4,16 +4,16 @@ import lombok.Getter;
 
 @Getter
 public class PranaException extends RuntimeException {
-    private final ErrorCode errorCode;
+    private final APIErrorCode errorCode;
     private final String details;
 
-    public PranaException(ErrorCode errorCode) {
+    public PranaException(APIErrorCode errorCode) {
         super(errorCode.getMessage());
         this.errorCode = errorCode;
         this.details = null;
     }
 
-    public PranaException(ErrorCode errorCode, String details) {
+    public PranaException(APIErrorCode errorCode, String details) {
         super(errorCode.getMessage() + " | " + details);
         this.errorCode = errorCode;
         this.details = details;
