@@ -7,6 +7,7 @@ public enum APIErrorCode {
     // 400 Bad Request
     BAD_REQUEST(40000, "Bad Request"),
     INVALID_INPUT(40001, "유효하지 않은 값입니다."),
+    RECOMMENDATION_SEQUENCE_COUNT_MISMATCH(40002, "추천 시퀀스 개수가 부족하거나 초과되었습니다."),
 
     // 401 Unauthorized
     UNAUTHORIZED(40100, "Unauthorized"),
