@@ -7,6 +7,7 @@ import 'package:frontend/features/report/models/body_part.dart';
 class BodyFeedbackLayout {
   final Offset centerPosition;
   final Size shapeSize;
+  final double rotationAngle;
   final Offset lineStart;
   final Offset lineEnd;
   final Offset textPosition;
@@ -14,6 +15,7 @@ class BodyFeedbackLayout {
   const BodyFeedbackLayout({
     required this.centerPosition,
     required this.shapeSize,
+    required this.rotationAngle,
     required this.lineStart,
     required this.lineEnd,
     required this.textPosition,
@@ -23,22 +25,25 @@ class BodyFeedbackLayout {
 // 부위별 레이아웃 정보 맵
 const Map<BodyPart, BodyFeedbackLayout> feedbackLayoutMap = {
   BodyPart.shoulder: BodyFeedbackLayout(
-    centerPosition: Offset(120, 80),
-    shapeSize: Size(40, 30),
+    centerPosition: Offset(86, 100),
+    shapeSize: Size(100, 30),
+    rotationAngle: 0,
     lineStart: Offset(140, 95),
     lineEnd: Offset(60, 60),
     textPosition: Offset(30, 40),
   ),
   BodyPart.arm: BodyFeedbackLayout(
-    centerPosition: Offset(180, 140),
-    shapeSize: Size(30, 30),
+    centerPosition: Offset(41, 160),
+    shapeSize: Size(25, 70),
+    rotationAngle: 0.2,
     lineStart: Offset(195, 155),
     lineEnd: Offset(230, 155),
     textPosition: Offset(30, 145),
   ),
   BodyPart.leg: BodyFeedbackLayout(
-    centerPosition: Offset(140, 250),
+    centerPosition: Offset(107, 285),
     shapeSize: Size(35, 35),
+    rotationAngle: -0.05,
     lineStart: Offset(155, 270),
     lineEnd: Offset(100, 300),
     textPosition: Offset(75, 290),
@@ -46,6 +51,7 @@ const Map<BodyPart, BodyFeedbackLayout> feedbackLayoutMap = {
   BodyPart.core: BodyFeedbackLayout(
     centerPosition: Offset(110, 180),
     shapeSize: Size(60, 40),
+    rotationAngle: 0,
     lineStart: Offset(130, 200),
     lineEnd: Offset(90, 220),
     textPosition: Offset(65, 210),
@@ -62,7 +68,7 @@ class LinePainter extends CustomPainter {
   void paint(Canvas canvas, Size size) {
     final paint =
         Paint()
-          ..color = AppColors.secondary
+          ..color = AppColors.primary
           ..strokeWidth = 1.5;
 
     canvas.drawLine(from, to, paint);
@@ -149,17 +155,20 @@ class PoseFeedbackDiagram extends StatelessWidget {
                       Positioned(
                         left: shapeTopLeft.dx,
                         top: shapeTopLeft.dy,
-                        child: Container(
-                          width: layout.shapeSize.width,
-                          height: layout.shapeSize.height,
-                          decoration: BoxDecoration(
-                            color: AppColors.secondary.withAlpha(
-                              (0.8 * 255).toInt(),
-                            ),
-                            borderRadius: BorderRadius.all(
-                              Radius.elliptical(
-                                layout.shapeSize.width,
-                                layout.shapeSize.height,
+                        child: Transform.rotate(
+                          angle: layout.rotationAngle,
+                          child: Container(
+                            width: layout.shapeSize.width,
+                            height: layout.shapeSize.height,
+                            decoration: BoxDecoration(
+                              color: AppColors.secondary.withAlpha(
+                                (0.8 * 255).toInt(),
+                              ),
+                              borderRadius: BorderRadius.all(
+                                Radius.elliptical(
+                                  layout.shapeSize.width,
+                                  layout.shapeSize.height,
+                                ),
                               ),
                             ),
                           ),
