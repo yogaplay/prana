@@ -4,19 +4,20 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 
+import java.math.BigDecimal;
 import java.util.List;
 
 @Getter
 @Builder
 @AllArgsConstructor
 public class WeeklyReportResponseDTO {
-    private List<Feedback> feedbacks;
-    private List<RecommendSequences> recommendSequences;
-    private WeeklyData week1;
-    private WeeklyData week2;
-    private WeeklyData week3;
-    private WeeklyData week4;
-    private WeeklyData week5;
+    private List<Feedback> feedbacks; // length=4
+    private List<RecommendSequences> recommendSequences; // length=2
+    private Week week1;
+    private Week week2;
+    private Week week3;
+    private Week week4;
+    private Week week5;
 
     @Getter
     @Builder
@@ -31,8 +32,8 @@ public class WeeklyReportResponseDTO {
     @AllArgsConstructor
     public static class RecommendSequences {
         private String position;
-        // 상위 부위 3개. 모자르다면 그이하라도 담아서 줌
-        private List<Sequence> sequences;
+        // 상위 부위 2개
+        private List<Sequence> sequences;  // length=3
     }
 
     @Getter
@@ -48,11 +49,13 @@ public class WeeklyReportResponseDTO {
     @Getter
     @Builder
     @AllArgsConstructor
-    public static class WeeklyData {
+    public static class Week {
+        private int year;
         private int month;
         private int week;
         private int time;
-        private int accuracy;
-        // todo: 체질량 논의필요
+        private BigDecimal accuracy;
+        private BigDecimal bmi;
+
     }
 }
