@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:frontend/constants/app_colors.dart';
+import 'package:frontend/features/auth/services/signup_service.dart';
 import 'package:frontend/features/auth/widgets/gender_selection_widget.dart';
 import 'package:frontend/features/auth/widgets/info_input_field.dart';
 import 'package:frontend/widgets/button.dart';
+import 'package:go_router/go_router.dart';
 
 class SignupScreen extends StatefulWidget {
   const SignupScreen({super.key});
@@ -21,6 +23,26 @@ class _SignupScreenState extends State<SignupScreen> {
     setState(() {
       selectedGender = gender;
     });
+  }
+
+  final SignupService signupService = SignupService();
+
+  Future<void> _onSignup() async {
+    try {
+      await signupService.signUp(
+        gender: selectedGender,
+        age: ageController.text,
+        weight: weightController.text,
+        height: heightController.text,
+      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text('회원가입 성공!')));
+    } catch (e) {
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text('회원가입 실패: $e')));
+    }
   }
 
   @override
@@ -79,14 +101,19 @@ class _SignupScreenState extends State<SignupScreen> {
               ),
               SizedBox(height: 45),
 
-              Button(text: '확인', onPressed: () => {}),
+              Button(text: '확인', onPressed: _onSignup),
               SizedBox(height: 7),
-              Text(
-                '나중에 입력하기',
-                style: TextStyle(
-                  color: AppColors.graytext,
-                  decoration: TextDecoration.underline,
-                  fontSize: 16,
+              TextButton(
+                onPressed: () {
+                  context.goNamed("home");
+                },
+                child: Text(
+                  '나중에 입력하기',
+                  style: TextStyle(
+                    color: AppColors.graytext,
+                    decoration: TextDecoration.underline,
+                    fontSize: 16,
+                  ),
                 ),
               ),
             ],
