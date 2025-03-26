@@ -18,8 +18,17 @@ public class LookSearchRequest {
     private List<Integer> tagIdList;
     private List<String> tagNameList;
     @Min(0)
-    private int page = 0;
+    private Integer page;
+
     @Min(1)
-    private int size = 10;
+    private Integer size;
+
+    public Integer getPage() {
+        return page == null ? 0 : page;
+    }
+
+    public Integer getSize() {
+        return size == null ? 10 : size;
+    }
 
 }

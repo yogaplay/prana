@@ -14,7 +14,6 @@ import com.prana.backend.home.repository.CustomReportRepository;
 import com.prana.backend.home.repository.CustomStarRepository;
 import com.prana.backend.home.repository.StarRepository;
 import com.prana.backend.sequence.repository.SequenceRepository;
-import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
@@ -126,7 +125,7 @@ public class HomeService {
      * @return ResponseEntity<PagedResponse < RecentResponse>>
      */
     @Transactional(readOnly = true)
-    public ResponseEntity<PagedResponse<RecentResponse>> pagedRecent(@Valid PagedRecentRequest request, Integer userId) {
+    public ResponseEntity<PagedResponse<RecentResponse>> pagedRecent(PagedRecentRequest request, Integer userId) {
         Pageable pageable = PageRequest.of(request.getPage(), request.getSize());
         Page<RecentResponse> page = customRecentRepository.pagedRecent(pageable, userId);
         PagedResponse<RecentResponse> response = new PagedResponse<>(
