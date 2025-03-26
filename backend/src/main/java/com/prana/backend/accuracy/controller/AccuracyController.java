@@ -1,10 +1,13 @@
 package com.prana.backend.accuracy.controller;
 
 
+import com.prana.backend.accuracy.controller.request.AccuracyRequest;
 import com.prana.backend.accuracy.service.AccuracyService;
+import com.prana.backend.common.PranaPrincipal;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -20,11 +23,9 @@ public class AccuracyController {
      */
     @PostMapping("/complete")
     public ResponseEntity<String> completeMovement(
-            @RequestParam Integer userSequenceId,
-            @RequestParam Integer userId,
-            @RequestParam Integer yogaId,
-            @RequestParam Integer sequenceId) {
-        boolean saved = accuracyService.saveAccuracyToDb(userSequenceId, userId, yogaId, sequenceId);
+            @RequestBody AccuracyRequest request,
+            @AuthenticationPrincipal PranaPrincipal prana) {
+        boolean saved = accuracyService.saveAccuracyToDb(request.getUserSequenceId(), prana.getUserId(), request.getYogaId(), request.getSequenceId());
         if (saved) {
             return ResponseEntity.ok("Accuracy data saved to DB");
         } else {

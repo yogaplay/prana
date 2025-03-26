@@ -31,7 +31,6 @@ public class AiFeedback implements Serializable {
     @Setter
     public static class FeedbackTotal implements Serializable {
         private String position;
-        private int count;
     }
 }
 

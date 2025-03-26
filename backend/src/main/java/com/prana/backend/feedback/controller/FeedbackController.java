@@ -2,6 +2,7 @@ package com.prana.backend.feedback.controller;
 
 import com.prana.backend.feedback.service.FeedbackService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
@@ -17,20 +18,23 @@ public class FeedbackController {
     @PostMapping("/short")
     public ResponseEntity<String> processShortFeedback(
             @RequestParam("image") MultipartFile image,
+            @RequestParam("yogaId") Integer yogaId,
             @RequestParam("userSequenceId") Integer userSequenceId
     ) {
-        feedbackService.handleShortFeedback(image, userSequenceId);
-        return ResponseEntity.ok("Short feedback processed");
+
+        return ResponseEntity.status(HttpStatus.OK)
+                .body(feedbackService.handleShortFeedback(image, yogaId, userSequenceId));
     }
 
     // 3초 주기: 상세 피드백 요청
     @PostMapping("/long")
     public ResponseEntity<String> processLongFeedback(
             @RequestParam("image") MultipartFile image,
+            @RequestParam("yogaId") Integer yogaId,
             @RequestParam("userSequenceId") Integer userSequenceId
     ) {
-        feedbackService.handleLongFeedback(image, userSequenceId);
-        return ResponseEntity.ok("Long feedback processed");
+        return ResponseEntity.status(HttpStatus.OK)
+                .body(feedbackService.handleLongFeedback(image, yogaId, userSequenceId));
     }
 }
 
