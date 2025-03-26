@@ -3,6 +3,7 @@ import 'package:frontend/core/providers/providers.dart';
 import 'package:frontend/features/auth/screens/onboarding_screen.dart';
 import 'package:frontend/features/auth/screens/signup_screen.dart';
 import 'package:frontend/screens/main_screen.dart';
+import 'package:frontend/features/search/screens/search_main_screen.dart';
 import 'package:go_router/go_router.dart';
 
 final routerProvider = Provider<GoRouter>((ref) {
@@ -58,6 +59,11 @@ final routerProvider = Provider<GoRouter>((ref) {
         path: "/signup",
         name: "signup",
         builder: (_, __) => const SignupScreen(),
+      ),
+      GoRoute(
+        path: "/search",
+        name: "search",
+        builder: (_, __) => SearchMainScreen(),
       ),
     ],
   );

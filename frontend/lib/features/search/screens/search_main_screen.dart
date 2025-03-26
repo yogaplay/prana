@@ -1,9 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:frontend/app.dart';
 import 'package:frontend/constants/app_colors.dart';
+import 'package:frontend/features/search/models/yoga_category.dart';
 import 'package:frontend/features/search/models/yoga_item.dart';
+import 'package:frontend/features/search/models/yoga_sequence.dart';
 import 'package:frontend/features/search/screens/search_input_screen.dart';
 import 'package:frontend/features/search/screens/search_result_screen.dart';
+import 'package:frontend/features/search/services/yoga_service.dart';
 import 'package:frontend/features/search/widgets/search_bar_with_filter.dart';
 import 'package:frontend/features/search/widgets/yoga_carousel.dart';
 
@@ -16,6 +19,14 @@ class SearchMainScreen extends StatefulWidget {
 
 class _SearchMainScreenState extends State<SearchMainScreen> with RouteAware {
   List<String> selectedFilters = [];
+
+  late Future<List<YogaCategory>> _futureCategories;
+
+  @override
+  void initState() {
+    super.initState();
+    _futureCategories = YogaService.fetchMainYogaCategories();
+  }
 
   final List<YogaItem> sampleItems = List.generate(
     5,
@@ -108,21 +119,35 @@ class _SearchMainScreenState extends State<SearchMainScreen> with RouteAware {
                 onFilterApply: _onFilterApply,
               ),
             ),
-            YogaCarousel(
-              title: '엉덩이를 위한 요가',
-              items: sampleItems,
-              onSeeAll: () {},
-            ),
-            YogaCarousel(title: '빈야사 요가', items: sampleItems, onSeeAll: () {}),
-            YogaCarousel(
-              title: '30분 이내의 요가',
-              items: sampleItems,
-              onSeeAll: () {},
-            ),
-            YogaCarousel(
-              title: '초급자를 위한 요가',
-              items: sampleItems,
-              onSeeAll: () {},
+            FutureBuilder<List<YogaCategory>>(
+              future: _futureCategories,
+              builder: (context, snapshot) {
+                if (snapshot.connectionState == ConnectionState.waiting) {
+                  return Center(child: CircularProgressIndicator());
+                } else if (snapshot.hasError) {
+                  return Center(
+                    child: Text('데이터를 불러올 수 없습니다. ${snapshot.error}'),
+                  );
+                } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
+                  return Center(child: Text('요가 콘텐츠가 없습니다.'));
+                }
+
+                final categories = snapshot.data!;
+                return Column(
+                  children:
+                      categories.map((category) {
+                        return YogaCarousel(
+                          title: category.tagName,
+                          tagType: category.tagType,
+                          items:
+                              category.items
+                                  .map((item) => item.toYogaItem())
+                                  .toList(),
+                          onSeeAll: () {},
+                        );
+                      }).toList(),
+                );
+              },
             ),
           ],
         ),

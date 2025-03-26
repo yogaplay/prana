@@ -1,3 +1,5 @@
+import 'package:frontend/features/search/models/yoga_item.dart';
+
 class YogaSequence {
   final int id;
   final String name;
@@ -17,6 +19,16 @@ class YogaSequence {
       name: json['sequenceName'],
       time: json['sequenceTime'],
       imageUrl: json['sequenceImage'],
+    );
+  }
+}
+
+extension YogaSequenceMapper on YogaSequence {
+  YogaItem toYogaItem() {
+    return YogaItem(
+      title: name,
+      duration: "${(time / 60).round()}분",
+      imageUrl: imageUrl ?? 'https://via.placeholder.com/100x150',
     );
   }
 }
