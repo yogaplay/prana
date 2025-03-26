@@ -18,7 +18,7 @@ class App extends ConsumerWidget {
         fontFamily: 'Pretendard',
         scaffoldBackgroundColor: AppColors.background,
       ),
-      routerConfig: Routes.router,
+      routerConfig: ref.watch(routerProvider),
     );
   }
 }
