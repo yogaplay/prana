@@ -17,10 +17,11 @@ class HomeService {
     final response = await http.get(url, headers: headers);
 
     if (response.statusCode == 200) {
-      final jsonData = jsonDecode(response.body);
+      final decoded = utf8.decode(response.bodyBytes);
+      final jsonData = jsonDecode(decoded);
       return ReportResponse.fromJson(jsonData);
     } else {
-      throw Exception('홈 데이터 불러오기 실패: ${response.statusCode}');
+      throw Exception('홈 데이터 불러오기 실패: ${response.body}');
     }
   }
 }

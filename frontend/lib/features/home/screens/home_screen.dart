@@ -33,7 +33,7 @@ class _HomeScreenState extends State<HomeScreen> {
     setState(() {
       _reportFuture = HomeService.fetchHomeData(
 
-        token: 'Bearer $token',
+        token: token,
       );
     });
   }
