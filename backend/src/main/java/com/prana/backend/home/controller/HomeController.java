@@ -1,5 +1,6 @@
 package com.prana.backend.home.controller;
 
+import com.prana.backend.common.PagedResponse;
 import com.prana.backend.common.PranaPrincipal;
 import com.prana.backend.home.controller.request.PagedRecentRequest;
 import com.prana.backend.home.controller.request.PagedStarRequest;

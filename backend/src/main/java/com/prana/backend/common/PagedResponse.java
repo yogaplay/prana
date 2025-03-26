@@ -1,4 +1,4 @@
-package com.prana.backend.home.controller.response;
+package com.prana.backend.common;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;

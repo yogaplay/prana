@@ -1,5 +1,6 @@
 package com.prana.backend.home.service;
 
+import com.prana.backend.common.PagedResponse;
 import com.prana.backend.common.exception.general.BadRequestException;
 import com.prana.backend.entity.Sequence;
 import com.prana.backend.entity.Star;
@@ -117,6 +118,13 @@ public class HomeService {
         }
     }
 
+    /**
+     * 최근 목록 조회
+     *
+     * @param request PagedRecentRequest
+     * @param userId  사용자 Id
+     * @return ResponseEntity<PagedResponse < RecentResponse>>
+     */
     @Transactional(readOnly = true)
     public ResponseEntity<PagedResponse<RecentResponse>> pagedRecent(@Valid PagedRecentRequest request, Integer userId) {
         Pageable pageable = PageRequest.of(request.getPage(), request.getSize());
