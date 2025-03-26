@@ -1,7 +1,10 @@
 package com.prana.backend.look.controller;
 
+import com.prana.backend.common.PagedResponse;
 import com.prana.backend.look.controller.request.LookRequest;
+import com.prana.backend.look.controller.request.LookSearchRequest;
 import com.prana.backend.look.controller.response.LookResponse;
+import com.prana.backend.look.controller.response.LookSearchResponse;
 import com.prana.backend.look.service.LookService;
 import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
@@ -22,6 +25,11 @@ public class LookController {
     @GetMapping
     public ResponseEntity<List<LookResponse>> look(@Valid LookRequest request) {
         return lookService.look(request);
+    }
+
+    @GetMapping("/search")
+    public ResponseEntity<PagedResponse<LookSearchResponse>> lookSearch(@Valid LookSearchRequest request) {
+        return lookService.lookSearch(request);
     }
 
 }
