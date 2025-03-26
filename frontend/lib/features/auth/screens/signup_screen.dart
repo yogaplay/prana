@@ -1,19 +1,20 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:frontend/constants/app_colors.dart';
-import 'package:frontend/features/auth/services/signup_service.dart';
+import 'package:frontend/core/providers/providers.dart';
 import 'package:frontend/features/auth/widgets/gender_selection_widget.dart';
 import 'package:frontend/features/auth/widgets/info_input_field.dart';
 import 'package:frontend/widgets/button.dart';
 import 'package:go_router/go_router.dart';
 
-class SignupScreen extends StatefulWidget {
+class SignupScreen extends ConsumerStatefulWidget {
   const SignupScreen({super.key});
 
   @override
-  State<SignupScreen> createState() => _SignupScreenState();
+  ConsumerState<SignupScreen> createState() => _SignupScreenState();
 }
 
-class _SignupScreenState extends State<SignupScreen> {
+class _SignupScreenState extends ConsumerState<SignupScreen> {
   String selectedGender = '';
   final TextEditingController ageController = TextEditingController();
   final TextEditingController weightController = TextEditingController();
@@ -25,23 +26,31 @@ class _SignupScreenState extends State<SignupScreen> {
     });
   }
 
-  final SignupService signupService = SignupService();
-
   Future<void> _onSignup() async {
+    
+    if (selectedGender.isEmpty ||
+    ageController.text.isEmpty ||
+    weightController.text.isEmpty ||
+    heightController.text.isEmpty) {
+      print("모든 정보가 입력되지 않음");
+      return;
+    }
+
     try {
+      final signupService = ref.read(signupServiceProvider);
+
       await signupService.signUp(
         gender: selectedGender,
         age: ageController.text,
         weight: weightController.text,
         height: heightController.text,
       );
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(SnackBar(content: Text('회원가입 성공!')));
+
+      if (mounted) {
+        context.goNamed("home");
+      }
     } catch (e) {
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(SnackBar(content: Text('회원가입 실패: $e')));
+      print("회원가입 실패: ${e.toString()}");
     }
   }
 

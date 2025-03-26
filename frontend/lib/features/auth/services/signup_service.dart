@@ -1,10 +1,9 @@
-import 'dart:convert';
-
-import 'package:frontend/features/auth/services/auth_service.dart';
-import 'package:http/http.dart' as http;
+import 'package:frontend/core/api/api_client.dart';
 
 class SignupService {
-  final AuthService _authService = AuthService();
+  final ApiClient _apiClient;
+
+  SignupService({required ApiClient apiClient}) : _apiClient = apiClient;
 
   Future<void> signUp({
     required String gender,
@@ -12,36 +11,21 @@ class SignupService {
     required String weight,
     required String height,
   }) async {
-    final url = Uri.parse('https://j12a103.p.ssafy.io:8444/api/user/signup');
-
     try {
-      String? token = await _authService.getAccessToken();
-
-      if (token == null) {
-        print("토큰 없음");
-      }
-
-      final response = await http.post(
-        url,
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': 'Bearer $token',
-        },
-        body: jsonEncode({
+      await _apiClient.post(
+        '/user/signup',
+        body: {
           'gender': gender,
           'age': age,
           'weight': weight,
           'height': height,
-        }),
+        },
       );
 
-      if (response.statusCode == 200) {
-        print("추가정보 저장 성공!!");
-      } else {
-        print("추가정보 저장 실패: ${response.statusCode} ${response.body}");
-      }
+      print("추가정보 저장 성공");
     } catch (e) {
-      print("ERROR!! $e");
+      print("추가정보 저장 실패 ${e.toString()}");
+      rethrow;
     }
   }
 }
