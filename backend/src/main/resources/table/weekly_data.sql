@@ -1,6 +1,6 @@
 CREATE TABLE weekly_data
 (
-    weekly_time_accuracy_feedback_id INT AUTO_INCREMENT PRIMARY KEY,
+    weekly_data_id INT AUTO_INCREMENT PRIMARY KEY,
     user_id                 INT NOT NULL,
     year                    INT NOT NULL,
     month                   INT NOT NULL,
@@ -40,7 +40,7 @@ CREATE TABLE weekly_data
     week4_bmi         DECIMAL(4,1) NOT NULL,
     week5_bmi          DECIMAL(4,1) NOT NULL,
 
-    create_date TIMESTAMP NOT NULL ,
+    created_date TIMESTAMP NOT NULL ,
     updated_date TIMESTAMP NOT NULL ,
 
     CONSTRAINT fk_wd_user FOREIGN KEY (user_id) REFERENCES user (user_id)
