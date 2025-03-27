@@ -19,7 +19,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 
@@ -69,10 +68,7 @@ public class LookService {
         List<LookSearchResponse> lookSearchList = page.getContent();
         // N + 1
         for (LookSearchResponse lookSearch : lookSearchList) {
-            String tags = lookSearch.getTags();
-            if (tags != null && !tags.isEmpty()) {
-                lookSearch.setTagList(Arrays.asList(tags.split(",")));
-            }
+            lookSearch.setTagList(customLookRepository.lookSearchTagList(lookSearch.getSequenceId()));
         }
         PagedResponse<LookSearchResponse> response = new PagedResponse<>(
                 lookSearchList,

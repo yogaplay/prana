@@ -75,8 +75,7 @@ public class CustomLookRepository {
                         LookSearchResponse.class,
                         sequence.id.as("sequenceId"),
                         sequence.name.as("sequenceName"),
-                        sequence.image.as("image"),
-                        Expressions.stringTemplate("GROUP_CONCAT({0})", tag.name).as("tags")
+                        sequence.image.as("image")
                 ))
                 .from(sequenceTag)
                 .join(sequence).on(sequenceTag.sequence.eq(sequence))
@@ -102,4 +101,17 @@ public class CustomLookRepository {
         return PageableExecutionUtils.getPage(content, pageable, countQuery::fetchOne);
     }
 
+    public List<String> lookSearchTagList(int sequenceId) {
+
+        QTag tag = QTag.tag;
+        QSequenceTag sequenceTag = QSequenceTag.sequenceTag;
+
+        return queryFactory
+                .select(tag.name)
+                .from(sequenceTag)
+                .join(tag).on(sequenceTag.tag.eq(tag))
+                .where(sequenceTag.sequence.id.eq(sequenceId))
+                .orderBy(tag.type.asc(), tag.id.asc())
+                .fetch();
+    }
 }
