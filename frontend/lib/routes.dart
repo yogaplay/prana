@@ -2,7 +2,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:frontend/core/providers/providers.dart';
 import 'package:frontend/features/auth/screens/onboarding_screen.dart';
 import 'package:frontend/features/auth/screens/signup_screen.dart';
-import 'package:frontend/features/home/screens/home_screen.dart';
+import 'package:frontend/screens/main_screen.dart';
 import 'package:go_router/go_router.dart';
 
 final routerProvider = Provider<GoRouter>((ref) {
@@ -31,7 +31,7 @@ final routerProvider = Provider<GoRouter>((ref) {
       GoRoute(
         path: "/home",
         name: "home",
-        builder: (_, __) => const HomeScreen(),
+        builder: (_, __) => const MainScreen(),
       ),
       GoRoute(
         path: "/onboarding",
