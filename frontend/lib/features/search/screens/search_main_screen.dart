@@ -6,7 +6,7 @@ import 'package:frontend/features/search/models/yoga_item.dart';
 import 'package:frontend/features/search/models/yoga_sequence.dart';
 import 'package:frontend/features/search/screens/search_input_screen.dart';
 import 'package:frontend/features/search/screens/search_result_screen.dart';
-import 'package:frontend/features/search/services/yoga_service.dart';
+import 'package:frontend/features/search/services/search_service.dart';
 import 'package:frontend/features/search/widgets/search_bar_with_filter.dart';
 import 'package:frontend/features/search/widgets/yoga_carousel.dart';
 
@@ -25,7 +25,7 @@ class _SearchMainScreenState extends State<SearchMainScreen> with RouteAware {
   @override
   void initState() {
     super.initState();
-    _futureCategories = YogaService.fetchMainYogaCategories();
+    _futureCategories = SearchService.fetchMainYogaCategories();
   }
 
   final List<YogaItem> sampleItems = List.generate(

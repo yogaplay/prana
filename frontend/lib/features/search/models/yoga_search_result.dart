@@ -15,7 +15,7 @@ class YogaSearchResult {
     return YogaSearchResult(
       sequenceId: json['sequenceId'],
       sequenceName: json['sequenceName'],
-      image: json['image'],
+      image: json['image'] ?? '',
       tagList: List<String>.from(json['tagList']),
     );
   }

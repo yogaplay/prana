@@ -1,40 +1,104 @@
 import 'package:flutter/material.dart';
+import 'package:frontend/features/search/models/yoga_search_result.dart';
+import 'package:frontend/features/search/services/search_service.dart';
 import 'package:frontend/features/search/widgets/search_bar_with_filter.dart';
 import 'package:frontend/widgets/tag.dart';
 import 'package:frontend/widgets/yoga_tile.dart';
+import 'package:http/http.dart';
 
-class SearchResultScreen extends StatelessWidget {
+class SearchResultScreen extends StatefulWidget {
   final String keyword;
   final List<String> selectedFilters;
+  final VoidCallback? onBack;
 
   const SearchResultScreen({
     super.key,
     required this.keyword,
     required this.selectedFilters,
+    this.onBack,
   });
 
-  List<Map<String, dynamic>> get dummyResults => [
-    {
-      'title': '엉덩이를 위한 요가 시퀀스',
-      'tags': ['10분 이내', '엉덩이', '하타', '중급'],
-      'imageUrl': 'https://picsum.photos/100/100?random=1',
-    },
-    {
-      'title': '엉덩이를 위한 요가 시퀀스',
-      'tags': ['하타', '중급'],
-      'imageUrl': 'https://picsum.photos/100/100?random=2',
-    },
-    {
-      'title': '엉덩이를 위한 요가 시퀀스',
-      'tags': ['하타'],
-      'imageUrl': 'https://picsum.photos/100/100?random=3',
-    },
-  ];
+  @override
+  State<SearchResultScreen> createState() => _SearchResultScreenState();
+}
+
+class _SearchResultScreenState extends State<SearchResultScreen> {
+  List<YogaSearchResult> results = [];
+  int currentPage = 0;
+  int totalPages = 1;
+  bool isLoading = false;
+  final ScrollController _scrollController = ScrollController();
+
+  @override
+  void initState() {
+    super.initState();
+    _fetchResults();
+
+    _scrollController.addListener(() {
+      if (_scrollController.position.pixels >=
+              _scrollController.position.maxScrollExtent - 100 &&
+          !isLoading &&
+          currentPage < totalPages - 1) {
+        _fetchResults();
+      }
+    });
+  }
+
+  Future<void> _fetchResults() async {
+    if (isLoading) return;
+    setState(() {
+      isLoading = true;
+    });
+
+    try {
+      final response = await SearchService.fetchSearchResults(
+        keyword: widget.keyword,
+        tagNames: widget.selectedFilters,
+        page: currentPage,
+      );
+
+      setState(() {
+        results.addAll(response['results']);
+        totalPages = response['totalPages'];
+        currentPage++;
+      });
+    } catch (e) {
+      print('검색 오류: $e');
+    } finally {
+      setState(() {
+        isLoading = false;
+      });
+    }
+  }
+
+  void _refreshWithKeyword(String newKeyword) {
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder:
+            (_) => SearchResultScreen(
+              keyword: newKeyword,
+              selectedFilters: widget.selectedFilters,
+            ),
+      ),
+    );
+  }
+
+  void _refreshWithFilters(List<String> newFilters) {
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder:
+            (_) => SearchResultScreen(
+              keyword: widget.keyword,
+              selectedFilters: newFilters,
+            ),
+      ),
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
-    final results = dummyResults;
-
     return Scaffold(
       body: SafeArea(
         child: Padding(
@@ -45,56 +109,46 @@ class SearchResultScreen extends StatelessWidget {
               SearchBarWithFilter(
                 readOnly: false,
                 onTap: () {},
-                selectedFilters: selectedFilters,
-                onSubmitted: (value) {
-                  Navigator.pushReplacement(
-                    context,
-                    MaterialPageRoute(
-                      builder:
-                          (_) => SearchResultScreen(
-                            keyword: value.trim(),
-                            selectedFilters: selectedFilters,
-                          ),
-                    ),
-                  );
-                },
-                onFilterApply: (filters) {
-                  Navigator.pushReplacement(
-                    context,
-                    MaterialPageRoute(
-                      builder:
-                          (_) => SearchResultScreen(
-                            keyword: keyword,
-                            selectedFilters: filters,
-                          ),
-                    ),
-                  );
-                },
+                selectedFilters: widget.selectedFilters,
+                onSubmitted: _refreshWithKeyword,
+                onFilterApply: _refreshWithFilters,
               ),
               SizedBox(height: 16),
-              if (keyword.isNotEmpty)
-                Text("'$keyword' 에 대한 검색 결과", style: TextStyle(fontSize: 14)),
-              if (keyword.isNotEmpty) SizedBox(height: 12),
+              if (widget.keyword.isNotEmpty)
+                Text(
+                  "'${widget.keyword}' 에 대한 검색 결과",
+                  style: TextStyle(fontSize: 14),
+                ),
+              if (widget.keyword.isNotEmpty) SizedBox(height: 12),
 
-              if (selectedFilters.isNotEmpty)
+              if (widget.selectedFilters.isNotEmpty)
                 Wrap(
                   spacing: 8,
                   runSpacing: 8,
                   children:
-                      selectedFilters.map((tag) => Tag(label: tag)).toList(),
+                      widget.selectedFilters
+                          .map((tag) => Tag(label: tag))
+                          .toList(),
                 ),
-              if (selectedFilters.isNotEmpty) SizedBox(height: 16),
+              if (widget.selectedFilters.isNotEmpty) SizedBox(height: 16),
 
               Expanded(
                 child: ListView.builder(
-                  itemCount: results.length,
+                  controller: _scrollController,
+                  itemCount: results.length + 1,
                   itemBuilder: (context, index) {
-                    final item = results[index];
-                    return YogaTile(
-                      imageUrl: item['imageUrl'],
-                      title: item['title'],
-                      tags: item['tags'],
-                    );
+                    if (index < results.length) {
+                      final item = results[index];
+                      return YogaTile(
+                        imageUrl: item.image,
+                        title: item.sequenceName,
+                        tags: item.tagList,
+                      );
+                    } else {
+                      return isLoading
+                          ? Center(child: CircularProgressIndicator())
+                          : SizedBox.shrink();
+                    }
                   },
                 ),
               ),
