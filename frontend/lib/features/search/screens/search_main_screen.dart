@@ -1,14 +1,12 @@
 import 'package:flutter/material.dart';
-import 'package:frontend/app.dart';
 import 'package:frontend/constants/app_colors.dart';
 import 'package:frontend/features/search/models/yoga_category.dart';
 import 'package:frontend/features/search/models/yoga_item.dart';
 import 'package:frontend/features/search/models/yoga_sequence.dart';
-import 'package:frontend/features/search/screens/search_input_screen.dart';
-import 'package:frontend/features/search/screens/search_result_screen.dart';
 import 'package:frontend/features/search/services/search_service.dart';
 import 'package:frontend/features/search/widgets/search_bar_with_filter.dart';
 import 'package:frontend/features/search/widgets/yoga_carousel.dart';
+import 'package:go_router/go_router.dart';
 
 class SearchMainScreen extends StatefulWidget {
   SearchMainScreen({super.key});
@@ -17,7 +15,7 @@ class SearchMainScreen extends StatefulWidget {
   State<SearchMainScreen> createState() => _SearchMainScreenState();
 }
 
-class _SearchMainScreenState extends State<SearchMainScreen> with RouteAware {
+class _SearchMainScreenState extends State<SearchMainScreen> {
   List<String> selectedFilters = [];
 
   late Future<List<YogaCategory>> _futureCategories;
@@ -38,25 +36,14 @@ class _SearchMainScreenState extends State<SearchMainScreen> with RouteAware {
   );
 
   void _goToSearchInput() {
-    Navigator.push(
-      context,
-      MaterialPageRoute(
-        builder:
-            (_) => SearchInputScreen(
-              onSubmitted: (keyword) {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder:
-                        (_) => SearchResultScreen(
-                          keyword: keyword,
-                          selectedFilters: selectedFilters,
-                        ),
-                  ),
-                );
-              },
-            ),
-      ),
+    context.push(
+      '/search/input',
+      extra: (String keyword) {
+        context.push(
+          '/search/result',
+          extra: {'keyword': keyword, 'selectedFilters': selectedFilters},
+        );
+      },
     );
   }
 
@@ -65,31 +52,26 @@ class _SearchMainScreenState extends State<SearchMainScreen> with RouteAware {
       selectedFilters = filters;
     });
 
-    Navigator.push(
-      context,
-      MaterialPageRoute(
-        builder:
-            (_) => SearchResultScreen(keyword: '', selectedFilters: filters),
-      ),
+    context.push(
+      '/search/result',
+      extra: {'keyword': '', 'selectedFilters': filters},
     );
-  }
-
-  @override
-  void didPopNext() {
-    setState(() {
-      selectedFilters = [];
-    });
   }
 
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
-    routeObserver.subscribe(this, ModalRoute.of(context)!);
+
+    final location = GoRouterState.of(context).uri.toString();
+    if (location == '/search') {
+      setState(() {
+        selectedFilters = [];
+      });
+    }
   }
 
   @override
   void dispose() {
-    routeObserver.unsubscribe(this);
     super.dispose();
   }
 

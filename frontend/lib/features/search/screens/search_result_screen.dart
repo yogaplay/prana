@@ -4,18 +4,16 @@ import 'package:frontend/features/search/services/search_service.dart';
 import 'package:frontend/features/search/widgets/search_bar_with_filter.dart';
 import 'package:frontend/widgets/tag.dart';
 import 'package:frontend/widgets/yoga_tile.dart';
-import 'package:http/http.dart';
+import 'package:go_router/go_router.dart';
 
 class SearchResultScreen extends StatefulWidget {
   final String keyword;
   final List<String> selectedFilters;
-  final VoidCallback? onBack;
 
   const SearchResultScreen({
     super.key,
     required this.keyword,
     required this.selectedFilters,
-    this.onBack,
   });
 
   @override
@@ -72,28 +70,16 @@ class _SearchResultScreenState extends State<SearchResultScreen> {
   }
 
   void _refreshWithKeyword(String newKeyword) {
-    Navigator.push(
-      context,
-      MaterialPageRoute(
-        builder:
-            (_) => SearchResultScreen(
-              keyword: newKeyword,
-              selectedFilters: widget.selectedFilters,
-            ),
-      ),
+    context.pushReplacement(
+      '/search/result',
+      extra: {'keyword': newKeyword, 'selectedFilters': widget.selectedFilters},
     );
   }
 
   void _refreshWithFilters(List<String> newFilters) {
-    Navigator.push(
-      context,
-      MaterialPageRoute(
-        builder:
-            (_) => SearchResultScreen(
-              keyword: widget.keyword,
-              selectedFilters: newFilters,
-            ),
-      ),
+    context.pushReplacement(
+      '/search/result',
+      extra: {'keyword': widget.keyword, 'selectedFilters': newFilters},
     );
   }
 

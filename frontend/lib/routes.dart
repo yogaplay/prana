@@ -3,7 +3,10 @@ import 'package:frontend/core/providers/providers.dart';
 import 'package:frontend/features/auth/screens/onboarding_screen.dart';
 import 'package:frontend/features/auth/screens/signup_screen.dart';
 import 'package:frontend/screens/main_screen.dart';
+import 'package:frontend/features/home/screens/home_screen.dart';
+import 'package:frontend/features/search/screens/search_input_screen.dart';
 import 'package:frontend/features/search/screens/search_main_screen.dart';
+import 'package:frontend/features/search/screens/search_result_screen.dart';
 import 'package:go_router/go_router.dart';
 
 final routerProvider = Provider<GoRouter>((ref) {
@@ -64,6 +67,25 @@ final routerProvider = Provider<GoRouter>((ref) {
         path: "/search",
         name: "search",
         builder: (_, __) => SearchMainScreen(),
+      ),
+      GoRoute(
+        path: "/search/input",
+        name: "search_input",
+        builder: (context, state) {
+          final onSubmitted = state.extra as void Function(String);
+          return SearchInputScreen(onSubmitted: onSubmitted);
+        },
+      ),
+      GoRoute(
+        path: "/search/result",
+        name: "search_result",
+        builder: (context, state) {
+          final extra = state.extra as Map<String, dynamic>;
+          return SearchResultScreen(
+            keyword: extra['keyword'] as String,
+            selectedFilters: extra['selectedFilters'] as List<String>,
+          );
+        },
       ),
     ],
   );
