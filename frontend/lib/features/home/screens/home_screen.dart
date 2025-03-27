@@ -307,7 +307,22 @@ class DetailPage extends ConsumerWidget {
     final detailAsync = ref.watch(detailDataProvider(title));
 
     return Scaffold(
-      appBar: AppBar(title: Text('$title 전체보기')),
+      appBar: AppBar(
+        backgroundColor: Colors.white,
+        elevation: 0,
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back_ios_new, color: Colors.black),
+          onPressed: () => Navigator.pop(context),
+        ),
+        title: Text(
+          title,
+          style: const TextStyle(
+            fontWeight: FontWeight.bold,
+            color: Colors.black,
+          ),
+        ),
+        centerTitle: false,
+      ),
       body: detailAsync.when(
         loading: () => const Center(child: CircularProgressIndicator()),
         error: (error, stackTrace) => Center(
@@ -317,20 +332,72 @@ class DetailPage extends ConsumerWidget {
             ? const Center(child: Text('데이터가 없습니다.'))
             : ListView.builder(
                 itemCount: data.content.length,
+                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
                 itemBuilder: (context, index) {
                   final item = data.content[index];
-                  return Card(
-                    margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                    child: ListTile(
-                      leading: item.image != null
-                          ? Image.network(item.image!, width: 60, fit: BoxFit.cover)
-                          : const Icon(Icons.image_not_supported),
-                      title: Text(item.sequenceName),
-                      subtitle: Text(item.tagList.join(' · ')),
-                      trailing: Icon(
-                        item.star ? Icons.star : Icons.star_border,
-                        color: item.star ? Colors.orange : null,
-                      ),
+                  return Container(
+                    margin: const EdgeInsets.only(bottom: 16),
+                    child: Row(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        // 이미지
+                        ClipRRect(
+                          borderRadius: BorderRadius.circular(12),
+                          child: item.image != null
+                              ? Image.network(
+                                  item.image!,
+                                  width: 60,
+                                  height: 60,
+                                  fit: BoxFit.cover,
+                                )
+                              : Container(
+                                  width: 60,
+                                  height: 60,
+                                  color: Colors.grey[300],
+                                  child: const Icon(Icons.image_not_supported),
+                                ),
+                        ),
+                        const SizedBox(width: 12),
+                        // 텍스트 + 태그
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                item.sequenceName,
+                                style: const TextStyle(
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                              const SizedBox(height: 8),
+                              Wrap(
+                                spacing: 8,
+                                runSpacing: 4,
+                                children: item.tagList
+                                    .map((tag) => Container(
+                                          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                                          decoration: BoxDecoration(
+                                            color: const Color(0xFFE8FAF1),
+                                            borderRadius: BorderRadius.circular(12),
+                                          ),
+                                          child: Text(
+                                            tag,
+                                            style: const TextStyle(fontSize: 12),
+                                          ),
+                                        ))
+                                    .toList(),
+                              ),
+                            ],
+                          ),
+                        ),
+                        const SizedBox(width: 8),
+                        // 별 아이콘
+                        Icon(
+                          item.star ? Icons.star : Icons.star_border,
+                          color: item.star ? const Color(0xff7ECECA) : Colors.grey,
+                        ),
+                      ],
                     ),
                   );
                 },

@@ -134,6 +134,7 @@ class AuthService {
   // 앱 시작 시 호출하여 저장된 토큰이 있으면 API 클라이언트에 설정
   Future<void> initializeTokens() async {
     final token = await getAccessToken();
+    print('✅ 초기화된 accessToken: $token'); 
     if (token != null && token.isNotEmpty) {
       _apiClient.setAuthToken(token);
     }
