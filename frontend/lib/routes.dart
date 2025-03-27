@@ -3,7 +3,6 @@ import 'package:frontend/core/providers/providers.dart';
 import 'package:frontend/features/auth/screens/onboarding_screen.dart';
 import 'package:frontend/features/auth/screens/signup_screen.dart';
 import 'package:frontend/screens/main_screen.dart';
-import 'package:frontend/features/home/screens/home_screen.dart';
 import 'package:frontend/features/search/screens/search_input_screen.dart';
 import 'package:frontend/features/search/screens/search_main_screen.dart';
 import 'package:frontend/features/search/screens/search_result_screen.dart';
