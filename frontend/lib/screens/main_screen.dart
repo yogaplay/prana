@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:frontend/features/home/screens/home_screen.dart';
 import 'package:frontend/screens/activity_page.dart';
 import 'package:frontend/screens/explore_page.dart';
-import 'package:frontend/screens/profile_page.dart';
+import 'package:frontend/screens/info_page.dart';
 import 'package:frontend/widgets/navbar.dart';
 
 class MainScreen extends StatefulWidget {
@@ -19,7 +19,7 @@ class _MainScreenState extends State<MainScreen> {
     HomeScreen(),
     ExploerPage(),
     ActivityPage(),
-    ProfilePage(),
+    InfoPage(),
   ];
 
   @override
