@@ -52,10 +52,11 @@ class AuthService {
 
   // 토큰 재발급
   Future<AuthResponse> refreshToken() async {
-    final refreshToken = await getRefreshToken();
+    String? refreshToken = await getRefreshToken();
 
     if (refreshToken == null) {
-      throw Exception('리프레시 토큰 없음');
+      await logout();
+      throw Exception('리프레시 토큰 없음: 로그아웃');
     }
 
     try {
@@ -64,6 +65,10 @@ class AuthService {
         body: {'pranaRefreshToken': refreshToken},
       );
 
+      if (response['code'] == 40111) {
+        await logout();
+        throw Exception('리프레시 토큰이 유효하지 않음');
+      }
       final authResponse = AuthResponse.fromJson(response);
       await saveAuthData(authResponse);
 
@@ -72,6 +77,13 @@ class AuthService {
       print('토큰 재발급 실패: ${e.toString()}');
       throw Exception('토큰 재발급 실패');
     }
+  }
+
+  Future<void> logout() async {
+    await _storage.delete(key: _accessToken);
+    await _storage.delete(key: _refreshToken);
+    await _storage.delete(key: _isFirst);
+    _apiClient.clearAuthToken();
   }
 
   Future<void> saveAuthData(AuthResponse authResponse) async {
