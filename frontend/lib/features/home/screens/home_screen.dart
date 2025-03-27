@@ -335,12 +335,91 @@ class DetailPage extends ConsumerWidget {
                 padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
                 itemBuilder: (context, index) {
                   final item = data.content[index];
+
+                  // 최근 시퀀스용 UI
+                  if (title == '최근') {
+                    return Container(
+                      margin: const EdgeInsets.only(bottom: 24),
+                      child: Row(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Stack(
+                            alignment: Alignment.topRight,
+                            children: [
+                              ClipRRect(
+                                borderRadius: BorderRadius.circular(16),
+                                child: Image.network(
+                                  item.image ?? '',
+                                  width: 60,
+                                  height: 60,
+                                  fit: BoxFit.cover,
+                                ),
+                              ),
+                              Positioned(
+                                top: 4,
+                                right: 4,
+                                child: CircleAvatar(
+                                  radius: 10,
+                                  backgroundColor: Colors.white,
+                                  child: Icon(
+                                    item.resultStatus == 'Y'
+                                        ? Icons.check_circle
+                                        : Icons.more_horiz,
+                                    size: 16,
+                                    color: item.resultStatus == 'Y'
+                                        ? const Color(0xff7ECECA)
+                                        : Colors.grey,
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                          const SizedBox(width: 12),
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  item.sequenceName,
+                                  style: const TextStyle(
+                                    fontSize: 16,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                                const SizedBox(height: 4),
+                                Text(
+                                  _formatTimeAgo(item.updatedAt),
+                                  style: const TextStyle(fontSize: 12, color: Colors.grey),
+                                ),
+                                const SizedBox(height: 8),
+                                Row(
+                                  children: [
+                                    Text('${item.percent}%', style: const TextStyle(fontSize: 12)),
+                                    const SizedBox(width: 8),
+                                    Expanded(
+                                      child: LinearProgressIndicator(
+                                        value: (item.percent ?? 0) / 100,
+                                        color: const Color(0xff7ECECA),
+                                        backgroundColor: const Color(0xffE8FAF1),
+                                        minHeight: 4,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ],
+                            ),
+                          ),
+                        ],
+                      ),
+                    );
+                  }
+
+                  // 즐겨찾기 UI
                   return Container(
                     margin: const EdgeInsets.only(bottom: 16),
                     child: Row(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        // 이미지
                         ClipRRect(
                           borderRadius: BorderRadius.circular(12),
                           child: item.image != null
@@ -358,7 +437,6 @@ class DetailPage extends ConsumerWidget {
                                 ),
                         ),
                         const SizedBox(width: 12),
-                        // 텍스트 + 태그
                         Expanded(
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
@@ -392,7 +470,6 @@ class DetailPage extends ConsumerWidget {
                           ),
                         ),
                         const SizedBox(width: 8),
-                        // 별 아이콘
                         Icon(
                           item.star ? Icons.star : Icons.star_border,
                           color: item.star ? const Color(0xff7ECECA) : Colors.grey,
@@ -402,7 +479,15 @@ class DetailPage extends ConsumerWidget {
                   );
                 },
               ),
-      ),
+      )
     );
   }
 }
+
+  String _formatTimeAgo(DateTime? dateTime) {
+    if (dateTime == null) return '날짜 없음';
+    final diff = DateTime.now().difference(dateTime);
+    if (diff.inMinutes < 60) return '${diff.inMinutes}분 전';
+    if (diff.inHours < 24) return '${diff.inHours}시간 전';
+    return '${diff.inDays}일 전';
+  }

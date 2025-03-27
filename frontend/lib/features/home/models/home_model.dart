@@ -77,7 +77,7 @@ class StarItem {
       sequenceName: json['sequenceName'],
       image: json['image'],
       star: json['star'],
-      tagList: List<String>.from(json['tagList']),
+      tagList: List<String>.from(json['tagList'] ?? []),
     );
   }
 }
@@ -113,12 +113,20 @@ class SequenceItem {
   final bool star;
   final List<String> tagList;
 
+  // 🔥 최근용 필드
+  final String? resultStatus;
+  final int? percent;
+  final DateTime? updatedAt;
+
   SequenceItem({
     required this.sequenceId,
     required this.sequenceName,
     this.image,
     required this.star,
     required this.tagList,
+    this.resultStatus,
+    this.percent,
+    this.updatedAt,
   });
 
   factory SequenceItem.fromJson(Map<String, dynamic> json) {
@@ -126,8 +134,11 @@ class SequenceItem {
       sequenceId: json['sequenceId'],
       sequenceName: json['sequenceName'],
       image: json['image'],
-      star: json['star'],
-      tagList: List<String>.from(json['tagList']),
+      star: json['star'] ?? false,
+      tagList: List<String>.from(json['tagList'] ?? []),
+      resultStatus: json['resultStatus'], // "Y" or "N"
+      percent: json['percent'],
+      updatedAt: json['updatedAt'] != null ? DateTime.parse(json['updatedAt']) : null,
     );
   }
 }
