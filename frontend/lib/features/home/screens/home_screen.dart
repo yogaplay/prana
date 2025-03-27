@@ -470,9 +470,24 @@ class DetailPage extends ConsumerWidget {
                           ),
                         ),
                         const SizedBox(width: 8),
-                        Icon(
-                          item.star ? Icons.star : Icons.star_border,
-                          color: item.star ? const Color(0xff7ECECA) : Colors.grey,
+                        IconButton(
+                          icon: Icon(
+                            item.star ? Icons.star : Icons.star_border,
+                            color: item.star ? const Color(0xff7ECECA) : Colors.grey,
+                          ),
+                          onPressed: () async {
+                            try {
+                              final homeService = ref.read(homeServiceProvider);
+                              await homeService.toggleStar(item.sequenceId);
+
+                              // UI 토글 (리스트를 setState처럼 갱신해야 할 경우)
+                              ref.refresh(detailDataProvider(title));
+                            } catch (e) {
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                const SnackBar(content: Text('즐겨찾기 변경에 실패했습니다.')),
+                              );
+                            }
+                          },
                         ),
                       ],
                     ),
