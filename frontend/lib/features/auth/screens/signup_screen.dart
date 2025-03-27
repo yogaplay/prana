@@ -27,11 +27,10 @@ class _SignupScreenState extends ConsumerState<SignupScreen> {
   }
 
   Future<void> _onSignup() async {
-    
     if (selectedGender.isEmpty ||
-    ageController.text.isEmpty ||
-    weightController.text.isEmpty ||
-    heightController.text.isEmpty) {
+        ageController.text.isEmpty ||
+        weightController.text.isEmpty ||
+        heightController.text.isEmpty) {
       print("모든 정보가 입력되지 않음");
       return;
     }
@@ -46,9 +45,7 @@ class _SignupScreenState extends ConsumerState<SignupScreen> {
         height: heightController.text,
       );
 
-      if (mounted) {
-        context.goNamed("home");
-      }
+      context.goNamed("home");
     } catch (e) {
       print("회원가입 실패: ${e.toString()}");
     }

@@ -54,21 +54,12 @@ class AuthService {
   Future<AuthResponse> refreshToken() async {
     String? refreshToken = await getRefreshToken();
 
-    if (refreshToken == null) {
-      await logout();
-      throw Exception('리프레시 토큰 없음: 로그아웃');
-    }
-
     try {
       final response = await _apiClient.post(
         '/token/refresh',
         body: {'pranaRefreshToken': refreshToken},
       );
 
-      if (response['code'] == 40111) {
-        await logout();
-        throw Exception('리프레시 토큰이 유효하지 않음');
-      }
       final authResponse = AuthResponse.fromJson(response);
       await saveAuthData(authResponse);
 

@@ -1,168 +1,251 @@
-import 'dart:convert';
-import 'package:http/http.dart' as http;
-
-typedef TokenRefreshCallback = Future<String?> Function([bool forceLogout]);
+import 'package:dio/dio.dart';
+import 'package:flutter/foundation.dart';
+import 'package:frontend/features/auth/models/auth_model.dart';
+import 'package:frontend/features/auth/services/auth_service.dart';
 
 class ApiClient {
   final String baseUrl;
-  final Map<String, String> _headers = {
-    'Content-Type': 'application/json',
-    'Accept': 'application/json',
-  };
+  late final Dio _dio;
+  late AuthService _authService;
 
-  TokenRefreshCallback? _tokenRefreshCallback;
-  bool _isRefreshing = false;
+  ApiClient({this.baseUrl = 'https://j12a103.p.ssafy.io:8444/api'}) {
+    _dio = Dio(
+      BaseOptions(
+        baseUrl: baseUrl,
+        connectTimeout: const Duration(seconds: 5),
+        receiveTimeout: const Duration(seconds: 3),
+        headers: {
+          'Content-Type': 'application/json',
+          'Accept': 'application/json',
+        },
+      ),
+    );
 
-  ApiClient({this.baseUrl = 'https://j12a103.p.ssafy.io:8444/api'});
+    // 인터셉터 설정
+    _setupInterceptors();
 
-  void setTokenRefreshCallback(TokenRefreshCallback callback) {
-    _tokenRefreshCallback = callback;
+    // 로깅 인터셉터 추가 (디버그 모드에서만)
+    if (kDebugMode) {
+      _dio.interceptors.add(
+        LogInterceptor(
+          requestBody: true,
+          responseBody: true,
+          error: true,
+          requestHeader: true,
+          responseHeader: true,
+        ),
+      );
+    }
+  }
+
+  void setAuthService(AuthService authService) {
+    _authService = authService;
   }
 
   void setAuthToken(String token) {
-    _headers['Authorization'] = 'Bearer $token';
+    _dio.options.headers['Authorization'] = 'Bearer $token';
   }
 
   void clearAuthToken() {
-    _headers.remove('Authorization');
+    _dio.options.headers.remove('Authorization');
   }
 
-  Future<Map<String, dynamic>> get(String path) async {
-    return _executeRequest(
-      () => http.get(Uri.parse('$baseUrl$path'), headers: _headers),
-    );
-  }
+  void _setupInterceptors() {
+    _dio.interceptors.add(
+      InterceptorsWrapper(
+        onRequest: (options, handler) {
+          return handler.next(options);
+        },
+        onResponse: (response, handler) {
+          return handler.next(response);
+        },
+        onError: (DioException e, handler) async {
+          if (e.response?.statusCode == 401) {
+            final errorCode = e.response?.data?['errorCode'];
+            print(e.response);
 
-  Future<Map<String, dynamic>> post(
-    String path, {
-    required Map<String, dynamic> body,
-  }) async {
-    return _executeRequest(
-      () => http.post(
-        Uri.parse('$baseUrl$path'),
-        headers: _headers,
-        body: json.encode(body),
+            if (errorCode == 40111) {
+              print('리프레쉬 토큰 유효하지 않음: 로그아웃 처리');
+              _authService.logout();
+              return handler.next(e);
+            }
+
+            if (errorCode == 40112) {
+              try {
+                print('액세스토큰 유효하지 않음 : 토큰 재발급');
+                final refreshed = await _refreshToken();
+                if (refreshed) {
+                  return handler.resolve(await _retry(e.requestOptions));
+                }
+              } catch (e) {
+                _authService.logout();
+              }
+            }
+          }
+          return handler.next(e);
+        },
       ),
     );
   }
 
-  Future<Map<String, dynamic>> put(
-    String path, {
-    required Map<String, dynamic> body,
-  }) async {
-    return _executeRequest(
-      () => http.put(
-        Uri.parse('$baseUrl$path'),
-        headers: _headers,
-        body: json.encode(body),
-      ),
-    );
-  }
-
-  Future<Map<String, dynamic>> delete(String path) async {
-    return _executeRequest(
-      () => http.delete(Uri.parse('$baseUrl$path'), headers: _headers),
-    );
-  }
-
-  Future<Map<String, dynamic>> _executeRequest(
-    Future<http.Response> Function() requestFunc,
-  ) async {
+  Future<bool> _refreshToken() async {
     try {
-      final response = await requestFunc();
-      return await _handleResponse(response, requestFunc);
+      final refreshToken = await _authService.getRefreshToken();
+      final response = await _dio.post(
+        '/token/refresh',
+        data: {'pranaRefreshToken': refreshToken},
+      );
+
+      if (response.statusCode == 200) {
+        final authResponse = AuthResponse.fromJson(response.data);
+        await _authService.saveAuthData(authResponse);
+        setAuthToken(authResponse.pranaAccessToken);
+        return true;
+      }
+      return false;
     } catch (e) {
+      return false;
+    }
+  }
+
+  Future<Response<dynamic>> _retry(RequestOptions requestOptions) async {
+    final options = Options(
+      method: requestOptions.method,
+      headers: requestOptions.headers,
+    );
+
+    return _dio.request<dynamic>(
+      requestOptions.path,
+      data: requestOptions.data,
+      queryParameters: requestOptions.queryParameters,
+      options: options,
+    );
+  }
+
+  // GET 요청
+  Future<Map<String, dynamic>> get(
+    String path, {
+    Map<String, dynamic>? queryParameters,
+  }) async {
+    try {
+      final response = await _dio.get(path, queryParameters: queryParameters);
+      return _processResponse(response);
+    } on DioException catch (e) {
       throw _handleError(e);
     }
   }
 
-  Future<Map<String, dynamic>> _handleResponse(
-    http.Response response,
-    Future<http.Response> Function() retryRequest,
-  ) async {
-    final body = utf8.decode(response.bodyBytes);
+  // POST 요청
+  Future<Map<String, dynamic>> post(
+    String path, {
+    required Map<String, dynamic> body,
+    Map<String, dynamic>? queryParameters,
+  }) async {
+    try {
+      final response = await _dio.post(
+        path,
+        data: body,
+        queryParameters: queryParameters,
+      );
+      return _processResponse(response);
+    } on DioException catch (e) {
+      throw _handleError(e);
+    }
+  }
 
-    if (response.statusCode >= 200 && response.statusCode < 300) {
-      if (body.isEmpty) {
-        return {};
-      }
-      return json.decode(body);
-    } else if (response.statusCode == 401) {
-      print('401 Unauthorized 발생 - 응답 바디: ${utf8.decode(response.bodyBytes)}');
+  // PUT 요청
+  Future<Map<String, dynamic>> put(
+    String path, {
+    required Map<String, dynamic> body,
+    Map<String, dynamic>? queryParameters,
+  }) async {
+    try {
+      final response = await _dio.put(
+        path,
+        data: body,
+        queryParameters: queryParameters,
+      );
+      return _processResponse(response);
+    } on DioException catch (e) {
+      throw _handleError(e);
+    }
+  }
 
-      final errorBody = json.decode(body);
-      final errorCode = errorBody['errorCode'];
+  // DELETE 요청
+  Future<Map<String, dynamic>> delete(
+    String path, {
+    Map<String, dynamic>? body,
+    Map<String, dynamic>? queryParameters,
+  }) async {
+    try {
+      final response = await _dio.delete(
+        path,
+        data: body,
+        queryParameters: queryParameters,
+      );
+      return _processResponse(response);
+    } on DioException catch (e) {
+      throw _handleError(e);
+    }
+  }
 
-      if (errorCode == 40111) {
-        print('리프레시 토큰이 유효하지 않음. 로그아웃 처리');
-
-        // 로그아웃 처리
-        if (_tokenRefreshCallback != null) {
-          await _tokenRefreshCallback!(true); // 강제 로그아웃
-        }
-
-        clearAuthToken();
-
-        throw Exception('로그인이 만료되었습니다. 다시 로그인해주세요.');
-      }
-
-      if (_tokenRefreshCallback != null && !_isRefreshing) {
-        _isRefreshing = true;
-
+  Map<String, dynamic> _processResponse(Response response) {
+    if (response.statusCode! >= 200 && response.statusCode! < 300) {
+      if (response.data is Map<String, dynamic>) {
+        return response.data;
+      } else if (response.data is String) {
         try {
-          print("토큰 갱신 시도");
-          final newToken = await _tokenRefreshCallback!(false);
-
-          if (newToken != null) {
-            setAuthToken(newToken);
-            _isRefreshing = false;
-            print("요청 재시도");
-
-            final retryResponse = await retryRequest();
-            return _handleResponse(retryResponse, retryRequest);
-          } else {
-            _isRefreshing = false;
-            throw Exception("토큰 갱신 실패");
-          }
+          return {'data': response.data};
         } catch (e) {
-          _isRefreshing = false;
-          print("토큰 갱신 실패 : $e");
-          throw Exception("토큰 갱신 실패: ${e.toString()}");
+          return {'data': response.data};
         }
+      } else {
+        return {'data': response.data};
       }
-      throw Exception('인증에 실패했습니다');
-    } else if (response.statusCode == 404) {
-      throw Exception('요청한 리소스를 찾을 수 없습니다');
-    } else if (response.statusCode >= 500) {
-      throw Exception('서버 오류가 발생했습니다');
     } else {
-      try {
-        final decodedBody = json.decode(body);
-        final message = decodedBody['message'] ?? '알 수 없는 오류가 발생했습니다';
-        throw Exception(message);
-      } catch (_) {
-        throw Exception('알 수 없는 오류가 발생했습니다 (코드: ${response.statusCode})');
-      }
+      throw ApiException(
+        message: 'Server error occurred',
+        statusCode: response.statusCode,
+      );
     }
   }
 
-  Exception _handleError(dynamic error) {
-    print('API 에러 발생: $error');
+  // 에러 처리
+  Exception _handleError(DioException error) {
+    String message = 'Something went wrong';
+    int? statusCode;
 
-    if (error is http.ClientException) {
-      if (error.message.contains('Connection refused') ||
-          error.message.contains('Connection reset')) {
-        return Exception('서버에 연결할 수 없습니다');
-      }
-      if (error.message.contains('timed out')) {
-        return Exception('서버 응답 시간이 초과되었습니다');
-      }
+    switch (error.type) {
+      case DioExceptionType.connectionTimeout:
+      case DioExceptionType.sendTimeout:
+      case DioExceptionType.receiveTimeout:
+        message = 'Connection timeout';
+        break;
+      case DioExceptionType.badResponse:
+        statusCode = error.response?.statusCode;
+        message = error.response?.data?['message'] ?? 'Server error occurred';
+        break;
+      case DioExceptionType.cancel:
+        message = 'Request cancelled';
+        break;
+      case DioExceptionType.connectionError:
+        message = 'No internet connection';
+        break;
+      default:
+        message = 'Unexpected error occurred';
+        break;
     }
 
-    if (error is Exception) {
-      return error;
-    }
-
-    return Exception('알 수 없는 오류가 발생했습니다: ${error.toString()}');
+    return ApiException(message: message, statusCode: statusCode);
   }
+}
+
+class ApiException implements Exception {
+  final String message;
+  final int? statusCode;
+
+  ApiException({required this.message, this.statusCode});
+
+  @override
+  String toString() => 'ApiException: $message (Status code: $statusCode)';
 }

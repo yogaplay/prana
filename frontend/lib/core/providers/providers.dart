@@ -13,31 +13,16 @@ final authServiceProvider = Provider<AuthService>((ref) {
   final apiClient = ref.read(apiClientProvider);
   final authService = AuthService(apiClient: apiClient);
 
-  apiClient.setTokenRefreshCallback(([bool forceLogout = false]) async {
-    if (forceLogout) {
-      print("강제 로그아웃");
-      await authService.logout();
-      ref.read(authRefreshProvider.notifier).state += 1;
-      return null;
-    }
-    try {
-      final authResponse = await authService.refreshToken();
-      return authResponse.pranaAccessToken;
-    } catch (e) {
-      print("토큰 갱신 콜백 오류 : $e");
-      return null;
-    }
-  });
+  apiClient.setAuthService(authService);
+
   return authService;
 });
 
+// 인증 상태 관리
 final authStateProvider = FutureProvider<bool>((ref) async {
-  ref.watch(authRefreshProvider);
   final authService = ref.read(authServiceProvider);
   return authService.isLoggedIn();
 });
-
-final authRefreshProvider = StateProvider<int>((ref) => 0);
 
 final signupServiceProvider = Provider<SignupService>((ref) {
   final apiClient = ref.watch(apiClientProvider);
