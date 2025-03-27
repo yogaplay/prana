@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:frontend/core/providers/providers.dart';
 import '../models/home_model.dart';
+import '../providers/detail_data_provider.dart';
 
 class HomeScreen extends ConsumerWidget {
   const HomeScreen({super.key});
@@ -276,7 +277,7 @@ class HomeScreen extends ConsumerWidget {
         color: const Color(0xffE8FAF1),
         borderRadius: BorderRadius.circular(16),
       ),
-      child: Text(
+      child: Text(  
         text,
         style: const TextStyle(fontFamily: 'Pretendard', fontSize: 14),
       ),
@@ -296,20 +297,44 @@ class HomeScreen extends ConsumerWidget {
   }
 }
 
-class DetailPage extends StatelessWidget {
+class DetailPage extends ConsumerWidget {
   final String title;
 
   const DetailPage({super.key, required this.title});
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    final detailAsync = ref.watch(detailDataProvider(title));
+
     return Scaffold(
       appBar: AppBar(title: Text('$title 전체보기')),
-      body: Center(
-        child: Text(
-          '$title 항목 전체 보기 페이지입니다.',
-          style: const TextStyle(fontSize: 18),
+      body: detailAsync.when(
+        loading: () => const Center(child: CircularProgressIndicator()),
+        error: (error, stackTrace) => Center(
+          child: Text('에러 발생: ${error.toString()}'),
         ),
+        data: (data) => data.content.isEmpty
+            ? const Center(child: Text('데이터가 없습니다.'))
+            : ListView.builder(
+                itemCount: data.content.length,
+                itemBuilder: (context, index) {
+                  final item = data.content[index];
+                  return Card(
+                    margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                    child: ListTile(
+                      leading: item.image != null
+                          ? Image.network(item.image!, width: 60, fit: BoxFit.cover)
+                          : const Icon(Icons.image_not_supported),
+                      title: Text(item.sequenceName),
+                      subtitle: Text(item.tagList.join(' · ')),
+                      trailing: Icon(
+                        item.star ? Icons.star : Icons.star_border,
+                        color: item.star ? Colors.orange : null,
+                      ),
+                    ),
+                  );
+                },
+              ),
       ),
     );
   }

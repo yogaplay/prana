@@ -105,3 +105,58 @@ class ReportResponse {
     );
   }
 }
+
+class SequenceItem {
+  final int sequenceId;
+  final String sequenceName;
+  final String? image;
+  final bool star;
+  final List<String> tagList;
+
+  SequenceItem({
+    required this.sequenceId,
+    required this.sequenceName,
+    this.image,
+    required this.star,
+    required this.tagList,
+  });
+
+  factory SequenceItem.fromJson(Map<String, dynamic> json) {
+    return SequenceItem(
+      sequenceId: json['sequenceId'],
+      sequenceName: json['sequenceName'],
+      image: json['image'],
+      star: json['star'],
+      tagList: List<String>.from(json['tagList']),
+    );
+  }
+}
+
+
+class PaginatedSequenceResponse {
+  final List<SequenceItem> content;
+  final int currentPage;
+  final int pageSize;
+  final int totalElements;
+  final int totalPages;
+
+  PaginatedSequenceResponse({
+    required this.content,
+    required this.currentPage,
+    required this.pageSize,
+    required this.totalElements,
+    required this.totalPages,
+  });
+
+  factory PaginatedSequenceResponse.fromJson(Map<String, dynamic> json) {
+    return PaginatedSequenceResponse(
+      content: (json['content'] as List)
+          .map((item) => SequenceItem.fromJson(item))
+          .toList(),
+      currentPage: json['currentPage'],
+      pageSize: json['pageSize'],
+      totalElements: json['totalElements'],
+      totalPages: json['totalPages'],
+    );
+  }
+}
