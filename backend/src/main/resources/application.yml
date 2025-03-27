@@ -20,7 +20,7 @@ spring:
 
   data:
     redis:
-      host: localhost
+      host: prana-redis
       port: 6379
 
 
