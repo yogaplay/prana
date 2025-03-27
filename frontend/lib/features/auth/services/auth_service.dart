@@ -1,34 +1,17 @@
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
-import 'package:http/http.dart' as http;
+import 'package:frontend/core/api/api_client.dart';
+import 'package:frontend/features/auth/models/auth_model.dart';
 import 'package:kakao_flutter_sdk_user/kakao_flutter_sdk_user.dart';
-import 'dart:convert';
-
-class AuthResponse {
-  final String pranaAccessToken;
-  final String pranaRefreshToken;
-  final bool isFirst;
-
-  AuthResponse({
-    required this.pranaAccessToken,
-    required this.pranaRefreshToken,
-    required this.isFirst,
-  });
-
-  factory AuthResponse.fromJson(Map<String, dynamic> json) {
-    return AuthResponse(
-      pranaAccessToken: json['pranaAccessToken'],
-      pranaRefreshToken: json['pranaRefreshToken'],
-      isFirst: json['isFirst'],
-    );
-  }
-}
 
 class AuthService {
+  final ApiClient _apiClient;
   final FlutterSecureStorage _storage = const FlutterSecureStorage();
 
   static const String _accessToken = 'prana_access_token';
   static const String _refreshToken = 'prana_refresh_token';
   static const String _isFirst = 'prana_is_first';
+
+  AuthService({required ApiClient apiClient}) : _apiClient = apiClient;
 
   // 카카오 로그인
   Future<OAuthToken> startWithKakao() async {
@@ -49,20 +32,21 @@ class AuthService {
     }
   }
 
-  // 백엔드 서버로 카카오 토큰 전송 -> 서비스 토큰 받아오기
+  // 서비스 토큰 발급
   Future<AuthResponse> getAuthTokens(String kakaoToken) async {
-    final response = await http.post(
-      Uri.parse('https://j12a103.p.ssafy.io:8444/api/token/generate'),
-      headers: {'Content-Type': 'application/json'},
-      body: json.encode({'kakaoAccessToken': kakaoToken}),
-    );
-    print('서버 응답 상태 코드: ${response.statusCode}');
-    print('서버 응답 본문: ${response.body}');
-    if (response.statusCode == 200) {
-      final responseData = json.decode(response.body);
-      return AuthResponse.fromJson(responseData);
-    } else {
-      throw Exception('인증 토큰 발급 실패 ${response.statusCode}');
+    try {
+      final response = await _apiClient.post(
+        '/token/generate',
+        body: {'kakaoAccessToken': kakaoToken},
+      );
+
+      final authResponse = AuthResponse.fromJson(response);
+      await saveAuthData(authResponse);
+
+      return authResponse;
+    } catch (e) {
+      print('인증 토큰 발급 실패: ${e.toString()}');
+      throw Exception('인증 토큰 발급 실패');
     }
   }
 
@@ -74,20 +58,19 @@ class AuthService {
       throw Exception('리프레시 토큰 없음');
     }
 
-    final response = await http.post(
-      Uri.parse('https://j12a103.p.ssafy.io:8444/api/token/refresh'),
-      headers: {'Content-Type': 'application/json'},
-      body: json.encode({'pranaRefreshToken': refreshToken}),
-    );
+    try {
+      final response = await _apiClient.post(
+        '/token/refresh',
+        body: {'pranaRefreshToken': refreshToken},
+      );
 
-    if (response.statusCode == 200) {
-      final responseData = json.decode(response.body);
-      final authResponse = AuthResponse.fromJson(responseData);
-
+      final authResponse = AuthResponse.fromJson(response);
       await saveAuthData(authResponse);
+
       return authResponse;
-    } else {
-      throw Exception('토큰 재발급 실패 ${response.statusCode} ${response.body}');
+    } catch (e) {
+      print('토큰 재발급 실패: ${e.toString()}');
+      throw Exception('토큰 재발급 실패');
     }
   }
 
@@ -101,6 +84,8 @@ class AuthService {
       value: authResponse.pranaRefreshToken,
     );
     await _storage.write(key: _isFirst, value: authResponse.isFirst.toString());
+
+    _apiClient.setAuthToken(authResponse.pranaAccessToken);
   }
 
   Future<String?> getAccessToken() async {
@@ -119,5 +104,13 @@ class AuthService {
   Future<bool> isLoggedIn() async {
     final token = await getAccessToken();
     return token != null && token.isNotEmpty;
+  }
+
+  // 앱 시작 시 호출하여 저장된 토큰이 있으면 API 클라이언트에 설정
+  Future<void> initializeTokens() async {
+    final token = await getAccessToken();
+    if (token != null && token.isNotEmpty) {
+      _apiClient.setAuthToken(token);
+    }
   }
 }

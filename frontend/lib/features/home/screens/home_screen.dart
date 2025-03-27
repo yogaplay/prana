@@ -1,73 +1,40 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:frontend/core/providers/providers.dart';
 import '../models/home_model.dart';
-import '../services/home_service.dart';
-import 'package:frontend/features/auth/services/auth_service.dart';
 
-class HomeScreen extends StatefulWidget {
+class HomeScreen extends ConsumerWidget {
   const HomeScreen({super.key});
 
   @override
-  State<HomeScreen> createState() => _HomeScreenState();
-}
+  Widget build(BuildContext context, WidgetRef ref) {
+    final homeDataAsync = ref.watch(homeDataProvider);
 
-class _HomeScreenState extends State<HomeScreen> {
-  Future<ReportResponse>? _reportFuture;
-
-  @override
-  void initState() {
-    super.initState();
-    _loadDataWithToken();
-  }
-
-  final _authService = AuthService();
-
-  void _loadDataWithToken() async {
-    final token = await _authService.getAccessToken();
-    print('▶️ 가져온 토큰: $token');
-    if (token == null) {
-      // 토큰 없을 때 처리 (예: 로그인 페이지 이동 등)
-      print('❗ 토큰 없음! 로그인 필요');
-      return;
-    }
-
-    setState(() {
-      _reportFuture = HomeService.fetchHomeData(
-
-        token: token,
-      );
-    });
-  }
-  @override
-  Widget build(BuildContext context) {
-    if (_reportFuture == null) {
-    return const Scaffold(
-      body: Center(child: CircularProgressIndicator()),
-    );
-  }
-    return FutureBuilder<ReportResponse>(
-      future: _reportFuture,
-      builder: (context, snapshot) {
-        if (snapshot.connectionState == ConnectionState.waiting) {
-          return const Scaffold(
-            body: Center(child: CircularProgressIndicator()),
-          );
-        } else if (snapshot.hasError) {
-          return Scaffold(
-            body: Center(child: Text('에러: ${snapshot.error}')),
-          );
-        } else if (snapshot.hasData) {
-          final data = snapshot.data!;
-          return _buildHomeUI(data);
-        } else {
-          return const Scaffold(
-            body: Center(child: Text('데이터가 없습니다')),
-          );
-        }
-      },
+    return homeDataAsync.when(
+      data: (data) => _buildHomeUI(data, context),
+      loading:
+          () =>
+              const Scaffold(body: Center(child: CircularProgressIndicator())),
+      error:
+          (error, stackTrace) => Scaffold(
+            body: Center(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Text('에러: ${error.toString()}'),
+                  const SizedBox(height: 16),
+                  ElevatedButton(
+                    onPressed: () => ref.refresh(homeDataProvider),
+                    child: const Text('다시 시도'),
+                  ),
+                ],
+              ),
+            ),
+          ),
     );
   }
 
-  Widget _buildHomeUI(ReportResponse data) {
+  Widget _buildHomeUI(ReportResponse data, BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.white,
       appBar: AppBar(
@@ -95,13 +62,22 @@ class _HomeScreenState extends State<HomeScreen> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             _buildReportCard(data.report),
-            _buildSectionWithSeeAll('최근', context, _buildRecentActivity(data.recentList)),
-            _buildSectionWithSeeAll('즐겨찾기', context, _buildFavoriteWorkout(data.starList)),
+            _buildSectionWithSeeAll(
+              '최근',
+              context,
+              _buildRecentActivity(data.recentList),
+            ),
+            _buildSectionWithSeeAll(
+              '즐겨찾기',
+              context,
+              _buildFavoriteWorkout(data.starList),
+            ),
           ],
         ),
       ),
     );
   }
+
   Widget _buildReportCard(Report report) {
     return Container(
       margin: const EdgeInsets.only(bottom: 16),
@@ -119,7 +95,14 @@ class _HomeScreenState extends State<HomeScreen> {
           const Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Text('리포트', style: TextStyle(fontFamily: 'Pretendard', fontSize: 18, fontWeight: FontWeight.bold)),
+              Text(
+                '리포트',
+                style: TextStyle(
+                  fontFamily: 'Pretendard',
+                  fontSize: 18,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
               Icon(Icons.chevron_right, color: Colors.black),
             ],
           ),
@@ -127,9 +110,18 @@ class _HomeScreenState extends State<HomeScreen> {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceAround,
             children: [
-              _buildReportItem(Icons.local_fire_department, '${report.streakDays}일째'),
-              _buildReportItem(Icons.self_improvement, '${report.totalYogaCnt}개'),
-              _buildReportItem(Icons.access_time, '${(report.totalTime / 60).floor()}분'),
+              _buildReportItem(
+                Icons.local_fire_department,
+                '${report.streakDays}일째',
+              ),
+              _buildReportItem(
+                Icons.self_improvement,
+                '${report.totalYogaCnt}개',
+              ),
+              _buildReportItem(
+                Icons.access_time,
+                '${(report.totalTime / 60).floor()}분',
+              ),
             ],
           ),
         ],
@@ -139,47 +131,88 @@ class _HomeScreenState extends State<HomeScreen> {
 
   Widget _buildRecentActivity(List<RecentItem> list) {
     return Column(
-      children: list.map((activity) {
-        return ListTile(
-          leading: ClipRRect(
-            borderRadius: BorderRadius.circular(8),
-            child: Image.network(activity.image, width: 50, height: 50, fit: BoxFit.cover),
-          ),
-          title: Text(activity.sequenceName, style: const TextStyle(fontFamily: 'Pretendard', fontSize: 16, fontWeight: FontWeight.bold)),
-          subtitle: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(_formatTimeAgo(activity.updatedAt), style: const TextStyle(fontFamily: 'Pretendard', fontSize: 14)),
-              const SizedBox(height: 4),
-              LinearProgressIndicator(value: activity.percent / 100, color: const Color(0xff7ECECA), backgroundColor: const Color(0xffE8FAF1)),
-            ],
-          ),
-        );
-      }).toList(),
+      children:
+          list.map((activity) {
+            return ListTile(
+              leading: ClipRRect(
+                borderRadius: BorderRadius.circular(8),
+                child: Image.network(
+                  activity.image,
+                  width: 50,
+                  height: 50,
+                  fit: BoxFit.cover,
+                ),
+              ),
+              title: Text(
+                activity.sequenceName,
+                style: const TextStyle(
+                  fontFamily: 'Pretendard',
+                  fontSize: 16,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+              subtitle: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    _formatTimeAgo(activity.updatedAt),
+                    style: const TextStyle(
+                      fontFamily: 'Pretendard',
+                      fontSize: 14,
+                    ),
+                  ),
+                  const SizedBox(height: 4),
+                  LinearProgressIndicator(
+                    value: activity.percent / 100,
+                    color: const Color(0xff7ECECA),
+                    backgroundColor: const Color(0xffE8FAF1),
+                  ),
+                ],
+              ),
+            );
+          }).toList(),
     );
   }
 
   Widget _buildFavoriteWorkout(List<StarItem> list) {
     return Column(
-      children: list.map((item) {
-        return ListTile(
-          leading: ClipRRect(
-            borderRadius: BorderRadius.circular(8),
-            child: item.image != null
-                ? Image.network(item.image!, width: 50, height: 50, fit: BoxFit.cover)
-                : const Icon(Icons.image_not_supported),
-          ),
-          title: Text(item.sequenceName, style: const TextStyle(fontFamily: 'Pretendard', fontSize: 16, fontWeight: FontWeight.bold)),
-          subtitle: Row(
-            children: item.tagList.map((tag) => _buildTag(tag)).toList(),
-          ),
-          trailing: const Icon(Icons.star, color: Color(0xff7ECECA)),
-        );
-      }).toList(),
+      children:
+          list.map((item) {
+            return ListTile(
+              leading: ClipRRect(
+                borderRadius: BorderRadius.circular(8),
+                child:
+                    item.image != null
+                        ? Image.network(
+                          item.image!,
+                          width: 50,
+                          height: 50,
+                          fit: BoxFit.cover,
+                        )
+                        : const Icon(Icons.image_not_supported),
+              ),
+              title: Text(
+                item.sequenceName,
+                style: const TextStyle(
+                  fontFamily: 'Pretendard',
+                  fontSize: 16,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+              subtitle: Row(
+                children: item.tagList.map((tag) => _buildTag(tag)).toList(),
+              ),
+              trailing: const Icon(Icons.star, color: Color(0xff7ECECA)),
+            );
+          }).toList(),
     );
   }
 
-  Widget _buildSectionWithSeeAll(String title, BuildContext context, Widget content) {
+  Widget _buildSectionWithSeeAll(
+    String title,
+    BuildContext context,
+    Widget content,
+  ) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -190,18 +223,28 @@ class _HomeScreenState extends State<HomeScreen> {
             children: [
               Text(
                 title,
-                style: const TextStyle(fontFamily: 'Pretendard', fontSize: 24, fontWeight: FontWeight.bold),
+                style: const TextStyle(
+                  fontFamily: 'Pretendard',
+                  fontSize: 24,
+                  fontWeight: FontWeight.bold,
+                ),
               ),
               GestureDetector(
                 onTap: () {
                   Navigator.push(
                     context,
-                    MaterialPageRoute(builder: (context) => DetailPage(title: title)),
+                    MaterialPageRoute(
+                      builder: (context) => DetailPage(title: title),
+                    ),
                   );
                 },
                 child: const Text(
                   '전체보기',
-                  style: TextStyle(fontSize: 14, color: Color(0xffD9D9D9), fontWeight: FontWeight.bold),
+                  style: TextStyle(
+                    fontSize: 14,
+                    color: Color(0xffD9D9D9),
+                    fontWeight: FontWeight.bold,
+                  ),
                 ),
               ),
             ],
@@ -217,7 +260,10 @@ class _HomeScreenState extends State<HomeScreen> {
       children: [
         Icon(icon, color: const Color(0xff7ECECA), size: 28),
         const SizedBox(height: 4),
-        Text(label, style: const TextStyle(fontSize: 14, fontWeight: FontWeight.bold)),
+        Text(
+          label,
+          style: const TextStyle(fontSize: 14, fontWeight: FontWeight.bold),
+        ),
       ],
     );
   }
@@ -230,7 +276,10 @@ class _HomeScreenState extends State<HomeScreen> {
         color: const Color(0xffE8FAF1),
         borderRadius: BorderRadius.circular(16),
       ),
-      child: Text(text, style: const TextStyle(fontFamily: 'Pretendard', fontSize: 14)),
+      child: Text(
+        text,
+        style: const TextStyle(fontFamily: 'Pretendard', fontSize: 14),
+      ),
     );
   }
 
@@ -245,7 +294,6 @@ class _HomeScreenState extends State<HomeScreen> {
       return '${diff.inDays}일 전';
     }
   }
-
 }
 
 class DetailPage extends StatelessWidget {
@@ -266,4 +314,3 @@ class DetailPage extends StatelessWidget {
     );
   }
 }
-

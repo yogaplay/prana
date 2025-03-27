@@ -1,14 +1,16 @@
 import 'package:flutter/material.dart';
-import 'package:frontend/features/auth/services/auth_service.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:frontend/constants/app_colors.dart';
+import 'package:frontend/core/providers/providers.dart';
 import 'package:go_router/go_router.dart';
 
-class OnboardingScreen extends StatelessWidget {
+class OnboardingScreen extends ConsumerWidget {
   const OnboardingScreen({super.key});
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     return Scaffold(
-      backgroundColor: Color(0xFF7ECECA),
+      backgroundColor: AppColors.primary,
       body: Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
@@ -34,7 +36,7 @@ class OnboardingScreen extends StatelessWidget {
             ),
             SizedBox(height: 4),
             GestureDetector(
-              onTap: () => _handleKakaoLogin(context),
+              onTap: () => _handleKakaoLogin(context, ref),
               child: Image.asset(
                 'assets/images/kakao_login_medium_narrow.png',
                 height: 45,
@@ -47,21 +49,20 @@ class OnboardingScreen extends StatelessWidget {
     );
   }
 
-  Future<void> _handleKakaoLogin(BuildContext context) async {
-    final authService = AuthService();
+  Future<void> _handleKakaoLogin(BuildContext context, WidgetRef ref) async {
+    final authService = ref.read(authServiceProvider);
 
     try {
       final kakaoToken = await authService.startWithKakao();
       final authResponse = await authService.getAuthTokens(
         kakaoToken.accessToken,
       );
-      await authService.saveAuthData(authResponse);
+
       if (authResponse.isFirst) {
         context.goNamed("signup");
       } else {
         context.goNamed("home");
       }
-      print("회원가입 성공!!");
     } catch (error) {
       print('로그인 실패 $error');
     }
