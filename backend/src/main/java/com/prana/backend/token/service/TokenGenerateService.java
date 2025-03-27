@@ -40,8 +40,8 @@ public class TokenGenerateService {
         Integer userId = user.getId();
         // userId 를 가지는 토큰 생성
 
-        String pranaAccessToken = pranaTokenProvider.createJwtToken(userId, 1000L * 60 * 60, PranaTokenProvider.TOKEN_TYPE.ACCESS_TOKEN);
-        String pranaRefreshToken = pranaTokenProvider.createJwtToken(userId, 1000L * 60 * 60 * 24 * 30, PranaTokenProvider.TOKEN_TYPE.REFRESH_TOKEN);
+        String pranaAccessToken = pranaTokenProvider.createJwtToken(userId, 1000L * 60, PranaTokenProvider.TOKEN_TYPE.ACCESS_TOKEN);
+        String pranaRefreshToken = pranaTokenProvider.createJwtToken(userId, 1000L * 60 * 5, PranaTokenProvider.TOKEN_TYPE.REFRESH_TOKEN);
         return new TokenResponse(pranaAccessToken, pranaRefreshToken, optionalUser.isEmpty());
     }
 
