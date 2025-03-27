@@ -29,6 +29,10 @@ public class Feedback {
     @JoinColumn(name = "yoga_id", nullable = false)
     private Yoga yoga;
 
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "sequence_id", nullable = false)
+    private Sequence sequence;
+
     @Column(name = "body_part", nullable = false)
     private String bodyPart;
 
