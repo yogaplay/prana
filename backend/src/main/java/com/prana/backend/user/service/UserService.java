@@ -2,6 +2,7 @@ package com.prana.backend.user.service;
 
 import com.prana.backend.user.controller.request.PatchMyInfoRequest;
 import com.prana.backend.user.controller.request.SignUpRequest;
+import com.prana.backend.user.controller.response.MyInfoResponse;
 import com.prana.backend.user.repository.SignUpRepository;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -42,4 +43,14 @@ public class UserService {
         return ResponseEntity.ok().build();
     }
 
+    /**
+     * 회원 정보 조회
+     *
+     * @param userId 사용자 Id
+     * @return ResponseEntity<MyInfoResponse>
+     */
+    @Transactional(readOnly = true)
+    public ResponseEntity<MyInfoResponse> myInfo(Integer userId) {
+        return ResponseEntity.ok().body(signUpRepository.myInfo(userId));
+    }
 }

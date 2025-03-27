@@ -3,6 +3,7 @@ package com.prana.backend.user.controller;
 import com.prana.backend.common.PranaPrincipal;
 import com.prana.backend.user.controller.request.PatchMyInfoRequest;
 import com.prana.backend.user.controller.request.SignUpRequest;
+import com.prana.backend.user.controller.response.MyInfoResponse;
 import com.prana.backend.user.service.UserService;
 import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
@@ -22,9 +23,17 @@ public class UserController {
         return userService.signUp(pranaPrincipal.getUserId(), signUpRequest);
     }
 
-    @PatchMapping
+    @PutMapping
     public ResponseEntity<Void> updateMyInfo(@Valid @RequestBody PatchMyInfoRequest patchMyInfoRequest, @AuthenticationPrincipal PranaPrincipal pranaPrincipal) {
+        if (patchMyInfoRequest.isEmpty()) {
+            return ResponseEntity.ok().build();
+        }
         return userService.updateMyInfo(pranaPrincipal.getUserId(), patchMyInfoRequest);
+    }
+
+    @GetMapping
+    public ResponseEntity<MyInfoResponse> myInfo(@AuthenticationPrincipal PranaPrincipal pranaPrincipal) {
+        return userService.myInfo(pranaPrincipal.getUserId());
     }
 
 }
