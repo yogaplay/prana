@@ -1,5 +1,6 @@
 import 'package:dio/dio.dart';
 import 'package:flutter/foundation.dart';
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:frontend/features/auth/models/auth_model.dart';
 import 'package:frontend/features/auth/services/auth_service.dart';
 
@@ -7,6 +8,13 @@ class ApiClient {
   final String baseUrl;
   late final Dio _dio;
   late AuthService _authService;
+
+  final FlutterSecureStorage _storage = const FlutterSecureStorage();
+  static const String _accessToken = 'prana_access_token';
+
+  Future<String?> getStoredToken() async {
+    return await _storage.read(key: _accessToken);
+  }
 
   ApiClient({this.baseUrl = 'https://j12a103.p.ssafy.io:8444/api'}) {
     _dio = Dio(
@@ -23,19 +31,6 @@ class ApiClient {
 
     // 인터셉터 설정
     _setupInterceptors();
-
-    // 로깅 인터셉터 추가 (디버그 모드에서만)
-    if (kDebugMode) {
-      _dio.interceptors.add(
-        LogInterceptor(
-          requestBody: true,
-          responseBody: true,
-          error: true,
-          requestHeader: true,
-          responseHeader: true,
-        ),
-      );
-    }
   }
 
   void setAuthService(AuthService authService) {
@@ -73,11 +68,13 @@ class ApiClient {
             if (errorCode == 40112) {
               try {
                 print('액세스토큰 유효하지 않음 : 토큰 재발급');
-                final refreshed = await _refreshToken();
-                if (refreshed) {
+                final authResponse = await _authService.refreshToken();
+
+                if (authResponse.pranaAccessToken.isNotEmpty) {
                   return handler.resolve(await _retry(e.requestOptions));
                 }
               } catch (e) {
+                print("재요청 중 오류 발생");
                 _authService.logout();
               }
             }
@@ -86,26 +83,6 @@ class ApiClient {
         },
       ),
     );
-  }
-
-  Future<bool> _refreshToken() async {
-    try {
-      final refreshToken = await _authService.getRefreshToken();
-      final response = await _dio.post(
-        '/token/refresh',
-        data: {'pranaRefreshToken': refreshToken},
-      );
-
-      if (response.statusCode == 200) {
-        final authResponse = AuthResponse.fromJson(response.data);
-        await _authService.saveAuthData(authResponse);
-        setAuthToken(authResponse.pranaAccessToken);
-        return true;
-      }
-      return false;
-    } catch (e) {
-      return false;
-    }
   }
 
   Future<Response<dynamic>> _retry(RequestOptions requestOptions) async {

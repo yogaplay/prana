@@ -51,19 +51,29 @@ class AuthService {
   }
 
   // 토큰 재발급
-  Future<AuthResponse> refreshToken() async {
+  Future<RefreshResponse> refreshToken() async {
     String? refreshToken = await getRefreshToken();
 
+    // refreshToken이 null이거나 비어있는 경우 체크
+    if (refreshToken == null || refreshToken.isEmpty) {
+      print('리프레시 토큰이 없습니다.');
+      throw Exception('리프레시 토큰이 없습니다.');
+    }
+
     try {
+      print("토큰 재발급 시도 - 리프레시 토큰: $refreshToken");
+
       final response = await _apiClient.post(
         '/token/refresh',
         body: {'pranaRefreshToken': refreshToken},
       );
 
-      final authResponse = AuthResponse.fromJson(response);
-      await saveAuthData(authResponse);
+      print("토큰 재발급 응답: $response");
 
-      return authResponse;
+      final refreshResponse = RefreshResponse.fromJson(response);
+      await updateAccessToken(refreshResponse);
+
+      return refreshResponse;
     } catch (e) {
       print('토큰 재발급 실패: ${e.toString()}');
       throw Exception('토큰 재발급 실패');
@@ -91,6 +101,10 @@ class AuthService {
     _apiClient.setAuthToken(authResponse.pranaAccessToken);
   }
 
+  Future updateAccessToken(RefreshResponse response) async {
+    await _storage.write(key: _accessToken, value: response.pranaAccessToken);
+  }
+
   Future<String?> getAccessToken() async {
     return await _storage.read(key: _accessToken);
   }
@@ -100,8 +114,7 @@ class AuthService {
   }
 
   Future<bool> isFirstLogin() async {
-    final isFirst = await _storage.read(key: _isFirst);
-    return isFirst == 'true';
+    return _isFirst == 'true';
   }
 
   Future<bool> isLoggedIn() async {
