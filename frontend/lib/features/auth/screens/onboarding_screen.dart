@@ -59,9 +59,13 @@ class OnboardingScreen extends ConsumerWidget {
       );
 
       if (authResponse.isFirst) {
-        context.goNamed("signup");
+        ref.invalidate(authStateProvider);
+        ref.invalidate(isFirstLoginProvider);
+        if (context.mounted) context.goNamed("signup");
       } else {
-        context.goNamed("home");
+        ref.invalidate(authStateProvider);
+        ref.invalidate(isFirstLoginProvider);
+        if (context.mounted) context.goNamed("home");
       }
     } catch (error) {
       print('로그인 실패 $error');

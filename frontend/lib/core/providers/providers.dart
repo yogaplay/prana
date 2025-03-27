@@ -21,12 +21,17 @@ final authServiceProvider = Provider<AuthService>((ref) {
 // 인증 상태 관리
 final authStateProvider = FutureProvider<bool>((ref) async {
   final authService = ref.read(authServiceProvider);
-  return authService.isLoggedIn();
+  return await authService.isLoggedIn();
 });
 
 final signupServiceProvider = Provider<SignupService>((ref) {
   final apiClient = ref.watch(apiClientProvider);
   return SignupService(apiClient: apiClient);
+});
+
+final isFirstLoginProvider = FutureProvider<bool>((ref) async {
+  final authService = ref.watch(authServiceProvider);
+  return await authService.isFirstLogin();
 });
 
 final homeServiceProvider = Provider<HomeService>((ref) {

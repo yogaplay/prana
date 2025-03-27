@@ -25,3 +25,17 @@ class AuthResponse {
     };
   }
 }
+
+class RefreshResponse {
+  final String pranaAccessToken;
+
+  RefreshResponse({required this.pranaAccessToken});
+
+  factory RefreshResponse.fromJson(Map<String, dynamic> json) {
+    return RefreshResponse(pranaAccessToken: json['pranaAccessToken']);
+  }
+
+  Map<String, dynamic> toJson() {
+    return {'pranaAccessToken': pranaAccessToken};
+  }
+}
