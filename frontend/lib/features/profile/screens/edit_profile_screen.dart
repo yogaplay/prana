@@ -29,22 +29,25 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
         backgroundColor: AppColors.background,
         elevation: 0,
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back_ios, color: AppColors.blackText),
+          icon: const Icon(
+            Icons.arrow_back_ios,
+            color: AppColors.blackText,
+            size: 20,
+          ),
           onPressed: () => Navigator.of(context).pop(),
         ),
         title: const Text(
           '내 정보 수정',
           style: TextStyle(
             color: AppColors.blackText,
-            fontSize: 18,
+            fontSize: 24,
             fontWeight: FontWeight.bold,
           ),
         ),
-        centerTitle: true,
       ),
       body: SingleChildScrollView(
         child: Padding(
-          padding: const EdgeInsets.all(16.0),
+          padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 24.0),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
@@ -52,7 +55,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
               const Text(
                 '닉네임 변경',
                 style: TextStyle(
-                  fontSize: 16,
+                  fontSize: 20,
                   fontWeight: FontWeight.bold,
                   color: AppColors.blackText,
                 ),
@@ -83,7 +86,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
               const Text(
                 '정보 변경',
                 style: TextStyle(
-                  fontSize: 16,
+                  fontSize: 20,
                   fontWeight: FontWeight.bold,
                   color: AppColors.blackText,
                 ),

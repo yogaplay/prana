@@ -73,7 +73,22 @@ class _NotificationSettingsScreenState
       appBar: AppBar(
         backgroundColor: AppColors.background,
         elevation: 0,
-        leading: const BackButton(),
+        leading: IconButton(
+          icon: const Icon(
+            Icons.arrow_back_ios,
+            color: AppColors.blackText,
+            size: 20,
+          ),
+          onPressed: () => Navigator.of(context).pop(),
+        ),
+        title: const Text(
+          '알림 설정',
+          style: TextStyle(
+            color: AppColors.blackText,
+            fontSize: 24,
+            fontWeight: FontWeight.bold,
+          ),
+        ),
       ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
@@ -103,17 +118,14 @@ class _NotificationSettingsScreenState
                             fontWeight: FontWeight.bold,
                           ),
                         ),
-                        Switch(
+                        CupertinoSwitch(
                           value: weeklyReportEnabled,
                           onChanged: (value) {
                             setState(() {
                               weeklyReportEnabled = value;
                             });
                           },
-                          activeTrackColor: AppColors.primary.withValues(
-                            alpha: 0.5,
-                          ),
-                          activeColor: AppColors.primary,
+                          activeTrackColor: AppColors.primary,
                         ),
                       ],
                     ),
@@ -140,17 +152,14 @@ class _NotificationSettingsScreenState
                             fontWeight: FontWeight.bold,
                           ),
                         ),
-                        Switch(
+                        CupertinoSwitch(
                           value: dailyExerciseEnabled,
                           onChanged: (value) {
                             setState(() {
                               dailyExerciseEnabled = value;
                             });
                           },
-                          activeTrackColor: AppColors.primary.withValues(
-                            alpha: 0.5,
-                          ),
-                          activeColor: AppColors.primary,
+                          activeTrackColor: AppColors.primary,
                         ),
                       ],
                     ),
