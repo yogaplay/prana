@@ -13,14 +13,12 @@ final routerProvider = Provider<GoRouter>((ref) {
     initialLocation: "/onboarding",
     redirect: (context, state) {
       // authState가 로딩 중이면 null 반환(현재 경로 유지)
-      print("authState ${authState}");
       if (authState.isLoading) return null;
 
       final isLoggedIn = authState.valueOrNull ?? false;
 
       // 로그인되어 있지 않으면 온보딩 페이지로
       if (!isLoggedIn && state.fullPath != '/onboarding') {
-        print("Redirect: 로그인 안됨 -> 온보딩으로");
         return '/onboarding';
       }
 
@@ -28,12 +26,9 @@ final routerProvider = Provider<GoRouter>((ref) {
       if (isLoggedIn && state.fullPath == '/onboarding') {
         if (!isFirstLoginAsync.isLoading && !isFirstLoginAsync.hasError) {
           final bool isFirstLogin = isFirstLoginAsync.value ?? false;
-          print("isFirstLogin: $isFirstLogin");
           if (isFirstLogin) {
-            print("Redirect: 첫 로그인 -> 회원가입으로");
             return '/signup';
           } else {
-            print("Redirect: 기존 사용자 -> 홈으로");
             return '/home';
           }
         }
