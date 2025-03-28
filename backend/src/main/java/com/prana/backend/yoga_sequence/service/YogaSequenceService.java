@@ -37,6 +37,7 @@ public class YogaSequenceService {
         return SequenceResponse.builder()
                 .sequenceId(sequence.getId())
                 .yogaCnt(sequence.getYogaCount())
+                .sequenceImage(sequence.getImage())
                 .sequenceName(sequence.getName())
                 .time(sequence.getTime())
                 .description(sequence.getDescription())
