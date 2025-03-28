@@ -16,33 +16,48 @@ class PoseItem extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Row(
-      crossAxisAlignment: CrossAxisAlignment.start,
+      crossAxisAlignment: CrossAxisAlignment.center,
       children: [
         Container(
-          width: 150,
-          height: 80,
+          width: 100,
+          height: 100,
           decoration: BoxDecoration(
             color: AppColors.secondary,
             borderRadius: BorderRadius.circular(8),
           ),
-          child: Image.asset(
-            imageUrl,
-            fit: BoxFit.contain,
+          child: Image.network(
+            imageUrl, 
+            fit: BoxFit.cover, 
+            width: 90, 
+            height: 90,
+            loadingBuilder: (context, child, loadingProgress) {
+              if (loadingProgress == null) return child;
+              return Center(
+                child: CircularProgressIndicator(
+                  value:
+                      loadingProgress.expectedTotalBytes != null
+                          ? loadingProgress.cumulativeBytesLoaded /
+                              loadingProgress.expectedTotalBytes!
+                          : null,
+                ),
+              );
+            },
             errorBuilder: (context, error, stackTrace) {
-              return const Icon(
-                Icons.fitness_center,
-                size: 30,
-                color: AppColors.primary,
+              return Container(
+                width: 150,
+                height: 150,
+                color: Colors.grey[300],
+                child: const Icon(Icons.broken_image, size: 50),
               );
             },
           ),
         ),
-        const SizedBox(width: 16),
+        const SizedBox(width: 20),
         Expanded(
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
+            mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              const SizedBox(height: 10),
               Text(
                 title,
                 style: const TextStyle(

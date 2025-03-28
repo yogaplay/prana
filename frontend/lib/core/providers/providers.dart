@@ -4,6 +4,8 @@ import 'package:frontend/features/auth/services/auth_service.dart';
 import 'package:frontend/features/auth/services/signup_service.dart';
 import 'package:frontend/features/home/models/home_model.dart';
 import 'package:frontend/features/home/services/home_service.dart';
+import 'package:frontend/features/learning/models/sequence_detail_model.dart';
+import 'package:frontend/features/learning/services/sequence_detail_service.dart';
 
 final apiClientProvider = Provider<ApiClient>((ref) {
   return ApiClient(baseUrl: 'https://j12a103.p.ssafy.io:8444/api');
@@ -52,3 +54,16 @@ Future<void> initializeApp(WidgetRef ref) async {
   final authService = ref.read(authServiceProvider);
   await authService.initializeTokens();
 }
+
+final sequenceDetailServiceProvider = Provider<SequenceDetailService>((ref) {
+  final apiClient = ref.watch(apiClientProvider);
+  return SequenceDetailService(apiClient);
+});
+
+final sequenceDetailProvider = FutureProvider.family<SequenceDetailModel, int>((
+  ref,
+  sequenceId,
+) async {
+  final sequenceService = ref.read(sequenceDetailServiceProvider);
+  return sequenceService.fetchSequenceDetailData(sequenceId);
+});

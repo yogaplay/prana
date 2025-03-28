@@ -13,11 +13,29 @@ class SequenceHeader extends StatelessWidget {
         SizedBox(
           width: double.infinity,
           height: 200,
-          child: Image.asset(
+          child: Image.network(
             imageUrl,
             fit: BoxFit.cover,
+            loadingBuilder: (context, child, loadingProgress) {
+              if (loadingProgress == null) return child;
+              return Container(
+                color: AppColors.lightGray,
+                child: Center(
+                  child: CircularProgressIndicator(
+                    value:
+                        loadingProgress.expectedTotalBytes != null
+                            ? loadingProgress.cumulativeBytesLoaded /
+                                loadingProgress.expectedTotalBytes!
+                            : null,
+                  ),
+                ),
+              );
+            },
             errorBuilder: (context, error, stackTrace) {
-              return Container(color: AppColors.lightGray);
+              return Container(
+                color: AppColors.lightGray,
+                child: const Icon(Icons.image_not_supported, size: 50),
+              );
             },
           ),
         ),
