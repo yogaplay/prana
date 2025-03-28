@@ -33,7 +33,7 @@ public class CustomReportRepository {
                 .leftJoin(userSequence).on(user.eq(userSequence.user))
                 .leftJoin(sequence).on(userSequence.sequence.eq(sequence))
                 .where(user.id.eq(userId))
-                .groupBy(userSequence.id, user.streakDays)
+                .groupBy(user.id)
                 .fetchOne();
 
     }

@@ -20,7 +20,7 @@ spring:
 
   data:
     redis:
-      host: localhost
+      host: prana-redis
       port: 6379
 
 
@@ -35,5 +35,5 @@ logging:
 # AI 서버의 엔드포인트 URL 설정
 ai:
   server:
-    shortFeedbackUrl : http://localhost:8000/api/short-feedback
-    longFeedbackUrl : http://localhost:8000/api/long-feedback
+    shortFeedbackUrl : http://ai-yoga:8000/api/short-feedback
+    longFeedbackUrl : http://ai-yoga:8000/api/long-feedback

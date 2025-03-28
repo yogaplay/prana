@@ -5,6 +5,7 @@ import com.prana.backend.entity.Tag;
 import com.prana.backend.look.controller.request.LookRequest;
 import com.prana.backend.look.controller.request.LookSearchRequest;
 import com.prana.backend.look.controller.response.LookResponse;
+import com.prana.backend.look.controller.response.LookResult;
 import com.prana.backend.look.controller.response.LookSearchResponse;
 import com.prana.backend.look.repository.CustomLookRepository;
 import com.prana.backend.look.repository.RandomTagRepository;
@@ -34,10 +35,10 @@ public class LookService {
      * 둘러보기 페이지
      *
      * @param request LookRequest
-     * @return ResponseEntity<PagedResponse < LookResponse>>
+     * @return ResponseEntity<LookResult>>
      */
     @Transactional(readOnly = true)
-    public ResponseEntity<List<LookResponse>> look(@Valid LookRequest request) {
+    public ResponseEntity<LookResult> look(@Valid LookRequest request) {
         List<Tag> randomTagPerType = randomTagRepository.findRandomTagPerType();
         List<LookResponse> lookList = new ArrayList<>();
         for (Tag tag : randomTagPerType) {
@@ -52,7 +53,7 @@ public class LookService {
             );
         }
 
-        return ResponseEntity.ok().body(lookList);
+        return ResponseEntity.ok().body(new LookResult(lookList));
     }
 
     /**

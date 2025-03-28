@@ -11,7 +11,7 @@ import java.util.List;
 public interface YogaSequenceRepository extends JpaRepository<YogaSequence, Integer> {
 
     @Query("SELECT new com.prana.backend.yoga_sequence.controller.response.YogaSequenceResponse(" +
-            "y.yogaId, y.yogaName, y.video, y.image, y.description) " +
+            "y.yogaId, y.yogaName, y.video, y.image, y.description, y.time) " +
             "FROM YogaSequence ys " +
             "JOIN ys.yoga y " +
             "WHERE ys.sequence.id = :sequenceId " +
