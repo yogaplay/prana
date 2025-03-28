@@ -1,7 +1,8 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:frontend/features/profile/screens/edit_profile_screen.dart';
 import 'package:frontend/constants/app_colors.dart';
+import 'package:frontend/features/alarm/screens/alarm_setting_screen.dart';
+import 'package:frontend/features/profile/screens/edit_profile_screen.dart';
 
 class InfoPage extends StatelessWidget {
   const InfoPage({super.key});
@@ -60,6 +61,12 @@ class InfoPage extends StatelessWidget {
                 title: '알림 설정',
                 onTap: () {
                   // 알림 설정 페이지로 이동
+                  Navigator.push(
+                    context,
+                    CupertinoPageRoute(
+                      builder: (context) => const NotificationSettingsScreen(),
+                    ),
+                  );
                 },
               ),
 
