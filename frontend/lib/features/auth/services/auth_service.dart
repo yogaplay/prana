@@ -1,17 +1,21 @@
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:frontend/core/api/api_client.dart';
+import 'package:frontend/core/providers/providers.dart';
 import 'package:frontend/features/auth/models/auth_model.dart';
 import 'package:kakao_flutter_sdk_user/kakao_flutter_sdk_user.dart';
 
 class AuthService {
   final ApiClient _apiClient;
   final FlutterSecureStorage _storage = const FlutterSecureStorage();
+  final Ref? ref;
 
   static const String _accessToken = 'prana_access_token';
   static const String _refreshToken = 'prana_refresh_token';
   static const String _isFirst = 'prana_is_first';
 
-  AuthService({required ApiClient apiClient}) : _apiClient = apiClient;
+  AuthService({required ApiClient apiClient, this.ref})
+    : _apiClient = apiClient;
 
   // 카카오 로그인
   Future<OAuthToken> startWithKakao() async {
@@ -85,6 +89,10 @@ class AuthService {
     await _storage.delete(key: _refreshToken);
     await _storage.delete(key: _isFirst);
     _apiClient.clearAuthToken();
+
+    if (ref != null) {
+      ref?.invalidate(authStateProvider);
+    }
   }
 
   Future<void> saveAuthData(AuthResponse authResponse) async {
