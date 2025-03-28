@@ -103,6 +103,7 @@ class AuthService {
 
   Future updateAccessToken(RefreshResponse response) async {
     await _storage.write(key: _accessToken, value: response.pranaAccessToken);
+    _apiClient.setAuthToken(response.pranaAccessToken);
   }
 
   Future<String?> getAccessToken() async {
