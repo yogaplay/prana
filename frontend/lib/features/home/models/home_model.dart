@@ -77,7 +77,7 @@ class StarItem {
       sequenceName: json['sequenceName'],
       image: json['image'],
       star: json['star'],
-      tagList: List<String>.from(json['tagList']),
+      tagList: List<String>.from(json['tagList'] ?? []),
     );
   }
 }
@@ -102,6 +102,72 @@ class ReportResponse {
       starList: (json['starList'] as List)
           .map((item) => StarItem.fromJson(item))
           .toList(),
+    );
+  }
+}
+
+class SequenceItem {
+  final int sequenceId;
+  final String sequenceName;
+  final String? image;
+  final bool star;
+  final List<String> tagList;
+
+  // 🔥 최근용 필드
+  final String? resultStatus;
+  final int? percent;
+  final DateTime? updatedAt;
+
+  SequenceItem({
+    required this.sequenceId,
+    required this.sequenceName,
+    this.image,
+    required this.star,
+    required this.tagList,
+    this.resultStatus,
+    this.percent,
+    this.updatedAt,
+  });
+
+  factory SequenceItem.fromJson(Map<String, dynamic> json) {
+    return SequenceItem(
+      sequenceId: json['sequenceId'],
+      sequenceName: json['sequenceName'],
+      image: json['image'],
+      star: json['star'] ?? false,
+      tagList: List<String>.from(json['tagList'] ?? []),
+      resultStatus: json['resultStatus'], // "Y" or "N"
+      percent: json['percent'],
+      updatedAt: json['updatedAt'] != null ? DateTime.parse(json['updatedAt']) : null,
+    );
+  }
+}
+
+
+class PaginatedSequenceResponse {
+  final List<SequenceItem> content;
+  final int currentPage;
+  final int pageSize;
+  final int totalElements;
+  final int totalPages;
+
+  PaginatedSequenceResponse({
+    required this.content,
+    required this.currentPage,
+    required this.pageSize,
+    required this.totalElements,
+    required this.totalPages,
+  });
+
+  factory PaginatedSequenceResponse.fromJson(Map<String, dynamic> json) {
+    return PaginatedSequenceResponse(
+      content: (json['content'] as List)
+          .map((item) => SequenceItem.fromJson(item))
+          .toList(),
+      currentPage: json['currentPage'],
+      pageSize: json['pageSize'],
+      totalElements: json['totalElements'],
+      totalPages: json['totalPages'],
     );
   }
 }
