@@ -2,6 +2,8 @@ package com.prana.backend.entity;
 
 import jakarta.persistence.*;
 import lombok.*;
+import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.UpdateTimestamp;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
@@ -51,20 +53,20 @@ public class WeeklyData {
     private int week5YogaTime;
 
     // 주별 정확도 (DECIMAL(4,1))
-    @Column(name = "week1_accuracy", nullable = false, precision = 4, scale = 1)
-    private BigDecimal week1Accuracy;
+    @Column(name = "week1_accuracy", nullable = false)
+    private Double week1Accuracy;
 
-    @Column(name = "week2_accuracy", nullable = false, precision = 4, scale = 1)
-    private BigDecimal week2Accuracy;
+    @Column(name = "week2_accuracy", nullable = false)
+    private Double week2Accuracy;
 
-    @Column(name = "week3_accuracy", nullable = false, precision = 4, scale = 1)
-    private BigDecimal week3Accuracy;
+    @Column(name = "week3_accuracy", nullable = false)
+    private Double week3Accuracy;
 
-    @Column(name = "week4_accuracy", nullable = false, precision = 4, scale = 1)
-    private BigDecimal week4Accuracy;
+    @Column(name = "week4_accuracy", nullable = false)
+    private Double week4Accuracy;
 
-    @Column(name = "week5_accuracy", nullable = false, precision = 4, scale = 1)
-    private BigDecimal week5Accuracy;
+    @Column(name = "week5_accuracy", nullable = false)
+    private Double week5Accuracy;
 
     // 피드백 (부위별)
     @Column(name = "feedback_shoulder", nullable = false)
@@ -101,25 +103,27 @@ public class WeeklyData {
     private int feedbackLegRight;
 
     // 주별 체질량 (DECIMAL(4,1))
-    @Column(name = "week1_bmi", nullable = false, precision = 4, scale = 1)
-    private BigDecimal week1Bmi;
+    @Column(name = "week1_bmi", nullable = false)
+    private Double week1Bmi;
 
-    @Column(name = "week2_bmi", nullable = false, precision = 4, scale = 1)
-    private BigDecimal week2Bmi;
+    @Column(name = "week2_bmi", nullable = false)
+    private Double week2Bmi;
 
-    @Column(name = "week3_bmi", nullable = false, precision = 4, scale = 1)
-    private BigDecimal week3Bmi;
+    @Column(name = "week3_bmi", nullable = false)
+    private Double week3Bmi;
 
-    @Column(name = "week4_bmi", nullable = false, precision = 4, scale = 1)
-    private BigDecimal week4Bmi;
+    @Column(name = "week4_bmi", nullable = false)
+    private Double week4Bmi;
 
-    @Column(name = "week5_bmi", nullable = false, precision = 4, scale = 1)
-    private BigDecimal week5Bmi;
+    @Column(name = "week5_bmi", nullable = false)
+    private Double week5Bmi;
 
     // 생성일 및 수정일
+    @CreationTimestamp
     @Column(name = "created_date", nullable = false)
     private LocalDateTime createdDate;
 
+    @UpdateTimestamp
     @Column(name = "updated_date", nullable = false)
     private LocalDateTime updatedDate;
 }
