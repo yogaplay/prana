@@ -54,8 +54,8 @@ public class WeeklyReportResponseDTO {
         private int month;
         private int week;
         private int time;
-        private BigDecimal accuracy;
-        private BigDecimal bmi;
+        private double accuracy;
+        private double bmi;
 
     }
 }
