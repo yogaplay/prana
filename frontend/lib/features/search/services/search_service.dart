@@ -19,9 +19,9 @@ class SearchService {
   }) async {
     await _ensureTokenSet();
     final response = await apiClient.get('/look?sampleSize=$sampleSize');
-    return (response as List)
-        .map((item) => YogaCategory.fromJson(item))
-        .toList();
+
+    final resultList = response['result'] as List;
+    return resultList.map((item) => YogaCategory.fromJson(item)).toList();
   }
 
   static Future<Map<String, dynamic>> fetchSearchResults({

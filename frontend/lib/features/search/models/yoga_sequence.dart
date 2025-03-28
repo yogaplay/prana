@@ -28,7 +28,7 @@ extension YogaSequenceMapper on YogaSequence {
     return YogaItem(
       title: name,
       duration: "${(time / 60).round()}분",
-      imageUrl: imageUrl ?? 'https://via.placeholder.com/100x150',
+      imageUrl: imageUrl ?? 'https://picsum.photos/100/150',
     );
   }
 }

@@ -73,6 +73,7 @@ class ApiClient {
                 }
               } catch (e) {
                 print("재요청 중 오류 발생");
+                print(e);
                 _authService.logout();
               }
             }

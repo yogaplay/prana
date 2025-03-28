@@ -2,7 +2,11 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:frontend/core/providers/providers.dart';
 import 'package:frontend/features/auth/screens/onboarding_screen.dart';
 import 'package:frontend/features/auth/screens/signup_screen.dart';
-import 'package:frontend/screens/main_screen.dart';
+import 'package:frontend/features/home/screens/home_screen.dart';
+import 'package:frontend/features/search/screens/see_all_screen.dart';
+import 'package:frontend/main_shell.dart';
+import 'package:frontend/screens/activity_page.dart';
+import 'package:frontend/screens/info_page.dart';
 import 'package:frontend/features/search/screens/search_input_screen.dart';
 import 'package:frontend/features/search/screens/search_main_screen.dart';
 import 'package:frontend/features/search/screens/search_result_screen.dart';
@@ -47,10 +51,28 @@ final routerProvider = Provider<GoRouter>((ref) {
       return null;
     },
     routes: [
-      GoRoute(
-        path: "/home",
-        name: "home",
-        builder: (_, __) => const MainScreen(),
+      ShellRoute(
+        builder: (context, state, child) {
+          return MainShell(child: child);
+        },
+        routes: [
+          GoRoute(
+            path: "/home",
+            name: "home",
+            builder: (_, __) => const HomeScreen(),
+          ),
+          GoRoute(
+            path: "/search",
+            name: "search",
+            builder: (_, __) => SearchMainScreen(),
+          ),
+          GoRoute(
+            path: "/activity",
+            name: "activity",
+            builder: (_, __) => ActivityPage(),
+          ),
+          GoRoute(path: "/info", name: "info", builder: (_, __) => InfoPage()),
+        ],
       ),
       GoRoute(
         path: "/onboarding",
@@ -62,11 +84,7 @@ final routerProvider = Provider<GoRouter>((ref) {
         name: "signup",
         builder: (_, __) => const SignupScreen(),
       ),
-      GoRoute(
-        path: "/search",
-        name: "search",
-        builder: (_, __) => SearchMainScreen(),
-      ),
+
       GoRoute(
         path: "/search/input",
         name: "search_input",
@@ -83,6 +101,17 @@ final routerProvider = Provider<GoRouter>((ref) {
           return SearchResultScreen(
             keyword: extra['keyword'] as String,
             selectedFilters: extra['selectedFilters'] as List<String>,
+          );
+        },
+      ),
+      GoRoute(
+        path: "/search/see-all",
+        name: "search_see_all",
+        builder: (context, state) {
+          final extra = state.extra as Map<String, dynamic>;
+          return SeeAllScreen(
+            tagName: extra['tagName'] as String,
+            tagType: extra['tagType'] as String,
           );
         },
       ),

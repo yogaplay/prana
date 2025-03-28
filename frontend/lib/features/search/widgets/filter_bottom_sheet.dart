@@ -55,8 +55,8 @@ class _FilterBottomSheetState extends State<FilterBottomSheet> {
   @override
   Widget build(BuildContext context) {
     return DraggableScrollableSheet(
-      initialChildSize: 0.65,
-      maxChildSize: 0.65,
+      initialChildSize: 0.71,
+      maxChildSize: 0.71,
       minChildSize: 0.3,
       expand: false,
       builder: (_, controller) {
@@ -88,7 +88,7 @@ class _FilterBottomSheetState extends State<FilterBottomSheet> {
                   children: [
                     _buildSectionTitle('운동 부위'),
                     SizedBox(height: 12),
-                    _buildChips(['엉덩이', '팔', '다리', '복부']),
+                    _buildChips(['팔', '다리', '등', '코어']),
 
                     SizedBox(height: 24),
                     _buildSectionTitle('난이도'),
@@ -98,7 +98,7 @@ class _FilterBottomSheetState extends State<FilterBottomSheet> {
                     SizedBox(height: 24),
                     _buildSectionTitle('시간'),
                     SizedBox(height: 12),
-                    _buildChips(['10분 이내', '20분 이내', '30분 이상']),
+                    _buildChips(['~10분', '10~20분', '20~30분', '30분~']),
 
                     SizedBox(height: 24),
                     _buildSectionTitle('유파'),

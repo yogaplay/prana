@@ -33,15 +33,32 @@ class YogaTile extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(
-                  title,
-                  style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
-                ),
-                SizedBox(height: 8),
-                Wrap(
-                  spacing: 8,
-                  runSpacing: 4,
-                  children: tags.map((tag) => Tag(label: tag)).toList(),
+                SingleChildScrollView(
+                  scrollDirection: Axis.horizontal,
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        title,
+                        style: TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                      SizedBox(height: 8),
+                      Row(
+                        children:
+                            tags
+                                .map(
+                                  (tag) => Padding(
+                                    padding: EdgeInsets.only(right: 8),
+                                    child: Tag(label: tag),
+                                  ),
+                                )
+                                .toList(),
+                      ),
+                    ],
+                  ),
                 ),
               ],
             ),

@@ -26,15 +26,6 @@ class _SearchMainScreenState extends State<SearchMainScreen> {
     _futureCategories = SearchService.fetchMainYogaCategories();
   }
 
-  final List<YogaItem> sampleItems = List.generate(
-    5,
-    (index) => YogaItem(
-      title: '엉덩이를 위한 요가 시퀀스',
-      duration: '30분',
-      imageUrl: 'https://picsum.photos/100/150?random=1',
-    ),
-  );
-
   void _goToSearchInput() {
     context.push(
       '/search/input',
@@ -63,6 +54,7 @@ class _SearchMainScreenState extends State<SearchMainScreen> {
     super.didChangeDependencies();
 
     final location = GoRouterState.of(context).uri.toString();
+    print(location);
     if (location == '/search') {
       setState(() {
         selectedFilters = [];
@@ -125,7 +117,15 @@ class _SearchMainScreenState extends State<SearchMainScreen> {
                               category.items
                                   .map((item) => item.toYogaItem())
                                   .toList(),
-                          onSeeAll: () {},
+                          onSeeAll: () {
+                            context.push(
+                              '/search/see-all',
+                              extra: {
+                                'tagName': category.tagName,
+                                'tagType': category.tagType,
+                              },
+                            );
+                          },
                         );
                       }).toList(),
                 );
