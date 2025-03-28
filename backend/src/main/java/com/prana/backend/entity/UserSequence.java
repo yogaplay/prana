@@ -2,6 +2,7 @@ package com.prana.backend.entity;
 
 import jakarta.persistence.*;
 import lombok.*;
+import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 
 import java.time.LocalDate;
@@ -37,6 +38,7 @@ public class UserSequence {
     @Column(name = "last_point", nullable = false)
     private int lastPoint = 0;
 
+    @CreationTimestamp
     @Column(name = "created_date", nullable = false)
     private LocalDate createdDate;
 
