@@ -1,7 +1,5 @@
 import 'package:dio/dio.dart';
-import 'package:flutter/foundation.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
-import 'package:frontend/features/auth/models/auth_model.dart';
 import 'package:frontend/features/auth/services/auth_service.dart';
 
 class ApiClient {
