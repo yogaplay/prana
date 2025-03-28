@@ -35,4 +35,7 @@ public class Yoga {
     @Column(name = "image", nullable = false)
     private String image;
 
+    @Column(name = "yoga_time")
+    private Integer time;
+
 }
