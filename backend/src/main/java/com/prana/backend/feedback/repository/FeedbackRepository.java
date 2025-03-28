@@ -23,4 +23,18 @@ public interface FeedbackRepository extends JpaRepository<Feedback, Integer> {
 """
     )
     List<CountFeedbackByWeekDTO> countFeedbackByWeek(@Param("start") LocalDateTime start, @Param("end") LocalDateTime end);
+
+    @Query(value = """
+        SELECT *
+        FROM feedback
+        WHERE user_id = :userId
+          AND yoga_id = :sequenceId
+          AND created_at >= DATE_SUB(NOW(), INTERVAL :sequenceTime SECOND)
+        """,
+            nativeQuery = true)
+    List<Feedback> findAllByUserIdAndYogaIdWithinTime(
+            @Param("userId") Integer userId,
+            @Param("sequenceId") Integer sequenceId,
+            @Param("sequenceTime") Integer sequenceTime
+    );
 }

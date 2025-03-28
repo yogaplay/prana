@@ -23,5 +23,7 @@ public interface AccuracyRepository extends JpaRepository<Accuracy, Integer> {
     """
     )
     List<CountAccuracyByWeekDTO> countAccuracyByWeek(@Param("start") LocalDateTime start, @Param("end") LocalDateTime end);
+
+    Accuracy findByUserIdAndYogaIdAndSequenceId(Integer userId, Integer yogaId, Integer sequenceId);
 }
 

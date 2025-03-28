@@ -2,6 +2,7 @@ package com.prana.backend.accuracy.controller;
 
 
 import com.prana.backend.accuracy.controller.request.AccuracyRequest;
+import com.prana.backend.accuracy.controller.response.AccuracyResponse;
 import com.prana.backend.accuracy.service.AccuracyService;
 import com.prana.backend.common.PranaPrincipal;
 import lombok.RequiredArgsConstructor;
@@ -32,6 +33,16 @@ public class AccuracyController {
             return ResponseEntity.status(HttpStatus.NOT_FOUND)
                     .body("No AI feedback found in cache");
         }
+    }
+
+    @GetMapping("/end")
+    public ResponseEntity<AccuracyResponse> getTotalFeedback(
+            @RequestParam("userSequenceId") Integer userSequenceId,
+            @RequestParam("sequenceId") Integer sequenceId,
+            @AuthenticationPrincipal PranaPrincipal principal
+    ) {
+        return ResponseEntity.status(HttpStatus.OK)
+                .body(accuracyService.)
     }
 }
 
