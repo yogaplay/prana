@@ -8,7 +8,7 @@ import com.prana.backend.entity.WeeklyData;
 import com.prana.backend.sequence.repository.SequenceRepository;
 import com.prana.backend.user_sequence.repository.UserSequenceRepository;
 import com.prana.backend.user_sequence.repository.dto.DailySequenceRepositoryDTO;
-import com.prana.backend.weekly_data.repository.WeeklyDataReposiory;
+import com.prana.backend.weekly_data.repository.WeeklyDataRepository;
 import jakarta.transaction.Transactional;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -24,7 +24,7 @@ import java.util.stream.Collectors;
 @AllArgsConstructor
 public class CalendarService {
     private final UserSequenceRepository userSequenceRepository;
-    private final WeeklyDataReposiory weeklyDataReposiory;
+    private final WeeklyDataRepository weeklyDataRepository;
     private final SequenceRepository sequenceRepository;
     private final int recommendationSequenceCount = 3;
 
@@ -58,7 +58,7 @@ public class CalendarService {
         int month = date.getMonthValue();
         int week = getWeekOfDate(date);
 
-        WeeklyData weeklyData = weeklyDataReposiory.findWeeklyDataByUserIdAndYearAndMonthAndWeek(userId, year, month, week);
+        WeeklyData weeklyData = weeklyDataRepository.findWeeklyDataByUserIdAndYearAndMonthAndWeek(userId, year, month, week);
         log.debug("weeklyData = {}", weeklyData.toString());
         /*
         ** feedback 4개 **
@@ -187,7 +187,7 @@ public class CalendarService {
                 .build();
     }
 
-    private static int getWeekOfDate(LocalDate date) {
+    public int getWeekOfDate(LocalDate date) {
         // date에서 day만 1로 변경
         LocalDate firstDay = date.withDayOfMonth(1);
 
