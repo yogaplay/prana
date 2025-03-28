@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:frontend/features/home/screens/home_screen.dart';
+import 'package:frontend/features/search/screens/search_main_screen.dart';
 import 'package:frontend/screens/activity_page.dart';
-import 'package:frontend/screens/explore_page.dart';
 import 'package:frontend/screens/info_page.dart';
 import 'package:frontend/widgets/navbar.dart';
 
@@ -17,22 +17,24 @@ class _MainScreenState extends State<MainScreen> {
 
   final List<Widget> _pages = [
     HomeScreen(),
-    ExploerPage(),
+    SearchMainScreen(),
     ActivityPage(),
     InfoPage(),
   ];
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      body: _pages[_selectedIndex],
-      bottomNavigationBar: Navbar(
-        currentIndex: _selectedIndex,
-        onTap: (index) {
-          setState(() {
-            _selectedIndex = index;
-          });
-        },
+    return SafeArea(
+      child: Scaffold(
+        body: _pages[_selectedIndex],
+        bottomNavigationBar: Navbar(
+          currentIndex: _selectedIndex,
+          onTap: (index) {
+            setState(() {
+              _selectedIndex = index;
+            });
+          },
+        ),
       ),
     );
   }
