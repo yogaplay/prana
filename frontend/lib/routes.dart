@@ -10,6 +10,7 @@ import 'package:frontend/features/profile/screens/info_page.dart';
 import 'package:frontend/features/search/screens/search_input_screen.dart';
 import 'package:frontend/features/search/screens/search_main_screen.dart';
 import 'package:frontend/features/search/screens/search_result_screen.dart';
+import 'package:frontend/features/learning/screens/sequence_detail_screen.dart';
 import 'package:go_router/go_router.dart';
 
 final routerProvider = Provider<GoRouter>((ref) {
@@ -17,7 +18,7 @@ final routerProvider = Provider<GoRouter>((ref) {
   final isFirstLoginAsync = ref.watch(isFirstLoginProvider);
 
   return GoRouter(
-    initialLocation: "/onboarding",
+    initialLocation: "/home",
     redirect: (context, state) {
       // authState가 로딩 중이면 null 반환(현재 경로 유지)
       if (authState.isLoading) return null;
@@ -113,6 +114,14 @@ final routerProvider = Provider<GoRouter>((ref) {
             tagName: extra['tagName'] as String,
             tagType: extra['tagType'] as String,
           );
+        },
+      ),
+      GoRoute(
+        path: '/sequence/:id',
+        name: 'sequenceDetail',
+        builder: (context, state) {
+          final sequenceId = int.parse(state.pathParameters['id']!);
+          return SequenceDetailScreen(sequenceId: sequenceId);
         },
       ),
     ],

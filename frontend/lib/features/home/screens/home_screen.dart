@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:frontend/core/providers/providers.dart';
+import 'package:go_router/go_router.dart';
 import '../models/home_model.dart';
 import '../providers/detail_data_provider.dart';
 
@@ -72,6 +73,15 @@ class HomeScreen extends ConsumerWidget {
               '즐겨찾기',
               context,
               _buildFavoriteWorkout(data.starList),
+            ),
+            ElevatedButton(
+              onPressed: () {
+                context.pushNamed(
+                  'sequenceDetail',
+                  pathParameters: {'id': '2'},
+                );
+              },
+              child: const Text('시퀀스 상세 테스트'),
             ),
           ],
         ),
