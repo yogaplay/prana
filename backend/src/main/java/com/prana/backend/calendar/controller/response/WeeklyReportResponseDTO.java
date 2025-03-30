@@ -12,6 +12,7 @@ import java.util.List;
 @AllArgsConstructor
 public class WeeklyReportResponseDTO {
     private List<Feedback> feedbacks; // length=4
+    private List<Feedback> feedbacksOrigin; // length=11
     private List<RecommendSequences> recommendSequences; // length=2
     private Week week1;
     private Week week2;
