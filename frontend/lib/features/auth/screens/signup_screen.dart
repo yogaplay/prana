@@ -3,7 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:frontend/constants/app_colors.dart';
 import 'package:frontend/core/providers/providers.dart';
 import 'package:frontend/features/auth/widgets/gender_selection_widget.dart';
-import 'package:frontend/features/auth/widgets/info_input_field.dart';
+import 'package:frontend/features/auth/widgets/info_wheel_field.dart'; // 새로운 위젯으로 변경
 import 'package:frontend/widgets/button.dart';
 import 'package:go_router/go_router.dart';
 
@@ -16,9 +16,9 @@ class SignupScreen extends ConsumerStatefulWidget {
 
 class _SignupScreenState extends ConsumerState<SignupScreen> {
   String selectedGender = '';
-  final TextEditingController ageController = TextEditingController();
-  final TextEditingController weightController = TextEditingController();
-  final TextEditingController heightController = TextEditingController();
+  int? age;
+  int? weight;
+  int? height;
 
   void _onGenderSelected(String gender) {
     setState(() {
@@ -26,11 +26,29 @@ class _SignupScreenState extends ConsumerState<SignupScreen> {
     });
   }
 
+  void _onAgeChanged(int value) {
+    setState(() {
+      age = value;
+    });
+  }
+
+  void _onWeightChanged(int value) {
+    setState(() {
+      weight = value;
+    });
+  }
+
+  void _onHeightChanged(int value) {
+    setState(() {
+      height = value;
+    });
+  }
+
   Future<void> _onSignup() async {
     if (selectedGender.isEmpty ||
-        ageController.text.isEmpty ||
-        weightController.text.isEmpty ||
-        heightController.text.isEmpty) {
+        age == null ||
+        weight == null ||
+        height == null) {
       print("모든 정보가 입력되지 않음");
       return;
     }
@@ -40,23 +58,15 @@ class _SignupScreenState extends ConsumerState<SignupScreen> {
 
       await signupService.signUp(
         gender: selectedGender,
-        age: ageController.text,
-        weight: weightController.text,
-        height: heightController.text,
+        age: age.toString(),
+        weight: weight.toString(),
+        height: height.toString(),
       );
 
       context.goNamed("home");
     } catch (e) {
       print("회원가입 실패: ${e.toString()}");
     }
-  }
-
-  @override
-  void dispose() {
-    ageController.dispose();
-    weightController.dispose();
-    heightController.dispose();
-    super.dispose();
   }
 
   @override
@@ -85,25 +95,28 @@ class _SignupScreenState extends ConsumerState<SignupScreen> {
                 onGenderSelected: _onGenderSelected,
               ),
               SizedBox(height: 30),
-              InfoInputField(
+              InfoWheelField(
                 label: '나이',
-                controller: ageController,
                 unit: '세',
-                keyboardType: TextInputType.number,
+                minValue: 1,
+                maxValue: 100,
+                onChange: _onAgeChanged,
               ),
               SizedBox(height: 25),
-              InfoInputField(
+              InfoWheelField(
                 label: '체중',
-                controller: weightController,
                 unit: 'kg',
-                keyboardType: TextInputType.number,
+                minValue: 30,
+                maxValue: 150,
+                onChange: _onWeightChanged,
               ),
               SizedBox(height: 25),
-              InfoInputField(
+              InfoWheelField(
                 label: '신장',
-                controller: heightController,
                 unit: 'cm',
-                keyboardType: TextInputType.number,
+                minValue: 140,
+                maxValue: 220,
+                onChange: _onHeightChanged,
               ),
               SizedBox(height: 45),
 

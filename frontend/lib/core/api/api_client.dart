@@ -85,9 +85,11 @@ class ApiClient {
   }
 
   Future<Response<dynamic>> _retry(RequestOptions requestOptions) async {
+    final token = await getStoredToken();
+
     final options = Options(
       method: requestOptions.method,
-      headers: requestOptions.headers,
+      headers: {...requestOptions.headers, 'Authorization': 'Bearer $token'},
     );
 
     return _dio.request<dynamic>(
