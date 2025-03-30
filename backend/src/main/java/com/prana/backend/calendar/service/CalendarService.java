@@ -3,6 +3,8 @@ package com.prana.backend.calendar.service;
 import com.prana.backend.calendar.controller.response.DailySequenceResponseDTO;
 import com.prana.backend.calendar.controller.response.WeeklyReportResponseDTO;
 import com.prana.backend.calendar.exception.RecommendationSequenceNot3Exception;
+import com.prana.backend.calendar.exception.WeelyDataNullPointException;
+import com.prana.backend.common.exception.PranaException;
 import com.prana.backend.entity.Sequence;
 import com.prana.backend.entity.WeeklyData;
 import com.prana.backend.sequence.repository.SequenceRepository;
@@ -58,8 +60,14 @@ public class CalendarService {
         int month = date.getMonthValue();
         int week = getWeekOfDate(date);
 
-        WeeklyData weeklyData = weeklyDataRepository.findWeeklyDataByUserIdAndYearAndMonthAndWeek(userId, year, month, week);
+        Optional<WeeklyData> weeklyDataOptional = weeklyDataRepository.findWeeklyDataByUserIdAndYearAndMonthAndWeek(userId, year, month, week);
+
+        if(weeklyDataOptional.isEmpty()) {
+            throw new WeelyDataNullPointException("해당 주차의 주간 데이터가 비어있습니다");
+        }
+        WeeklyData weeklyData = weeklyDataOptional.get();
         log.debug("weeklyData = {}", weeklyData.toString());
+
         /*
         ** feedback 4개 **
             등(back): 어깨
@@ -68,28 +76,85 @@ public class CalendarService {
             코어(core): 엉덩이(좌우)
          */
 
-        Map<String, Integer> feedbackMap = new LinkedHashMap<>();
-        feedbackMap.put("back", weeklyData.getFeedbackShoulder());
-        feedbackMap.put("arm", weeklyData.getFeedbackArmLeft()+weeklyData.getFeedbackArmRight()+weeklyData.getFeedbackElbowLeft()+weeklyData.getFeedbackElbowRight());
-        feedbackMap.put("leg", weeklyData.getFeedbackKneeLeft()+weeklyData.getFeedbackKneeRight()+weeklyData.getFeedbackLegLeft()+weeklyData.getFeedbackLegRight());
-        feedbackMap.put("core", weeklyData.getFeedbackHipLeft()+weeklyData.getFeedbackHipRight());
+        List<WeeklyReportResponseDTO.Feedback> feedbacks = new ArrayList<>();
+        feedbacks.add(WeeklyReportResponseDTO.Feedback.builder()
+                .position("back")
+                .count(weeklyData.getFeedbackShoulder())
+                .build());
+        feedbacks.add(WeeklyReportResponseDTO.Feedback.builder()
+                .position("arm")
+                .count(weeklyData.getFeedbackArmLeft()+weeklyData.getFeedbackArmRight()+weeklyData.getFeedbackElbowLeft()+weeklyData.getFeedbackElbowRight())
+                .build());
+        feedbacks.add(WeeklyReportResponseDTO.Feedback.builder()
+                .position("leg")
+                .count(weeklyData.getFeedbackKneeLeft()+weeklyData.getFeedbackKneeRight()+weeklyData.getFeedbackLegLeft()+weeklyData.getFeedbackLegRight())
+                .build());
+        feedbacks.add(WeeklyReportResponseDTO.Feedback.builder()
+                .position("core")
+                .count(weeklyData.getFeedbackHipLeft()+weeklyData.getFeedbackHipRight())
+                .build());
 
-        List<WeeklyReportResponseDTO.Feedback> feedbacks = feedbackMap.entrySet().stream()
-                .map(entry -> WeeklyReportResponseDTO.Feedback.builder()
-                        .position(entry.getKey())
-                        .count(entry.getValue())
-                        .build())
-                .collect(Collectors.toList());
+
+        /*
+            feedback_origin 11개
+        */
+        List<WeeklyReportResponseDTO.Feedback> feedbacksOrigin = new ArrayList<>();
+        feedbacksOrigin.add(WeeklyReportResponseDTO.Feedback.builder()
+                .position("shoulder")
+                .count(weeklyData.getFeedbackShoulder())
+                .build());
+        feedbacksOrigin.add(WeeklyReportResponseDTO.Feedback.builder()
+                .position("elbow_left")
+                .count(weeklyData.getFeedbackElbowLeft())
+                .build());
+        feedbacksOrigin.add(WeeklyReportResponseDTO.Feedback.builder()
+                .position("elbow_right")
+                .count(weeklyData.getFeedbackElbowRight())
+                .build());
+        feedbacksOrigin.add(WeeklyReportResponseDTO.Feedback.builder()
+                .position("arm_left")
+                .count(weeklyData.getFeedbackArmLeft())
+                .build());
+        feedbacksOrigin.add(WeeklyReportResponseDTO.Feedback.builder()
+                .position("arm_right")
+                .count(weeklyData.getFeedbackArmRight())
+                .build());
+        feedbacksOrigin.add(WeeklyReportResponseDTO.Feedback.builder()
+                .position("hip_left")
+                .count(weeklyData.getFeedbackHipLeft())
+                .build());
+        feedbacksOrigin.add(WeeklyReportResponseDTO.Feedback.builder()
+                .position("hip_right")
+                .count(weeklyData.getFeedbackHipRight())
+                .build());
+        feedbacksOrigin.add(WeeklyReportResponseDTO.Feedback.builder()
+                .position("knee_left")
+                .count(weeklyData.getFeedbackKneeLeft())
+                .build());
+        feedbacksOrigin.add(WeeklyReportResponseDTO.Feedback.builder()
+                .position("knee_right")
+                .count(weeklyData.getFeedbackKneeRight())
+                .build());
+        feedbacksOrigin.add(WeeklyReportResponseDTO.Feedback.builder()
+                .position("leg_left")
+                .count(weeklyData.getFeedbackLegLeft())
+                .build());
+        feedbacksOrigin.add(WeeklyReportResponseDTO.Feedback.builder()
+                .position("leg_right")
+                .count(weeklyData.getFeedbackLegRight())
+                .build());
+
 
         /*
         ** recommend_sequences
             feedback 수 상위 2부위에 대한 sequence 3개씩 추천
          */
-        List<String> feedbackTop2 = feedbackMap.entrySet().stream()
-                .sorted(Map.Entry.<String, Integer>comparingByValue().reversed())
+        List<String> feedbackTop2 = feedbacks.stream()
+                .sorted(Comparator.comparingInt(WeeklyReportResponseDTO.Feedback::getCount).reversed())
                 .limit(2)
-                .map(Map.Entry::getKey)
-                .toList();
+                .map(WeeklyReportResponseDTO.Feedback::getPosition)
+                .collect(Collectors.toList());
+
 
         String position1 =  TagUtil.ENG_TO_KOR.get(feedbackTop2.get(0));
         String position2 =  TagUtil.ENG_TO_KOR.get(feedbackTop2.get(1));
@@ -178,6 +243,7 @@ public class CalendarService {
 
         return WeeklyReportResponseDTO.builder()
                 .feedbacks(feedbacks)
+                .feedbacksOrigin(feedbacksOrigin)
                 .recommendSequences(recommendSequences)
                 .week1(week1)
                 .week2(week2)
