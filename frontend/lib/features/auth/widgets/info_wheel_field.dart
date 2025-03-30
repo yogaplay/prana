@@ -8,6 +8,8 @@ class InfoWheelField extends StatefulWidget {
   final int minValue;
   final int maxValue;
   final Function(int) onChange;
+  final int? defaultValue;
+  final bool showError;
 
   const InfoWheelField({
     super.key,
@@ -16,6 +18,8 @@ class InfoWheelField extends StatefulWidget {
     required this.minValue,
     required this.maxValue,
     required this.onChange,
+    this.defaultValue,
+    this.showError = false,
   });
 
   @override
@@ -50,7 +54,10 @@ class _InfoWheelFieldState extends State<InfoWheelField> {
               decoration: BoxDecoration(
                 color: AppColors.boxWhite,
                 borderRadius: BorderRadius.circular(10.0),
-                border: Border.all(color: Color(0xFFF4F4F4), width: 1.0),
+                border: Border.all(
+                  color: widget.showError ? Colors.red : Color(0xFFF4F4F4),
+                  width: widget.showError ? 1.5 : 1.0,
+                ),
               ),
               padding: EdgeInsets.symmetric(horizontal: 16.0),
               child: Row(
@@ -81,12 +88,14 @@ class _InfoWheelFieldState extends State<InfoWheelField> {
               ),
             ),
           ),
+          // 오류 메시지 제거
         ],
       ),
     );
   }
 
   void _showNumberPicker(BuildContext context) {
+    // 선택된 값 또는 지정된 기본값 또는 최소값 사용
     int currentValue = selectedValue ?? widget.minValue;
 
     showModalBottomSheet(
@@ -101,7 +110,7 @@ class _InfoWheelFieldState extends State<InfoWheelField> {
           builder: (context, setState) {
             return Container(
               padding: const EdgeInsets.all(16),
-              height: MediaQuery.of(context).size.height * 0.4,
+              height: MediaQuery.of(context).size.height * 0.4, // 화면 높이의 40%
               child: Column(
                 children: [
                   // 상단 바
