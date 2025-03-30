@@ -18,5 +18,6 @@ public class SequenceResponse {
     private String description;
     private int time;
     private int yogaCnt;
+    private boolean isStar;
     List<YogaSequenceResponse> yogaSequence;
 }
