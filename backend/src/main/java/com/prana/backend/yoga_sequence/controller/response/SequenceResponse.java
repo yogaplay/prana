@@ -14,8 +14,10 @@ import java.util.List;
 public class SequenceResponse {
     private int sequenceId;
     private String sequenceName;
+    private String sequenceImage;
     private String description;
     private int time;
     private int yogaCnt;
+    private boolean isStar;
     List<YogaSequenceResponse> yogaSequence;
 }

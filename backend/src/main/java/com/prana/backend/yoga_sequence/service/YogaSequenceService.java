@@ -3,8 +3,10 @@ package com.prana.backend.yoga_sequence.service;
 import com.prana.backend.common.exception.sequence.SequenceNotFoundException;
 import com.prana.backend.common.exception.user.UserNotFoundException;
 import com.prana.backend.entity.Sequence;
+import com.prana.backend.entity.Star;
 import com.prana.backend.entity.User;
 import com.prana.backend.entity.UserSequence;
+import com.prana.backend.home.repository.StarRepository;
 import com.prana.backend.sequence.repository.SequenceRepository;
 import com.prana.backend.user.repository.UserRepository;
 import com.prana.backend.user_sequence.repository.UserSequenceRepository;
@@ -29,17 +31,21 @@ public class YogaSequenceService {
     private final UserSequenceRepository userSequenceRepository;
     private final SequenceRepository sequenceRepository;
     private final UserRepository userRepository;
+    private final StarRepository starRepository;
 
     public SequenceResponse getYogaSequence(Integer sequenceId) {
         List<YogaSequenceResponse> yogaSequence = yogaSequenceRepository.findYogaBySequenceIdOrderByOrder(sequenceId);
         Sequence sequence = sequenceRepository.findById(sequenceId).orElseThrow(SequenceNotFoundException::new);
+        Star star = starRepository.findBySequence_Id(sequenceId).orElseThrow(SequenceNotFoundException::new);
 
         return SequenceResponse.builder()
                 .sequenceId(sequence.getId())
                 .yogaCnt(sequence.getYogaCount())
+                .sequenceImage(sequence.getImage())
                 .sequenceName(sequence.getName())
                 .time(sequence.getTime())
                 .description(sequence.getDescription())
+                .isStar(star != null)
                 .yogaSequence(yogaSequence)
                 .build();
     }
