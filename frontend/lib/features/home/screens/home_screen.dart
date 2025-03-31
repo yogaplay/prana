@@ -88,7 +88,15 @@ class HomeScreen extends ConsumerWidget {
         color: Colors.white,
         borderRadius: BorderRadius.circular(16),
         boxShadow: [
-          BoxShadow(color: Colors.grey.withOpacity(0.2), blurRadius: 5),
+          BoxShadow(
+            color: Colors.grey.withValues(
+              red: 128,
+              green: 128,
+              blue: 128,
+              alpha: 0.2,
+            ),
+            blurRadius: 5,
+          ),
         ],
       ),
       child: Column(
@@ -539,15 +547,17 @@ class DetailPage extends ConsumerWidget {
                                       );
 
                                       // UI 토글 (리스트를 setState처럼 갱신해야 할 경우)
-                                      ref.refresh(detailDataProvider(title));
+                                      ref.invalidate(detailDataProvider(title));
                                     } catch (e) {
-                                      ScaffoldMessenger.of(
-                                        context,
-                                      ).showSnackBar(
-                                        const SnackBar(
-                                          content: Text('즐겨찾기 변경에 실패했습니다.'),
-                                        ),
-                                      );
+                                      if (context.mounted) {
+                                        ScaffoldMessenger.of(
+                                          context,
+                                        ).showSnackBar(
+                                          const SnackBar(
+                                            content: Text('즐겨찾기 변경에 실패했습니다.'),
+                                          ),
+                                        );
+                                      }
                                     }
                                   },
                                 ),

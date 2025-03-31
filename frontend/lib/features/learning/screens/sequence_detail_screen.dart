@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:frontend/constants/app_colors.dart';
 import 'package:frontend/core/providers/providers.dart';
 import 'package:frontend/features/learning/models/sequence_detail_model.dart';
+import 'package:frontend/features/learning/screens/skeleton_sequence_detail_screen.dart';
 import 'package:frontend/features/learning/widgets/pose_item.dart';
 import 'package:frontend/features/learning/widgets/sequence_header.dart';
 import 'package:frontend/features/learning/widgets/sequence_info.dart';
@@ -33,13 +34,7 @@ class SequenceDetailScreen extends ConsumerWidget {
       child: Scaffold(
         backgroundColor: AppColors.background,
         body: sequenceDetailAsync.when(
-          // 로딩 상태
-          loading:
-              () => const Center(
-                child: CircularProgressIndicator(color: AppColors.primary),
-              ),
-
-          // 에러 상태
+          loading: () => const SequenceDetailSkeletonScreen(),
           error:
               (error, stackTrace) => Center(
                 child: Column(
