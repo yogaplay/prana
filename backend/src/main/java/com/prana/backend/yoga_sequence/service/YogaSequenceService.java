@@ -36,7 +36,7 @@ public class YogaSequenceService {
     public SequenceResponse getYogaSequence(Integer sequenceId) {
         List<YogaSequenceResponse> yogaSequence = yogaSequenceRepository.findYogaBySequenceIdOrderByOrder(sequenceId);
         Sequence sequence = sequenceRepository.findById(sequenceId).orElseThrow(SequenceNotFoundException::new);
-        Star star = starRepository.findBySequence_Id(sequenceId).orElseThrow(SequenceNotFoundException::new);
+        Star star = starRepository.findBySequence_Id(sequenceId).orElse(null);
 
         return SequenceResponse.builder()
                 .sequenceId(sequence.getId())
