@@ -85,7 +85,13 @@ final routerProvider = Provider<GoRouter>((ref) {
         name: "signup",
         builder: (_, __) => const SignupScreen(),
       ),
-
+      GoRoute(
+        path: '/home/detail/:title',
+        builder: (context, state) {
+          final title = state.pathParameters['title']!;
+          return DetailPage(title: title);
+        },
+      ),
       GoRoute(
         path: "/search/input",
         name: "search_input",

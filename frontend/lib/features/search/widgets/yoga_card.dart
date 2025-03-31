@@ -13,7 +13,7 @@ class YogaCard extends StatelessWidget {
     return GestureDetector(
       onTap: () {
         print('Tapped YogaCard with ID: ${item.id}');
-        context.goNamed(
+        context.pushNamed(
           'sequenceDetail',
           pathParameters: {'id': item.id.toString()},
         );

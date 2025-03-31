@@ -63,7 +63,7 @@ class SequenceHeader extends StatelessWidget {
           left: 16,
           child: GestureDetector(
             onTap: () {
-              context.go('/search');
+              context.pop();
             },
             child: const Icon(Icons.chevron_left, size: 32),
           ),
