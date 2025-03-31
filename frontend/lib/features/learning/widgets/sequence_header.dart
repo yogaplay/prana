@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:frontend/constants/app_colors.dart';
+import 'package:go_router/go_router.dart';
 
 class SequenceHeader extends StatelessWidget {
   final String imageUrl;
@@ -61,7 +62,9 @@ class SequenceHeader extends StatelessWidget {
           top: 16,
           left: 16,
           child: GestureDetector(
-            onTap: () => Navigator.pop(context),
+            onTap: () {
+              context.go('/search');
+            },
             child: const Icon(Icons.chevron_left, size: 32),
           ),
         ),
