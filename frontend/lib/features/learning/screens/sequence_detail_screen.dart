@@ -41,9 +41,7 @@ class SequenceDetailScreen extends ConsumerWidget {
                 title: '데이터를 찾을 수 없습니다',
                 message: '요청하신 정보가 존재하지 않습니다',
                 icon: Icons.search_off_rounded,
-                // showBackButton: false, // 뒤로가기 버튼 숨기기
               ),
-          // 데이터 로드 성공
           data: (sequence) => _buildContent(context, sequence, ref),
         ),
       ),
@@ -77,6 +75,7 @@ class SequenceDetailScreen extends ConsumerWidget {
                       duration: _formatDuration(sequence.time),
                       poseCount: '${sequence.yogaCnt}개의 동작',
                       description: sequence.description,
+                      sequenceId: sequenceId,
                     ),
 
                     const SizedBox(height: 32),

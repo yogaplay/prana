@@ -12,16 +12,12 @@ class SequenceDetailService {
         '/yoga/sequence',
         body: {'sequenceId': sequenceId},
       );
-      print(response);
       return SequenceDetailModel.fromJson(response);
     } catch (e, stackTrace) {
-
       print('시퀀스 상세 정보 페치 오류: $e');
       print('오류 발생 위치: $stackTrace');
       rethrow;
     }
   }
-  
+
 }
-
-
