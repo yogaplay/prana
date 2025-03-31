@@ -33,10 +33,10 @@ public class YogaSequenceService {
     private final UserRepository userRepository;
     private final StarRepository starRepository;
 
-    public SequenceResponse getYogaSequence(Integer sequenceId) {
+    public SequenceResponse getYogaSequence(Integer sequenceId, Integer userId) {
         List<YogaSequenceResponse> yogaSequence = yogaSequenceRepository.findYogaBySequenceIdOrderByOrder(sequenceId);
         Sequence sequence = sequenceRepository.findById(sequenceId).orElseThrow(SequenceNotFoundException::new);
-        Star star = starRepository.findBySequence_Id(sequenceId).orElse(null);
+        Star star = starRepository.findBySequence_IdAndUser_Id(sequenceId, userId).orElse(null);
 
         return SequenceResponse.builder()
                 .sequenceId(sequence.getId())
@@ -62,7 +62,7 @@ public class YogaSequenceService {
         userSequenceRepository.save(userSequence);
 
         //만약 userSequence가 어제 있고 오늘 userSequence를 처음 저장하는거면 streak +1
-        if(userSequenceRepository.existsYesterdayUserSequence() && !userSequenceRepository.existsTodayUserSequence()) {
+        if (userSequenceRepository.existsYesterdayUserSequence() && !userSequenceRepository.existsTodayUserSequence()) {
             user.setStreakDays(user.getStreakDays() + 1);
         }
         return UserSequenceResponse.builder()

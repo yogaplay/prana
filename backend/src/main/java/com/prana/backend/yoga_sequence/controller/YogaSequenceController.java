@@ -27,8 +27,8 @@ public class YogaSequenceController {
      * @return 시퀀스에 대한 정보와 해당 시퀀스의 요가 정보를 반환
      */
     @PostMapping("/sequence")
-    public ResponseEntity<SequenceResponse> getYogaSequence(@RequestBody YogaSequenceRequest request) {
-        SequenceResponse responses = yogaService.getYogaSequence(request.getSequenceId());
+    public ResponseEntity<SequenceResponse> getYogaSequence(@RequestBody YogaSequenceRequest request, @AuthenticationPrincipal PranaPrincipal prana) {
+        SequenceResponse responses = yogaService.getYogaSequence(request.getSequenceId(), prana.getUserId());
         return ResponseEntity.status(HttpStatus.OK).body(responses);
     }
 
