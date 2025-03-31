@@ -6,7 +6,7 @@ import 'package:frontend/features/home/screens/home_screen.dart';
 import 'package:frontend/features/search/screens/see_all_screen.dart';
 import 'package:frontend/main_shell.dart';
 import 'package:frontend/screens/activity_page.dart';
-import 'package:frontend/screens/info_page.dart';
+import 'package:frontend/features/profile/screens/info_page.dart';
 import 'package:frontend/features/search/screens/search_input_screen.dart';
 import 'package:frontend/features/search/screens/search_main_screen.dart';
 import 'package:frontend/features/search/screens/search_result_screen.dart';
