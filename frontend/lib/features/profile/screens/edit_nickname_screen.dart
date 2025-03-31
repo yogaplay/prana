@@ -4,10 +4,7 @@ import 'package:frontend/constants/app_colors.dart';
 class EditNicknameScreen extends StatefulWidget {
   final String initialNickname;
 
-  const EditNicknameScreen({
-    super.key,
-    this.initialNickname = '다이',
-  });
+  const EditNicknameScreen({super.key, required this.initialNickname});
 
   @override
   State<EditNicknameScreen> createState() => _EditNicknameScreenState();
@@ -44,7 +41,11 @@ class _EditNicknameScreenState extends State<EditNicknameScreen> {
         backgroundColor: AppColors.background,
         elevation: 0,
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back_ios, color: AppColors.blackText, size: 20),
+          icon: const Icon(
+            Icons.arrow_back_ios,
+            color: AppColors.blackText,
+            size: 20,
+          ),
           onPressed: () => Navigator.of(context).pop(),
         ),
       ),
@@ -79,18 +80,26 @@ class _EditNicknameScreenState extends State<EditNicknameScreen> {
               child: TextField(
                 controller: _controller,
                 decoration: InputDecoration(
-                  contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+                  contentPadding: const EdgeInsets.symmetric(
+                    horizontal: 16,
+                    vertical: 14,
+                  ),
                   border: InputBorder.none,
                   hintText: '닉네임을 입력하세요',
-                  suffixIcon: _controller.text.isNotEmpty
-                      ? IconButton(
-                    icon: const Icon(Icons.cancel, color: AppColors.lightGray, size: 18),
-                    onPressed: () {
-                      _controller.clear();
-                      _validateInput('');
-                    },
-                  )
-                      : null,
+                  suffixIcon:
+                      _controller.text.isNotEmpty
+                          ? IconButton(
+                            icon: const Icon(
+                              Icons.cancel,
+                              color: AppColors.lightGray,
+                              size: 18,
+                            ),
+                            onPressed: () {
+                              _controller.clear();
+                              _validateInput('');
+                            },
+                          )
+                          : null,
                 ),
                 onChanged: _validateInput,
               ),
@@ -107,11 +116,12 @@ class _EditNicknameScreenState extends State<EditNicknameScreen> {
             SizedBox(
               width: double.infinity,
               child: ElevatedButton(
-                onPressed: _isValid && _controller.text.isNotEmpty
-                    ? () {
-                  Navigator.pop(context, _controller.text);
-                }
-                    : null,
+                onPressed:
+                    _isValid && _controller.text.isNotEmpty
+                        ? () {
+                          Navigator.pop(context, _controller.text);
+                        }
+                        : null,
                 style: ElevatedButton.styleFrom(
                   backgroundColor: AppColors.primary,
                   foregroundColor: Colors.white,
@@ -123,10 +133,7 @@ class _EditNicknameScreenState extends State<EditNicknameScreen> {
                 ),
                 child: const Text(
                   '저장하기',
-                  style: TextStyle(
-                    fontSize: 16,
-                    fontWeight: FontWeight.bold,
-                  ),
+                  style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
                 ),
               ),
             ),
@@ -136,4 +143,3 @@ class _EditNicknameScreenState extends State<EditNicknameScreen> {
     );
   }
 }
-
