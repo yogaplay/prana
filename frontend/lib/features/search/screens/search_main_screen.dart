@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:frontend/constants/app_colors.dart';
 import 'package:frontend/features/search/models/yoga_category.dart';
-import 'package:frontend/features/search/models/yoga_item.dart';
 import 'package:frontend/features/search/models/yoga_sequence.dart';
 import 'package:frontend/features/search/services/search_service.dart';
 import 'package:frontend/features/search/widgets/search_bar_with_filter.dart';
@@ -107,6 +106,7 @@ class _SearchMainScreenState extends State<SearchMainScreen> {
                 }
 
                 final categories = snapshot.data!;
+              
                 return Column(
                   children:
                       categories.map((category) {

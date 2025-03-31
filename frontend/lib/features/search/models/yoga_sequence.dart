@@ -26,6 +26,7 @@ class YogaSequence {
 extension YogaSequenceMapper on YogaSequence {
   YogaItem toYogaItem() {
     return YogaItem(
+      id: id,
       title: name,
       duration: "${(time / 60).round()}분",
       imageUrl: imageUrl ?? 'https://picsum.photos/100/150',

@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:frontend/core/providers/providers.dart';
-import 'package:go_router/go_router.dart';
 import '../models/home_model.dart';
 import '../providers/detail_data_provider.dart';
 
@@ -73,15 +72,6 @@ class HomeScreen extends ConsumerWidget {
               '즐겨찾기',
               context,
               _buildFavoriteWorkout(data.starList),
-            ),
-            ElevatedButton(
-              onPressed: () {
-                context.pushNamed(
-                  'sequenceDetail',
-                  pathParameters: {'id': '2'},
-                );
-              },
-              child: const Text('시퀀스 상세 테스트'),
             ),
           ],
         ),
@@ -287,7 +277,7 @@ class HomeScreen extends ConsumerWidget {
         color: const Color(0xffE8FAF1),
         borderRadius: BorderRadius.circular(16),
       ),
-      child: Text(  
+      child: Text(
         text,
         style: const TextStyle(fontFamily: 'Pretendard', fontSize: 14),
       ),
@@ -335,184 +325,227 @@ class DetailPage extends ConsumerWidget {
       ),
       body: detailAsync.when(
         loading: () => const Center(child: CircularProgressIndicator()),
-        error: (error, stackTrace) => Center(
-          child: Text('에러 발생: ${error.toString()}'),
-        ),
-        data: (data) => data.content.isEmpty
-            ? const Center(child: Text('데이터가 없습니다.'))
-            : ListView.builder(
-                itemCount: data.content.length,
-                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                itemBuilder: (context, index) {
-                  final item = data.content[index];
+        error:
+            (error, stackTrace) =>
+                Center(child: Text('에러 발생: ${error.toString()}')),
+        data:
+            (data) =>
+                data.content.isEmpty
+                    ? const Center(child: Text('데이터가 없습니다.'))
+                    : ListView.builder(
+                      itemCount: data.content.length,
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 16,
+                        vertical: 8,
+                      ),
+                      itemBuilder: (context, index) {
+                        final item = data.content[index];
 
-                  // 최근 시퀀스용 UI
-                  if (title == '최근') {
-                    return Container(
-                      margin: const EdgeInsets.only(bottom: 24),
-                      child: Row(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Stack(
-                            alignment: Alignment.topRight,
-                            children: [
-                              ClipRRect(
-                                borderRadius: BorderRadius.circular(16),
-                                child: Image.network(
-                                  item.image ?? '',
-                                  width: 60,
-                                  height: 60,
-                                  fit: BoxFit.cover,
-                                ),
-                              ),
-                              Positioned(
-                                top: 4,
-                                right: 4,
-                                child: CircleAvatar(
-                                  radius: 10,
-                                  backgroundColor: Colors.white,
-                                  child: Icon(
-                                    item.resultStatus == 'Y'
-                                        ? Icons.check_circle
-                                        : Icons.more_horiz,
-                                    size: 16,
-                                    color: item.resultStatus == 'Y'
-                                        ? const Color(0xff7ECECA)
-                                        : Colors.grey,
-                                  ),
-                                ),
-                              ),
-                            ],
-                          ),
-                          const SizedBox(width: 12),
-                          Expanded(
-                            child: Column(
+                        // 최근 시퀀스용 UI
+                        if (title == '최근') {
+                          return Container(
+                            margin: const EdgeInsets.only(bottom: 24),
+                            child: Row(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
-                                Text(
-                                  item.sequenceName,
-                                  style: const TextStyle(
-                                    fontSize: 16,
-                                    fontWeight: FontWeight.bold,
-                                  ),
-                                ),
-                                const SizedBox(height: 4),
-                                Text(
-                                  _formatTimeAgo(item.updatedAt),
-                                  style: const TextStyle(fontSize: 12, color: Colors.grey),
-                                ),
-                                const SizedBox(height: 8),
-                                Row(
+                                Stack(
+                                  alignment: Alignment.topRight,
                                   children: [
-                                    Text('${item.percent}%', style: const TextStyle(fontSize: 12)),
-                                    const SizedBox(width: 8),
-                                    Expanded(
-                                      child: LinearProgressIndicator(
-                                        value: (item.percent ?? 0) / 100,
-                                        color: const Color(0xff7ECECA),
-                                        backgroundColor: const Color(0xffE8FAF1),
-                                        minHeight: 4,
+                                    ClipRRect(
+                                      borderRadius: BorderRadius.circular(16),
+                                      child: Image.network(
+                                        item.image ?? '',
+                                        width: 60,
+                                        height: 60,
+                                        fit: BoxFit.cover,
+                                      ),
+                                    ),
+                                    Positioned(
+                                      top: 4,
+                                      right: 4,
+                                      child: CircleAvatar(
+                                        radius: 10,
+                                        backgroundColor: Colors.white,
+                                        child: Icon(
+                                          item.resultStatus == 'Y'
+                                              ? Icons.check_circle
+                                              : Icons.more_horiz,
+                                          size: 16,
+                                          color:
+                                              item.resultStatus == 'Y'
+                                                  ? const Color(0xff7ECECA)
+                                                  : Colors.grey,
+                                        ),
                                       ),
                                     ),
                                   ],
                                 ),
+                                const SizedBox(width: 12),
+                                Expanded(
+                                  child: Column(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    children: [
+                                      Text(
+                                        item.sequenceName,
+                                        style: const TextStyle(
+                                          fontSize: 16,
+                                          fontWeight: FontWeight.bold,
+                                        ),
+                                      ),
+                                      const SizedBox(height: 4),
+                                      Text(
+                                        _formatTimeAgo(item.updatedAt),
+                                        style: const TextStyle(
+                                          fontSize: 12,
+                                          color: Colors.grey,
+                                        ),
+                                      ),
+                                      const SizedBox(height: 8),
+                                      Row(
+                                        children: [
+                                          Text(
+                                            '${item.percent}%',
+                                            style: const TextStyle(
+                                              fontSize: 12,
+                                            ),
+                                          ),
+                                          const SizedBox(width: 8),
+                                          Expanded(
+                                            child: LinearProgressIndicator(
+                                              value: (item.percent ?? 0) / 100,
+                                              color: const Color(0xff7ECECA),
+                                              backgroundColor: const Color(
+                                                0xffE8FAF1,
+                                              ),
+                                              minHeight: 4,
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                    ],
+                                  ),
+                                ),
                               ],
                             ),
-                          ),
-                        ],
-                      ),
-                    );
-                  }
+                          );
+                        }
 
-                  // 즐겨찾기 UI
-                  return Container(
-                    margin: const EdgeInsets.only(bottom: 16),
-                    child: Row(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        ClipRRect(
-                          borderRadius: BorderRadius.circular(12),
-                          child: item.image != null
-                              ? Image.network(
-                                  item.image!,
-                                  width: 60,
-                                  height: 60,
-                                  fit: BoxFit.cover,
-                                )
-                              : Container(
-                                  width: 60,
-                                  height: 60,
-                                  color: Colors.grey[300],
-                                  child: const Icon(Icons.image_not_supported),
-                                ),
-                        ),
-                        const SizedBox(width: 12),
-                        Expanded(
-                          child: Column(
+                        // 즐겨찾기 UI
+                        return Container(
+                          margin: const EdgeInsets.only(bottom: 16),
+                          child: Row(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              Text(
-                                item.sequenceName,
-                                style: const TextStyle(
-                                  fontSize: 16,
-                                  fontWeight: FontWeight.bold,
+                              ClipRRect(
+                                borderRadius: BorderRadius.circular(12),
+                                child:
+                                    item.image != null
+                                        ? Image.network(
+                                          item.image!,
+                                          width: 60,
+                                          height: 60,
+                                          fit: BoxFit.cover,
+                                        )
+                                        : Container(
+                                          width: 60,
+                                          height: 60,
+                                          color: Colors.grey[300],
+                                          child: const Icon(
+                                            Icons.image_not_supported,
+                                          ),
+                                        ),
+                              ),
+                              const SizedBox(width: 12),
+                              Expanded(
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Text(
+                                      item.sequenceName,
+                                      style: const TextStyle(
+                                        fontSize: 16,
+                                        fontWeight: FontWeight.bold,
+                                      ),
+                                    ),
+                                    const SizedBox(height: 8),
+                                    Wrap(
+                                      spacing: 8,
+                                      runSpacing: 4,
+                                      children:
+                                          item.tagList
+                                              .map(
+                                                (tag) => Container(
+                                                  padding:
+                                                      const EdgeInsets.symmetric(
+                                                        horizontal: 8,
+                                                        vertical: 4,
+                                                      ),
+                                                  decoration: BoxDecoration(
+                                                    color: const Color(
+                                                      0xFFE8FAF1,
+                                                    ),
+                                                    borderRadius:
+                                                        BorderRadius.circular(
+                                                          12,
+                                                        ),
+                                                  ),
+                                                  child: Text(
+                                                    tag,
+                                                    style: const TextStyle(
+                                                      fontSize: 12,
+                                                    ),
+                                                  ),
+                                                ),
+                                              )
+                                              .toList(),
+                                    ),
+                                  ],
                                 ),
                               ),
-                              const SizedBox(height: 8),
-                              Wrap(
-                                spacing: 8,
-                                runSpacing: 4,
-                                children: item.tagList
-                                    .map((tag) => Container(
-                                          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                                          decoration: BoxDecoration(
-                                            color: const Color(0xFFE8FAF1),
-                                            borderRadius: BorderRadius.circular(12),
-                                          ),
-                                          child: Text(
-                                            tag,
-                                            style: const TextStyle(fontSize: 12),
-                                          ),
-                                        ))
-                                    .toList(),
+                              const SizedBox(width: 8),
+                              IconButton(
+                                icon: Icon(
+                                  item.star ? Icons.star : Icons.star_border,
+                                  color:
+                                      item.star
+                                          ? const Color(0xff7ECECA)
+                                          : Colors.grey,
+                                ),
+                                onPressed: () async {
+                                  try {
+                                    final homeService = ref.read(
+                                      homeServiceProvider,
+                                    );
+                                    await homeService.toggleStar(
+                                      item.sequenceId,
+                                    );
+
+                                    // UI 토글 (리스트를 setState처럼 갱신해야 할 경우)
+                                    ref.refresh(detailDataProvider(title));
+                                  } catch (e) {
+                                    ScaffoldMessenger.of(context).showSnackBar(
+                                      const SnackBar(
+                                        content: Text('즐겨찾기 변경에 실패했습니다.'),
+                                      ),
+                                    );
+                                  }
+                                },
                               ),
                             ],
                           ),
-                        ),
-                        const SizedBox(width: 8),
-                        IconButton(
-                          icon: Icon(
-                            item.star ? Icons.star : Icons.star_border,
-                            color: item.star ? const Color(0xff7ECECA) : Colors.grey,
-                          ),
-                          onPressed: () async {
-                            try {
-                              final homeService = ref.read(homeServiceProvider);
-                              await homeService.toggleStar(item.sequenceId);
-
-                              // UI 토글 (리스트를 setState처럼 갱신해야 할 경우)
-                              ref.refresh(detailDataProvider(title));
-                            } catch (e) {
-                              ScaffoldMessenger.of(context).showSnackBar(
-                                const SnackBar(content: Text('즐겨찾기 변경에 실패했습니다.')),
-                              );
-                            }
-                          },
-                        ),
-                      ],
+                        );
+                      },
                     ),
-                  );
-                },
-              ),
-      )
+      ),
     );
   }
 }
 
-  String _formatTimeAgo(DateTime? dateTime) {
-    if (dateTime == null) return '날짜 없음';
-    final diff = DateTime.now().difference(dateTime);
-    if (diff.inMinutes < 60) return '${diff.inMinutes}분 전';
-    if (diff.inHours < 24) return '${diff.inHours}시간 전';
-    return '${diff.inDays}일 전';
-  }
+String _formatTimeAgo(DateTime? dateTime) {
+  if (dateTime == null) return '날짜 없음';
+  final diff = DateTime.now().difference(dateTime);
+  if (diff.inMinutes < 60) return '${diff.inMinutes}분 전';
+  if (diff.inHours < 24) return '${diff.inHours}시간 전';
+  return '${diff.inDays}일 전';
+}

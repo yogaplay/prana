@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:frontend/constants/app_colors.dart';
 import 'package:frontend/features/search/models/yoga_item.dart';
+import 'package:go_router/go_router.dart';
 
 class YogaCard extends StatelessWidget {
   final YogaItem item;
@@ -9,31 +10,40 @@ class YogaCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return SizedBox(
-      width: 150,
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          ClipRRect(
-            borderRadius: BorderRadius.circular(12),
-            child: Image.network(
-              item.imageUrl,
-              height: 100,
-              width: 150,
-              fit: BoxFit.cover,
+    return GestureDetector(
+      onTap: () {
+        print('Tapped YogaCard with ID: ${item.id}');
+        context.goNamed(
+          'sequenceDetail',
+          pathParameters: {'id': item.id.toString()},
+        );
+      },
+      child: SizedBox(
+        width: 150,
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            ClipRRect(
+              borderRadius: BorderRadius.circular(12),
+              child: Image.network(
+                item.imageUrl,
+                height: 100,
+                width: 150,
+                fit: BoxFit.cover,
+              ),
             ),
-          ),
-          SizedBox(height: 8),
-          Text(
-            item.title,
-            style: TextStyle(
-              fontWeight: FontWeight.bold,
-              overflow: TextOverflow.ellipsis,
+            SizedBox(height: 8),
+            Text(
+              item.title,
+              style: TextStyle(
+                fontWeight: FontWeight.bold,
+                overflow: TextOverflow.ellipsis,
+              ),
             ),
-          ),
-          SizedBox(height: 4),
-          Text(item.duration, style: TextStyle(color: AppColors.graytext)),
-        ],
+            SizedBox(height: 4),
+            Text(item.duration, style: TextStyle(color: AppColors.graytext)),
+          ],
+        ),
       ),
     );
   }
