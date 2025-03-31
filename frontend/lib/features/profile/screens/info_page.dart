@@ -1,26 +1,51 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:frontend/constants/app_colors.dart';
+import 'package:frontend/core/providers/profile_providers.dart';
 import 'package:frontend/features/alarm/screens/alarm_setting_screen.dart';
 import 'package:frontend/features/profile/screens/edit_profile_screen.dart';
 
-class InfoPage extends StatelessWidget {
+class InfoPage extends ConsumerWidget {
   const InfoPage({super.key});
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    final profileAsync = ref.watch(profileNotifierProvider);
+
     return Scaffold(
       backgroundColor: AppColors.background,
       appBar: AppBar(
         backgroundColor: AppColors.background,
         elevation: 0,
-        title: const Text(
-          '반가워요, 다이님 😊',
-          style: TextStyle(
-            color: AppColors.blackText,
-            fontSize: 24,
-            fontWeight: FontWeight.bold,
-          ),
+        title: profileAsync.when(
+          data:
+              (profile) => Text(
+                '반가워요, ${profile?.nickname}님 😊',
+                style: TextStyle(
+                  color: AppColors.blackText,
+                  fontSize: 24,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+          loading:
+              () => const Text(
+                '반가워요 😊',
+                style: TextStyle(
+                  color: AppColors.blackText,
+                  fontSize: 24,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+          error:
+              (_, __) => const Text(
+                '반가워요 😊',
+                style: TextStyle(
+                  color: AppColors.blackText,
+                  fontSize: 24,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
         ),
       ),
       body: SafeArea(
