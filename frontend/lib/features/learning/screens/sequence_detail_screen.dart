@@ -7,13 +7,14 @@ import 'package:frontend/features/learning/screens/skeleton_sequence_detail_scre
 import 'package:frontend/features/learning/widgets/pose_item.dart';
 import 'package:frontend/features/learning/widgets/sequence_header.dart';
 import 'package:frontend/features/learning/widgets/sequence_info.dart';
+import 'package:frontend/screens/error_screen.dart';
 import 'package:frontend/widgets/button.dart';
 
 class SequenceDetailScreen extends ConsumerWidget {
   final int sequenceId;
 
   const SequenceDetailScreen({super.key, required this.sequenceId});
-  
+
   String _formatDuration(int seconds) {
     final int minutes = seconds ~/ 60;
     final int remainingSeconds = seconds % 60;
@@ -36,25 +37,12 @@ class SequenceDetailScreen extends ConsumerWidget {
         body: sequenceDetailAsync.when(
           loading: () => const SequenceDetailSkeletonScreen(),
           error:
-              (error, stackTrace) => Center(
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    const Text(
-                      '데이터를 불러오는 중 오류가 발생했습니다',
-                      style: TextStyle(fontSize: 16, color: AppColors.graytext),
-                    ),
-                    const SizedBox(height: 16),
-                    ElevatedButton(
-                      onPressed: () {
-                        ref.invalidate(sequenceDetailProvider(sequenceId));
-                      },
-                      child: const Text('다시 시도'),
-                    ),
-                  ],
-                ),
+              (error, stackTrace) => CommonErrorScreen(
+                title: '데이터를 찾을 수 없습니다',
+                message: '요청하신 정보가 존재하지 않습니다',
+                icon: Icons.search_off_rounded,
+                // showBackButton: false, // 뒤로가기 버튼 숨기기
               ),
-
           // 데이터 로드 성공
           data: (sequence) => _buildContent(context, sequence, ref),
         ),
