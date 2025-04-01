@@ -4,5 +4,6 @@ CREATE TABLE sequence
     sequence_name VARCHAR(255) NOT NULL,          -- 시퀀스의 이름 (필수 항목)
     sequence_time INT          NOT NULL,          -- 시퀀스 소요시간 (초 단위)
     yoga_cnt      SMALLINT     NOT NULL,          -- 시퀀스 요가 개수
-    description   TEXT         NOT NULL           -- 시퀀스에 대한 설명
+    description   TEXT         NOT NULL,           -- 시퀀스에 대한 설명
+    image         VARCHAR(255) NOT NULL           -- sequence 이미지
 );
