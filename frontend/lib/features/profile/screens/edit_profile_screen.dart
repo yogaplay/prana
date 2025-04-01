@@ -217,127 +217,6 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
                       }
                     },
                   ),
-
-                  const SizedBox(height: 12),
-                  const Text(
-                    '성별 선택',
-                    style: TextStyle(
-                      fontSize: 16,
-                      fontWeight: FontWeight.bold,
-                      color: AppColors.blackText,
-                    ),
-                  ),
-                  const SizedBox(height: 8),
-                  Container(
-                    margin: const EdgeInsets.only(bottom: 12),
-                    decoration: BoxDecoration(
-                      color: AppColors.boxWhite,
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 16,
-                      vertical: 16,
-                    ),
-                    child: Row(
-                      children: [
-                        Expanded(
-                          child: InkWell(
-                            onTap: () async {
-                              if (profile.gender != 'M') {
-                                await ref
-                                    .read(profileNotifierProvider.notifier)
-                                    .updateGender('M');
-                                if (mounted) {
-                                  ref
-                                      .read(profileNotifierProvider.notifier)
-                                      .loadProfile();
-                                  _showUpdateSuccess(context);
-                                }
-                              }
-                            },
-                            child: Container(
-                              padding: const EdgeInsets.symmetric(vertical: 8),
-                              decoration: BoxDecoration(
-                                color:
-                                    profile.gender == 'M'
-                                        ? AppColors.primary
-                                        : Colors.transparent,
-                                borderRadius: BorderRadius.circular(8),
-                                border: Border.all(
-                                  color:
-                                      profile.gender == 'M'
-                                          ? AppColors.primary
-                                          : AppColors.lightGray,
-                                  width: 1,
-                                ),
-                              ),
-                              child: Center(
-                                child: Text(
-                                  '남성',
-                                  style: TextStyle(
-                                    fontSize: 14,
-                                    fontWeight: FontWeight.w500,
-                                    color:
-                                        profile.gender == 'M'
-                                            ? Colors.white
-                                            : AppColors.blackText,
-                                  ),
-                                ),
-                              ),
-                            ),
-                          ),
-                        ),
-                        const SizedBox(width: 16),
-                        Expanded(
-                          child: InkWell(
-                            onTap: () async {
-                              if (profile.gender != 'F') {
-                                await ref
-                                    .read(profileNotifierProvider.notifier)
-                                    .updateGender('F');
-                                if (mounted) {
-                                  ref
-                                      .read(profileNotifierProvider.notifier)
-                                      .loadProfile();
-                                  _showUpdateSuccess(context);
-                                }
-                              }
-                            },
-                            child: Container(
-                              padding: const EdgeInsets.symmetric(vertical: 8),
-                              decoration: BoxDecoration(
-                                color:
-                                    profile.gender == 'F'
-                                        ? AppColors.primary
-                                        : Colors.transparent,
-                                borderRadius: BorderRadius.circular(8),
-                                border: Border.all(
-                                  color:
-                                      profile.gender == 'F'
-                                          ? AppColors.primary
-                                          : AppColors.lightGray,
-                                  width: 1,
-                                ),
-                              ),
-                              child: Center(
-                                child: Text(
-                                  '여성',
-                                  style: TextStyle(
-                                    fontSize: 14,
-                                    fontWeight: FontWeight.w500,
-                                    color:
-                                        profile.gender == 'F'
-                                            ? Colors.white
-                                            : AppColors.blackText,
-                                  ),
-                                ),
-                              ),
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
                 ],
               ),
             ),
@@ -416,7 +295,10 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
   void _showUpdateSuccess(BuildContext context) {
     ScaffoldMessenger.of(context).showSnackBar(
       const SnackBar(
-        content: Text('정보가 업데이트되었습니다.'),
+        content: Text(
+          '정보가 업데이트되었습니다.',
+          style: TextStyle(fontWeight: FontWeight.w600),
+        ),
         backgroundColor: AppColors.primary,
         duration: Duration(seconds: 2),
       ),
