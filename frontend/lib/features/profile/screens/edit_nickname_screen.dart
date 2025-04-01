@@ -1,16 +1,18 @@
 import 'package:flutter/material.dart';
 import 'package:frontend/constants/app_colors.dart';
-
-class EditNicknameScreen extends StatefulWidget {
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:frontend/core/providers/profile_providers.dart';
+import 'package:frontend/core/providers/providers.dart';
+class EditNicknameScreen extends ConsumerStatefulWidget {
   final String initialNickname;
 
   const EditNicknameScreen({super.key, required this.initialNickname});
 
   @override
-  State<EditNicknameScreen> createState() => _EditNicknameScreenState();
+  ConsumerState<EditNicknameScreen> createState() => _EditNicknameScreenState();
 }
 
-class _EditNicknameScreenState extends State<EditNicknameScreen> {
+class _EditNicknameScreenState extends ConsumerState<EditNicknameScreen> {
   late TextEditingController _controller;
   bool _isValid = true;
 
@@ -118,10 +120,27 @@ class _EditNicknameScreenState extends State<EditNicknameScreen> {
               child: ElevatedButton(
                 onPressed:
                     _isValid && _controller.text.isNotEmpty
-                        ? () {
-                          Navigator.pop(context, _controller.text);
+                        ? () async {
+                          final newNickname = _controller.text;
+                          final success = await ref
+                              .read(profileNotifierProvider.notifier)
+                              .updateNickname(newNickname);
+
+                          if (success) {
+                            ref.invalidate(homeDataProvider); // 홈 데이터 최신화
+
+                            if (context.mounted) {
+                              Navigator.pop(context, newNickname); // 수정 후 닫기
+                            }
+                          } else {
+                            if (context.mounted) {
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                const SnackBar(content: Text('닉네임 변경 실패')),
+                              );
+                            }
+                          }
                         }
-                        : null,
+                      : null,
                 style: ElevatedButton.styleFrom(
                   backgroundColor: AppColors.primary,
                   foregroundColor: Colors.white,
