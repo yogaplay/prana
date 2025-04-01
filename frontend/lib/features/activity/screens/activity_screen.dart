@@ -141,7 +141,7 @@ class _ActivityPageState extends State<ActivityPage> {
       focusedDay: _focusedDay,
       firstDay: DateTime.now().subtract(Duration(days: 365 * 10)),
       lastDay: DateTime.now().add(Duration(days: 365 * 10)),
-      locale: 'ko-KR',
+      locale: 'ko_KR',
       selectedDayPredicate: (day) => isSameDay(_selectedDay, day),
       eventLoader: _getEventsForDay,
       headerStyle: HeaderStyle(
