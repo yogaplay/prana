@@ -1,3 +1,4 @@
+import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:frontend/core/providers/providers.dart';
 import 'package:frontend/features/auth/screens/onboarding_screen.dart';
@@ -5,6 +6,7 @@ import 'package:frontend/features/auth/screens/signup_screen.dart';
 import 'package:frontend/features/home/screens/home_screen.dart';
 import 'package:frontend/features/learning/screens/sequence_result_screen.dart';
 import 'package:frontend/features/report/screens/report_screen.dart';
+import 'package:frontend/features/learning/screens/learning_screen.dart';
 import 'package:frontend/features/search/screens/see_all_screen.dart';
 import 'package:frontend/main_shell.dart';
 import 'package:frontend/features/activity/screens/activity_screen.dart';
@@ -141,6 +143,13 @@ final routerProvider = Provider<GoRouter>((ref) {
         path: '/sequence-result',
         name: 'sequenceResult',
         builder: (_, __) => const SequenceResultScreen(),
+      ),
+      GoRoute(
+        path: '/sequence/:id/learning',
+        pageBuilder: (context, state) {
+          final sequenceId = int.parse(state.pathParameters['id'] ?? '1');
+          return MaterialPage(child: LearningScreen(sequenceId: sequenceId));
+        },
       ),
     ],
   );

@@ -43,7 +43,12 @@ class SequenceDetailScreen extends ConsumerWidget {
                 message: '요청하신 정보가 존재하지 않습니다',
                 icon: Icons.search_off_rounded,
               ),
-          data: (sequence) => _buildContent(context, sequence, ref),
+          data: (sequence) {
+            WidgetsBinding.instance.addPostFrameCallback((_) {
+              ref.read(selectedSequenceProvider.notifier).state = sequence;
+            });
+            return _buildContent(context, sequence, ref);
+          },
         ),
       ),
     );
@@ -153,10 +158,18 @@ class SequenceDetailScreen extends ConsumerWidget {
             width: double.infinity,
             color: const Color.fromARGB(255, 255, 255, 255),
             padding: const EdgeInsets.only(bottom: 24),
-            child: Column(children: [Button(text: '시작하기', onPressed: () {
-              ref.read(selectedSequenceProvider.notifier).state = sequence;
-              context.go('/sequence/${sequence.sequenceId}/learning');
-            })]),
+            child: Column(
+              children: [
+                Button(
+                  text: '시작하기',
+                  onPressed: () {
+                    ref.read(selectedSequenceProvider.notifier).state =
+                        sequence;
+                    context.go('/sequence/${sequence.sequenceId}/learning');
+                  },
+                ),
+              ],
+            ),
           ),
         ],
       ),
