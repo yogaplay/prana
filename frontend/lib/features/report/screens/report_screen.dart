@@ -6,6 +6,8 @@ import 'package:frontend/features/report/widgets/report_header.dart';
 import 'package:frontend/features/report/widgets/yoga_accuracy_chart.dart';
 import 'package:frontend/features/report/widgets/yoga_bmi_chart.dart';
 import 'package:frontend/features/report/widgets/yoga_time_chart.dart';
+import 'package:frontend/features/search/models/yoga_item.dart';
+import 'package:frontend/features/search/widgets/recommended_yoga_section.dart';
 
 class ReportScreen extends StatelessWidget {
   const ReportScreen({super.key});
@@ -62,6 +64,43 @@ class ReportScreen extends StatelessWidget {
       BodyFeedback(part: BodyPart.leg, count: 2),
     ];
 
+    final Map<String, List<YogaItem>> dummyRecommendedItems = {
+      '등': [
+        YogaItem(
+          title: '등을 위한 요가 1',
+          imageUrl: 'https://picsum.photos/id/1011/200/120',
+          duration: '30분',
+        ),
+        YogaItem(
+          title: '등을 위한 요가 2',
+          imageUrl: 'https://picsum.photos/id/1012/200/120',
+          duration: '30분',
+        ),
+        YogaItem(
+          title: '등을 위한 요가 3',
+          imageUrl: 'https://picsum.photos/id/1013/200/120',
+          duration: '20분',
+        ),
+      ],
+      '다리': [
+        YogaItem(
+          title: '다리를 위한 요가 1',
+          imageUrl: 'https://picsum.photos/id/1021/200/120',
+          duration: '25분',
+        ),
+        YogaItem(
+          title: '다리를 위한 요가 2',
+          imageUrl: 'https://picsum.photos/id/1022/200/120',
+          duration: '30분',
+        ),
+        YogaItem(
+          title: '다리를 위한 요가 3',
+          imageUrl: 'https://picsum.photos/id/1023/200/120',
+          duration: '30분',
+        ),
+      ],
+    };
+
     return Scaffold(
       body: SafeArea(
         child: SingleChildScrollView(
@@ -77,6 +116,8 @@ class ReportScreen extends StatelessWidget {
               FeedbackSummaryText(parts: ['등', '팔', '다리']),
               SizedBox(height: 16),
               PoseFeedbackDiagram(isMale: true, feedbacks: dummyFeedbacks),
+              SizedBox(height: 16),
+              RecommendedYogaSection(recommendedItems: dummyRecommendedItems),
               SizedBox(height: 16),
               YogaTimeChart(data: dummyData),
               SizedBox(height: 16),
