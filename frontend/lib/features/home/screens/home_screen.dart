@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:frontend/core/providers/providers.dart';
+import 'package:go_router/go_router.dart';
 import '../models/home_model.dart';
 import '../providers/detail_data_provider.dart';
 
@@ -66,12 +67,12 @@ class HomeScreen extends ConsumerWidget {
             _buildSectionWithSeeAll(
               '최근',
               context,
-              _buildRecentActivity(data.recentList),
+              _buildRecentActivity(data.recentList, context),
             ),
             _buildSectionWithSeeAll(
               '즐겨찾기',
               context,
-              _buildFavoriteWorkout(data.starList),
+              _buildFavoriteWorkout(data.starList, context),
             ),
           ],
         ),
@@ -87,7 +88,15 @@ class HomeScreen extends ConsumerWidget {
         color: Colors.white,
         borderRadius: BorderRadius.circular(16),
         boxShadow: [
-          BoxShadow(color: Colors.grey.withOpacity(0.2), blurRadius: 5),
+          BoxShadow(
+            color: Colors.grey.withValues(
+              red: 128,
+              green: 128,
+              blue: 128,
+              alpha: 0.2,
+            ),
+            blurRadius: 5,
+          ),
         ],
       ),
       child: Column(
@@ -130,80 +139,90 @@ class HomeScreen extends ConsumerWidget {
     );
   }
 
-  Widget _buildRecentActivity(List<RecentItem> list) {
+  Widget _buildRecentActivity(List<RecentItem> list, BuildContext context) {
     return Column(
       children:
           list.map((activity) {
-            return ListTile(
-              leading: ClipRRect(
-                borderRadius: BorderRadius.circular(8),
-                child: Image.network(
-                  activity.image,
-                  width: 50,
-                  height: 50,
-                  fit: BoxFit.cover,
+            return InkWell(
+              onTap: () {
+                context.push('/sequence/${activity.sequenceId}');
+              },
+              child: ListTile(
+                leading: ClipRRect(
+                  borderRadius: BorderRadius.circular(8),
+                  child: Image.network(
+                    activity.image,
+                    width: 50,
+                    height: 50,
+                    fit: BoxFit.cover,
+                  ),
                 ),
-              ),
-              title: Text(
-                activity.sequenceName,
-                style: const TextStyle(
-                  fontFamily: 'Pretendard',
-                  fontSize: 16,
-                  fontWeight: FontWeight.bold,
+                title: Text(
+                  activity.sequenceName,
+                  style: const TextStyle(
+                    fontFamily: 'Pretendard',
+                    fontSize: 16,
+                    fontWeight: FontWeight.bold,
+                  ),
                 ),
-              ),
-              subtitle: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    _formatTimeAgo(activity.updatedAt),
-                    style: const TextStyle(
-                      fontFamily: 'Pretendard',
-                      fontSize: 14,
+                subtitle: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      _formatTimeAgo(activity.updatedAt),
+                      style: const TextStyle(
+                        fontFamily: 'Pretendard',
+                        fontSize: 14,
+                      ),
                     ),
-                  ),
-                  const SizedBox(height: 4),
-                  LinearProgressIndicator(
-                    value: activity.percent / 100,
-                    color: const Color(0xff7ECECA),
-                    backgroundColor: const Color(0xffE8FAF1),
-                  ),
-                ],
+                    const SizedBox(height: 4),
+                    LinearProgressIndicator(
+                      value: activity.percent / 100,
+                      color: const Color(0xff7ECECA),
+                      backgroundColor: const Color(0xffE8FAF1),
+                    ),
+                  ],
+                ),
               ),
             );
           }).toList(),
     );
   }
 
-  Widget _buildFavoriteWorkout(List<StarItem> list) {
+  Widget _buildFavoriteWorkout(List<StarItem> list, BuildContext context) {
     return Column(
       children:
           list.map((item) {
-            return ListTile(
-              leading: ClipRRect(
-                borderRadius: BorderRadius.circular(8),
-                child:
-                    item.image != null
-                        ? Image.network(
-                          item.image!,
-                          width: 50,
-                          height: 50,
-                          fit: BoxFit.cover,
-                        )
-                        : const Icon(Icons.image_not_supported),
-              ),
-              title: Text(
-                item.sequenceName,
-                style: const TextStyle(
-                  fontFamily: 'Pretendard',
-                  fontSize: 16,
-                  fontWeight: FontWeight.bold,
+            return InkWell(
+              onTap: () {
+                context.push('/sequence/${item.sequenceId}');
+              },
+              child: ListTile(
+                leading: ClipRRect(
+                  borderRadius: BorderRadius.circular(8),
+                  child:
+                      item.image != null
+                          ? Image.network(
+                            item.image!,
+                            width: 50,
+                            height: 50,
+                            fit: BoxFit.cover,
+                          )
+                          : const Icon(Icons.image_not_supported),
                 ),
+                title: Text(
+                  item.sequenceName,
+                  style: const TextStyle(
+                    fontFamily: 'Pretendard',
+                    fontSize: 16,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+                subtitle: Row(
+                  children: item.tagList.map((tag) => _buildTag(tag)).toList(),
+                ),
+                trailing: const Icon(Icons.star, color: Color(0xff7ECECA)),
               ),
-              subtitle: Row(
-                children: item.tagList.map((tag) => _buildTag(tag)).toList(),
-              ),
-              trailing: const Icon(Icons.star, color: Color(0xff7ECECA)),
             );
           }).toList(),
     );
@@ -232,12 +251,7 @@ class HomeScreen extends ConsumerWidget {
               ),
               GestureDetector(
                 onTap: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) => DetailPage(title: title),
-                    ),
-                  );
+                  context.push('/home/detail/$title');
                 },
                 child: const Text(
                   '전체보기',
@@ -277,7 +291,7 @@ class HomeScreen extends ConsumerWidget {
         color: const Color(0xffE8FAF1),
         borderRadius: BorderRadius.circular(16),
       ),
-      child: Text(  
+      child: Text(
         text,
         style: const TextStyle(fontFamily: 'Pretendard', fontSize: 14),
       ),
@@ -312,7 +326,7 @@ class DetailPage extends ConsumerWidget {
         elevation: 0,
         leading: IconButton(
           icon: const Icon(Icons.arrow_back_ios_new, color: Colors.black),
-          onPressed: () => Navigator.pop(context),
+          onPressed: () => context.pop(),
         ),
         title: Text(
           title,
@@ -325,184 +339,243 @@ class DetailPage extends ConsumerWidget {
       ),
       body: detailAsync.when(
         loading: () => const Center(child: CircularProgressIndicator()),
-        error: (error, stackTrace) => Center(
-          child: Text('에러 발생: ${error.toString()}'),
-        ),
-        data: (data) => data.content.isEmpty
-            ? const Center(child: Text('데이터가 없습니다.'))
-            : ListView.builder(
-                itemCount: data.content.length,
-                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                itemBuilder: (context, index) {
-                  final item = data.content[index];
+        error:
+            (error, stackTrace) =>
+                Center(child: Text('에러 발생: ${error.toString()}')),
+        data:
+            (data) =>
+                data.content.isEmpty
+                    ? const Center(child: Text('데이터가 없습니다.'))
+                    : ListView.builder(
+                      itemCount: data.content.length,
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 16,
+                        vertical: 8,
+                      ),
+                      itemBuilder: (context, index) {
+                        final item = data.content[index];
 
-                  // 최근 시퀀스용 UI
-                  if (title == '최근') {
-                    return Container(
-                      margin: const EdgeInsets.only(bottom: 24),
-                      child: Row(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Stack(
-                            alignment: Alignment.topRight,
-                            children: [
-                              ClipRRect(
-                                borderRadius: BorderRadius.circular(16),
-                                child: Image.network(
-                                  item.image ?? '',
-                                  width: 60,
-                                  height: 60,
-                                  fit: BoxFit.cover,
-                                ),
-                              ),
-                              Positioned(
-                                top: 4,
-                                right: 4,
-                                child: CircleAvatar(
-                                  radius: 10,
-                                  backgroundColor: Colors.white,
-                                  child: Icon(
-                                    item.resultStatus == 'Y'
-                                        ? Icons.check_circle
-                                        : Icons.more_horiz,
-                                    size: 16,
-                                    color: item.resultStatus == 'Y'
-                                        ? const Color(0xff7ECECA)
-                                        : Colors.grey,
+                        // 최근 시퀀스용 UI
+                        if (title == '최근') {
+                          return InkWell(
+                            onTap: () {
+                              context.push('/sequence/${item.sequenceId}');
+                            },
+                            child: Container(
+                              margin: const EdgeInsets.only(bottom: 24),
+                              child: Row(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Stack(
+                                    alignment: Alignment.topRight,
+                                    children: [
+                                      ClipRRect(
+                                        borderRadius: BorderRadius.circular(16),
+                                        child: Image.network(
+                                          item.image ?? '',
+                                          width: 60,
+                                          height: 60,
+                                          fit: BoxFit.cover,
+                                        ),
+                                      ),
+                                      Positioned(
+                                        top: 4,
+                                        right: 4,
+                                        child: CircleAvatar(
+                                          radius: 10,
+                                          backgroundColor: Colors.white,
+                                          child: Icon(
+                                            item.resultStatus == 'Y'
+                                                ? Icons.check_circle
+                                                : Icons.more_horiz,
+                                            size: 16,
+                                            color:
+                                                item.resultStatus == 'Y'
+                                                    ? const Color(0xff7ECECA)
+                                                    : Colors.grey,
+                                          ),
+                                        ),
+                                      ),
+                                    ],
                                   ),
-                                ),
+                                  const SizedBox(width: 12),
+                                  Expanded(
+                                    child: Column(
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
+                                      children: [
+                                        Text(
+                                          item.sequenceName,
+                                          style: const TextStyle(
+                                            fontSize: 16,
+                                            fontWeight: FontWeight.bold,
+                                          ),
+                                        ),
+                                        const SizedBox(height: 4),
+                                        Text(
+                                          _formatTimeAgo(item.updatedAt),
+                                          style: const TextStyle(
+                                            fontSize: 12,
+                                            color: Colors.grey,
+                                          ),
+                                        ),
+                                        const SizedBox(height: 8),
+                                        Row(
+                                          children: [
+                                            Text(
+                                              '${item.percent}%',
+                                              style: const TextStyle(
+                                                fontSize: 12,
+                                              ),
+                                            ),
+                                            const SizedBox(width: 8),
+                                            Expanded(
+                                              child: LinearProgressIndicator(
+                                                value:
+                                                    (item.percent ?? 0) / 100,
+                                                color: const Color(0xff7ECECA),
+                                                backgroundColor: const Color(
+                                                  0xffE8FAF1,
+                                                ),
+                                                minHeight: 4,
+                                              ),
+                                            ),
+                                          ],
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                ],
                               ),
-                            ],
-                          ),
-                          const SizedBox(width: 12),
-                          Expanded(
-                            child: Column(
+                            ),
+                          );
+                        }
+
+                        // 즐겨찾기 UI
+                        return InkWell(
+                          onTap: () {
+                            context.push('/sequence/${item.sequenceId}');
+                          },
+                          child: Container(
+                            margin: const EdgeInsets.only(bottom: 16),
+                            child: Row(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
-                                Text(
-                                  item.sequenceName,
-                                  style: const TextStyle(
-                                    fontSize: 16,
-                                    fontWeight: FontWeight.bold,
+                                ClipRRect(
+                                  borderRadius: BorderRadius.circular(12),
+                                  child:
+                                      item.image != null
+                                          ? Image.network(
+                                            item.image!,
+                                            width: 60,
+                                            height: 60,
+                                            fit: BoxFit.cover,
+                                          )
+                                          : Container(
+                                            width: 60,
+                                            height: 60,
+                                            color: Colors.grey[300],
+                                            child: const Icon(
+                                              Icons.image_not_supported,
+                                            ),
+                                          ),
+                                ),
+                                const SizedBox(width: 12),
+                                Expanded(
+                                  child: Column(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    children: [
+                                      Text(
+                                        item.sequenceName,
+                                        style: const TextStyle(
+                                          fontSize: 16,
+                                          fontWeight: FontWeight.bold,
+                                        ),
+                                      ),
+                                      const SizedBox(height: 8),
+                                      Wrap(
+                                        spacing: 8,
+                                        runSpacing: 4,
+                                        children:
+                                            item.tagList
+                                                .map(
+                                                  (tag) => Container(
+                                                    padding:
+                                                        const EdgeInsets.symmetric(
+                                                          horizontal: 8,
+                                                          vertical: 4,
+                                                        ),
+                                                    decoration: BoxDecoration(
+                                                      color: const Color(
+                                                        0xFFE8FAF1,
+                                                      ),
+                                                      borderRadius:
+                                                          BorderRadius.circular(
+                                                            12,
+                                                          ),
+                                                    ),
+                                                    child: Text(
+                                                      tag,
+                                                      style: const TextStyle(
+                                                        fontSize: 12,
+                                                      ),
+                                                    ),
+                                                  ),
+                                                )
+                                                .toList(),
+                                      ),
+                                    ],
                                   ),
                                 ),
-                                const SizedBox(height: 4),
-                                Text(
-                                  _formatTimeAgo(item.updatedAt),
-                                  style: const TextStyle(fontSize: 12, color: Colors.grey),
-                                ),
-                                const SizedBox(height: 8),
-                                Row(
-                                  children: [
-                                    Text('${item.percent}%', style: const TextStyle(fontSize: 12)),
-                                    const SizedBox(width: 8),
-                                    Expanded(
-                                      child: LinearProgressIndicator(
-                                        value: (item.percent ?? 0) / 100,
-                                        color: const Color(0xff7ECECA),
-                                        backgroundColor: const Color(0xffE8FAF1),
-                                        minHeight: 4,
-                                      ),
-                                    ),
-                                  ],
+                                const SizedBox(width: 8),
+                                IconButton(
+                                  icon: Icon(
+                                    item.star ? Icons.star : Icons.star_border,
+                                    color:
+                                        item.star
+                                            ? const Color(0xff7ECECA)
+                                            : Colors.grey,
+                                  ),
+                                  onPressed: () async {
+                                    try {
+                                      final homeService = ref.read(
+                                        homeServiceProvider,
+                                      );
+                                      await homeService.toggleStar(
+                                        item.sequenceId,
+                                      );
+
+                                      // UI 토글 (리스트를 setState처럼 갱신해야 할 경우)
+                                      ref.invalidate(detailDataProvider(title));
+                                    } catch (e) {
+                                      if (context.mounted) {
+                                        ScaffoldMessenger.of(
+                                          context,
+                                        ).showSnackBar(
+                                          const SnackBar(
+                                            content: Text('즐겨찾기 변경에 실패했습니다.'),
+                                          ),
+                                        );
+                                      }
+                                    }
+                                  },
                                 ),
                               ],
                             ),
                           ),
-                        ],
-                      ),
-                    );
-                  }
-
-                  // 즐겨찾기 UI
-                  return Container(
-                    margin: const EdgeInsets.only(bottom: 16),
-                    child: Row(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        ClipRRect(
-                          borderRadius: BorderRadius.circular(12),
-                          child: item.image != null
-                              ? Image.network(
-                                  item.image!,
-                                  width: 60,
-                                  height: 60,
-                                  fit: BoxFit.cover,
-                                )
-                              : Container(
-                                  width: 60,
-                                  height: 60,
-                                  color: Colors.grey[300],
-                                  child: const Icon(Icons.image_not_supported),
-                                ),
-                        ),
-                        const SizedBox(width: 12),
-                        Expanded(
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(
-                                item.sequenceName,
-                                style: const TextStyle(
-                                  fontSize: 16,
-                                  fontWeight: FontWeight.bold,
-                                ),
-                              ),
-                              const SizedBox(height: 8),
-                              Wrap(
-                                spacing: 8,
-                                runSpacing: 4,
-                                children: item.tagList
-                                    .map((tag) => Container(
-                                          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                                          decoration: BoxDecoration(
-                                            color: const Color(0xFFE8FAF1),
-                                            borderRadius: BorderRadius.circular(12),
-                                          ),
-                                          child: Text(
-                                            tag,
-                                            style: const TextStyle(fontSize: 12),
-                                          ),
-                                        ))
-                                    .toList(),
-                              ),
-                            ],
-                          ),
-                        ),
-                        const SizedBox(width: 8),
-                        IconButton(
-                          icon: Icon(
-                            item.star ? Icons.star : Icons.star_border,
-                            color: item.star ? const Color(0xff7ECECA) : Colors.grey,
-                          ),
-                          onPressed: () async {
-                            try {
-                              final homeService = ref.read(homeServiceProvider);
-                              await homeService.toggleStar(item.sequenceId);
-
-                              // UI 토글 (리스트를 setState처럼 갱신해야 할 경우)
-                              ref.refresh(detailDataProvider(title));
-                            } catch (e) {
-                              ScaffoldMessenger.of(context).showSnackBar(
-                                const SnackBar(content: Text('즐겨찾기 변경에 실패했습니다.')),
-                              );
-                            }
-                          },
-                        ),
-                      ],
+                        );
+                      },
                     ),
-                  );
-                },
-              ),
-      )
+      ),
     );
   }
 }
 
-  String _formatTimeAgo(DateTime? dateTime) {
-    if (dateTime == null) return '날짜 없음';
-    final diff = DateTime.now().difference(dateTime);
-    if (diff.inMinutes < 60) return '${diff.inMinutes}분 전';
-    if (diff.inHours < 24) return '${diff.inHours}시간 전';
-    return '${diff.inDays}일 전';
-  }
+String _formatTimeAgo(DateTime? dateTime) {
+  if (dateTime == null) return '날짜 없음';
+  final diff = DateTime.now().difference(dateTime);
+  if (diff.inMinutes < 60) return '${diff.inMinutes}분 전';
+  if (diff.inHours < 24) return '${diff.inHours}시간 전';
+  return '${diff.inDays}일 전';
+}
