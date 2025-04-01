@@ -42,7 +42,9 @@ dependencies:
       url: https://github.com/fluttercommunity/flutter_workmanager.git
       path: workmanager
       ref: main
-
+  video_player: ^2.9.5
+  camera: ^0.11.1
+  
 flutter_native_splash:
   color: "#7ECECA"
   image: "assets/images/lotus-white.png"
