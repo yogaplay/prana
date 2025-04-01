@@ -26,7 +26,17 @@ dependencies:
 
   shimmer: 3.0.0
 
+  flutter_native_splash: ^2.4.5
 
+flutter_native_splash:
+  color: "#7ECECA"
+  image: "assets/images/lotus-white.png"
+  android: true
+  ios: true
+
+  android_12:
+    image: "assets/images/lotus-white.png"
+    color: "#7ECECA"
 
 dev_dependencies:
   flutter_test:
@@ -44,9 +54,6 @@ flutter_launcher_icons:
   image_path: "assets/images/icon.png"
   adaptive_icon_background: "#7ECECA"
   adaptive_icon_foreground: "assets/images/icon_foreground.png"
-
-
-
 
 flutter:
   uses-material-design: true

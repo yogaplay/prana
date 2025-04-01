@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_native_splash/flutter_native_splash.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:frontend/constants/app_colors.dart';
 import 'package:frontend/core/providers/providers.dart';
@@ -12,6 +13,8 @@ class App extends ConsumerWidget {
     WidgetsBinding.instance.addPostFrameCallback((_) {
       initializeApp(ref);
     });
+
+    FlutterNativeSplash.remove();
     return MaterialApp.router(
       title: 'Prana',
       theme: ThemeData(
