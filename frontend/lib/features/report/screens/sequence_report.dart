@@ -29,7 +29,7 @@ class SequenceReportScreen extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text('축하합니다! 😄'),
+                Text('축하합니다!'),
                 const SizedBox(height: 12),
                 Text('${data.sequenceName}를 완료하였습니다!'),
               ]
