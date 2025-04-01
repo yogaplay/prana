@@ -110,6 +110,16 @@ def calculate_angle_2d(A, B, C):
     angle = np.degrees(np.arccos(np.clip(cosine_angle, -1.0, 1.0)))
     return round(angle, 2)
 
+def calculate_angle_3d(A, B, C):
+    a = np.array(A)
+    b = np.array(B)
+    c = np.array(C)
+    ba = a - b
+    bc = c - b
+    cosine_angle = np.dot(ba, bc) / (np.linalg.norm(ba) * np.linalg.norm(bc))
+    angle = np.degrees(np.arccos(np.clip(cosine_angle, -1.0, 1.0)))
+
+    return round(angle,2)
 
 @app.post("/api/short-feedback")
 async def short_feedback(request: FeedbackRequest):
@@ -226,7 +236,7 @@ async def long_feedback(request: FeedbackRequest):
                 landmarks[target_landmarks[C]].y,
                 landmarks[target_landmarks[C]].z
             )
-            angle_val = calculate_angle_2d(A_point, B_point, C_point)
+            angle_val = calculate_angle_3d(A_point, B_point, C_point)
             live_angles_list.append(angle_val)
             logger.info(f"각도[{idx}]: live 각도 = {angle_val}")
         live_angles = np.array(live_angles_list)
