@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:frontend/features/report/models/body_feedback.dart';
-import 'package:frontend/features/report/models/body_part.dart';
 import 'package:frontend/features/report/models/weekly_yoga_data.dart';
+import 'package:frontend/features/report/widgets/feedback_summary_text.dart';
 import 'package:frontend/features/report/widgets/pose_feedback_diagram.dart';
 import 'package:frontend/features/report/widgets/report_header.dart';
 import 'package:frontend/features/report/widgets/yoga_accuracy_chart.dart';
@@ -56,20 +55,12 @@ class ReportScreen extends StatelessWidget {
       ),
     ];
 
-    final partCounts = {
-      "left_shoulder": 3,
-      "right_shoulder": 3,
-      "elbow_left": 1,
-      "elbow_right": 1,
-      "arm_left": 1,
-      "arm_right": 2,
-      "hip_left": 1,
-      "hip_right": 1,
-      "knee_left": 2,
-      "knee_right": 1,
-      "leg_left": 1,
-      "leg_right": 1,
-    };
+    final List<BodyFeedback> dummyFeedbacks = [
+      BodyFeedback(part: BodyPart.back, count: 3),
+      BodyFeedback(part: BodyPart.arm, count: 1),
+      BodyFeedback(part: BodyPart.core, count: 4),
+      BodyFeedback(part: BodyPart.leg, count: 2),
+    ];
 
     return Scaffold(
       body: SafeArea(
@@ -80,8 +71,12 @@ class ReportScreen extends StatelessWidget {
             mainAxisSize: MainAxisSize.min,
             children: [
               ReportHeader(),
-              PoseFeedbackDiagram(isMale: true, partCounts: partCounts),
               SizedBox(height: 16),
+              Text('이번 주의 피드백', style: TextStyle(fontSize: 16)),
+              SizedBox(height: 8),
+              FeedbackSummaryText(parts: ['등', '팔', '다리']),
+              SizedBox(height: 16),
+              PoseFeedbackDiagram(isMale: true, feedbacks: dummyFeedbacks),
               SizedBox(height: 16),
               YogaTimeChart(data: dummyData),
               SizedBox(height: 16),

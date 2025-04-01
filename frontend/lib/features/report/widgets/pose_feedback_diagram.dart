@@ -1,144 +1,170 @@
 import 'package:flutter/material.dart';
 import 'package:frontend/constants/app_colors.dart';
-import 'package:frontend/features/report/models/body_feedback.dart';
-import 'package:frontend/features/report/models/body_part.dart';
-import 'package:frontend/features/report/widgets/FeedbackSummaryText.dart';
+
+enum BodyPart { back, arm, core, leg }
+
+class BodyFeedback {
+  final BodyPart part;
+  final int count;
+
+  BodyFeedback({required this.part, required this.count});
+}
 
 class BodyFeedbackLayout {
   final Offset center;
-  final double radius;
+  final Size size;
+  final Offset bend;
+  final Offset end;
+  final Offset textPosition;
 
-  BodyFeedbackLayout({required this.center, required this.radius});
-
-  Size get size => Size(radius * 2, radius * 2);
-  Offset get topLeft => Offset(center.dx - radius, center.dy - radius);
+  BodyFeedbackLayout({
+    required this.center,
+    required this.size,
+    required this.bend,
+    required this.end,
+    required this.textPosition,
+  });
 }
-
-Map<String, BodyFeedbackLayout> partLayoutMap = {
-  'left_shoulder': BodyFeedbackLayout(center: Offset(120, 70), radius: 15),
-  'right_shoulder': BodyFeedbackLayout(center: Offset(70, 70), radius: 15),
-  'elbow_left': BodyFeedbackLayout(center: Offset(90, 120), radius: 11),
-  'elbow_right': BodyFeedbackLayout(center: Offset(190, 120), radius: 11),
-  'arm_left': BodyFeedbackLayout(center: Offset(75, 150), radius: 10),
-  'arm_right': BodyFeedbackLayout(center: Offset(205, 150), radius: 10),
-  'hip_left': BodyFeedbackLayout(center: Offset(120, 200), radius: 13),
-  'hip_right': BodyFeedbackLayout(center: Offset(160, 200), radius: 13),
-  'knee_left': BodyFeedbackLayout(center: Offset(110, 260), radius: 12),
-  'knee_right': BodyFeedbackLayout(center: Offset(170, 260), radius: 12),
-  'leg_left': BodyFeedbackLayout(center: Offset(100, 310), radius: 10),
-  'leg_right': BodyFeedbackLayout(center: Offset(180, 310), radius: 10),
-};
 
 class PoseFeedbackDiagram extends StatelessWidget {
   final bool isMale;
-  final Map<String, int> partCounts;
+  final List<BodyFeedback> feedbacks;
 
-  const PoseFeedbackDiagram({
+  PoseFeedbackDiagram({
     super.key,
-    this.isMale = true,
-    required this.partCounts,
+    required this.isMale,
+    required this.feedbacks,
   });
+
+  final double centerX = 189.7;
+
+  late final Map<BodyPart, BodyFeedbackLayout> layoutMap = {
+    BodyPart.back: BodyFeedbackLayout(
+      center: Offset(centerX - 40, 100),
+      size: Size(28, 28),
+      bend: Offset(centerX - 70, 30),
+      end: Offset(centerX - 130, 30),
+      textPosition: Offset(centerX - 160, 19),
+    ),
+    BodyPart.arm: BodyFeedbackLayout(
+      center: Offset(centerX + 47, 160),
+      size: Size(24, 24),
+      bend: Offset(centerX + 70, 100),
+      end: Offset(centerX + 130, 100),
+      textPosition: Offset(centerX + 135, 89),
+    ),
+    BodyPart.core: BodyFeedbackLayout(
+      center: Offset(centerX - 17, 220),
+      size: Size(33, 33),
+      bend: Offset(centerX - 70, 280),
+      end: Offset(centerX - 135, 280),
+      textPosition: Offset(centerX - 165, 269),
+    ),
+    BodyPart.leg: BodyFeedbackLayout(
+      center: Offset(centerX + 21, 290),
+      size: Size(24, 24),
+      bend: Offset(centerX + 70, 346),
+      end: Offset(centerX + 130, 346),
+      textPosition: Offset(centerX + 135, 335),
+    ),
+  };
 
   @override
   Widget build(BuildContext context) {
-    final feedbacks = [
-      {"position": "back", "count": 30},
-      {"position": "arm", "count": 15},
-      {"position": "leg", "count": 1},
-      {"position": "core", "count": 0},
-    ];
-
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        FeedbackSummarytext(feedbacks: feedbacks),
-        SizedBox(height: 24),
-        Center(
-          child: SizedBox(
-            height: 400,
-            child: Stack(
-              clipBehavior: Clip.none,
-              children: [
-                Image.asset(
-                  isMale
-                      ? 'assets/images/man-body.png'
-                      : 'assets/images/woman-body.png',
-                  fit: BoxFit.contain,
-                ),
-                ..._buildFeedbackWidgets(),
-              ],
-            ),
-          ),
-        ),
-      ],
-    );
-  }
-
-  List<Widget> _buildFeedbackWidgets() {
-    return partCounts.entries.where((e) => e.value > 0).map((entry) {
-      final layout = partLayoutMap[entry.key]!;
-      return Positioned(
-        left: layout.topLeft.dx,
-        top: layout.topLeft.dy,
-        child: _FeedbackCircle(count: entry.value, radius: layout.radius),
-      );
-    }).toList();
-  }
-}
-
-class _FeedbackCircle extends StatefulWidget {
-  final int count;
-  final double radius;
-
-  const _FeedbackCircle({required this.count, required this.radius});
-
-  @override
-  State<_FeedbackCircle> createState() => __FeedbackCircleState();
-}
-
-class __FeedbackCircleState extends State<_FeedbackCircle> {
-  bool _show = false;
-  void _setShow(bool value) => setState(() {
-    _show = value;
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    final double size = widget.radius * 2;
-
-    return GestureDetector(
-      onTapDown: (details) => _setShow(true),
-      onTapUp: (details) => _setShow(false),
-      onTapCancel: () => _setShow(false),
-      child: Stack(
-        clipBehavior: Clip.none,
-        alignment: Alignment.center,
-        children: [
-          Container(
-            width: size,
-            height: size,
-            decoration: BoxDecoration(
-              color: AppColors.secondary.withAlpha((0.8 * 255).toInt()),
-              shape: BoxShape.circle,
-            ),
-          ),
-          if (_show)
-            Positioned(
-              top: -widget.radius - 28,
-              child: Container(
-                padding: EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                decoration: BoxDecoration(
-                  color: AppColors.blackText,
-                  borderRadius: BorderRadius.circular(6),
-                ),
-                child: Text(
-                  '${widget.count}회',
-                  style: TextStyle(color: Colors.white, fontSize: 12),
-                ),
+    return Center(
+      child: SizedBox(
+        width: double.infinity,
+        height: 420,
+        child: Stack(
+          clipBehavior: Clip.none,
+          children: [
+            Align(
+              alignment: Alignment.center,
+              child: Image.asset(
+                isMale
+                    ? 'assets/images/man-body.png'
+                    : 'assets/images/woman-body.png',
+                fit: BoxFit.contain,
               ),
             ),
-        ],
+            ...feedbacks.where((f) => f.count > 0).map((f) {
+              final layout = layoutMap[f.part]!;
+              final topLeft = Offset(
+                layout.center.dx - layout.size.width / 2,
+                layout.center.dy - layout.size.height / 2,
+              );
+              return Stack(
+                clipBehavior: Clip.none,
+                children: [
+                  Positioned(
+                    left: topLeft.dx,
+                    top: topLeft.dy,
+                    child: Container(
+                      width: layout.size.width,
+                      height: layout.size.height,
+                      decoration: BoxDecoration(
+                        color: AppColors.secondary.withAlpha(
+                          (0.8 * 255).toInt(),
+                        ),
+                        shape: BoxShape.circle,
+                      ),
+                    ),
+                  ),
+                  Positioned(
+                    left: 0,
+                    top: 0,
+                    child: CustomPaint(
+                      painter: LinePainter(
+                        from: layout.center,
+                        bend: layout.bend,
+                        to: layout.end,
+                      ),
+                    ),
+                  ),
+                  Positioned(
+                    left: layout.textPosition.dx,
+                    top: layout.textPosition.dy,
+                    child: Text(
+                      '${f.count}회',
+                      style: TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  ),
+                ],
+              );
+            }),
+          ],
+        ),
       ),
     );
   }
+}
+
+class LinePainter extends CustomPainter {
+  final Offset from;
+  final Offset bend;
+  final Offset to;
+
+  LinePainter({
+    super.repaint,
+    required this.from,
+    required this.bend,
+    required this.to,
+  });
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    final paint =
+        Paint()
+          ..color = AppColors.primary
+          ..strokeWidth = 1.5;
+
+    canvas.drawLine(from, bend, paint);
+    canvas.drawLine(bend, to, paint);
+  }
+
+  @override
+  bool shouldRepaint(covariant CustomPainter oldDelegate) => false;
 }
