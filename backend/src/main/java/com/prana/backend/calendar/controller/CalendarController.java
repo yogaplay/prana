@@ -1,5 +1,6 @@
 package com.prana.backend.calendar.controller;
 
+import com.prana.backend.calendar.controller.response.ActiveDateResponseDTO;
 import com.prana.backend.calendar.controller.response.DailySequenceResponseDTO;
 import com.prana.backend.calendar.controller.response.WeeklyReportResponseDTO;
 import com.prana.backend.calendar.service.CalendarService;
@@ -34,6 +35,15 @@ public class CalendarController {
                                                                    @AuthenticationPrincipal PranaPrincipal pranaPrincipal) {
         int userId = pranaPrincipal.getUserId();
         WeeklyReportResponseDTO result = calendarService.getWeeklyReport(userId, date);
+
+        return ResponseEntity.ok(result);
+    }
+
+    @GetMapping("/active/{date}")
+    public ResponseEntity<ActiveDateResponseDTO> getActiveDate(@PathVariable("date") String yearMonthStr,
+                                                                @AuthenticationPrincipal PranaPrincipal pranaPrincipal){
+        int userId = pranaPrincipal.getUserId();
+        ActiveDateResponseDTO result = calendarService.getActiveDate(userId, yearMonthStr);
 
         return ResponseEntity.ok(result);
     }
