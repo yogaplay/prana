@@ -22,7 +22,6 @@ public class SequenceBody {
     @JoinColumn(name = "user_sequence_id", nullable = false)
     private UserSequence userSequence;
 
-    @Enumerated(EnumType.STRING)
     @Column(name = "body_part", nullable = false)
     private String bodyPart;
 
