@@ -2,12 +2,12 @@ import 'package:flutter/material.dart';
 import 'package:frontend/features/report/models/weekly_yoga_data.dart';
 import 'package:frontend/features/report/widgets/feedback_summary_text.dart';
 import 'package:frontend/features/report/widgets/pose_feedback_diagram.dart';
+import 'package:frontend/features/report/widgets/recommended_yoga_section.dart';
 import 'package:frontend/features/report/widgets/report_header.dart';
 import 'package:frontend/features/report/widgets/yoga_accuracy_chart.dart';
 import 'package:frontend/features/report/widgets/yoga_bmi_chart.dart';
 import 'package:frontend/features/report/widgets/yoga_time_chart.dart';
 import 'package:frontend/features/search/models/yoga_item.dart';
-import 'package:frontend/features/search/widgets/recommended_yoga_section.dart';
 
 class ReportScreen extends StatelessWidget {
   const ReportScreen({super.key});
