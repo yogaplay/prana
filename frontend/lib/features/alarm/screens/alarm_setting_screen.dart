@@ -1,30 +1,44 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:frontend/constants/app_colors.dart';
+import 'package:frontend/core/providers/profile_providers.dart';
+import 'package:frontend/features/alarm/services/alarm_service.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
-class NotificationSettingsScreen extends StatefulWidget {
+class NotificationSettingsScreen extends ConsumerStatefulWidget {
   const NotificationSettingsScreen({super.key});
 
   @override
-  State<NotificationSettingsScreen> createState() =>
+  ConsumerState<NotificationSettingsScreen> createState() =>
       _NotificationSettingsScreenState();
 }
 
 class _NotificationSettingsScreenState
-    extends State<NotificationSettingsScreen> {
-  bool weeklyReportEnabled = true;
-  bool dailyExerciseEnabled = false;
-  TimeOfDay selectedTime = const TimeOfDay(hour: 20, minute: 0); // 8:00 PM
+    extends ConsumerState<NotificationSettingsScreen> {
+
+  bool weeklyReportEnabled = false; // 주간 리포트 설정
+  bool dailyExerciseEnabled = false; // 매일 운동 알림 설정
+  TimeOfDay weeklyReportTime = const TimeOfDay(
+    hour: 9,
+    minute: 0,
+  ); // 주간 리포트 시간 9:00 AM (고정)
+  TimeOfDay selectedTime = const TimeOfDay(
+    hour: 9,
+    minute: 0,
+  ); // 운동 알림 시간 9:00 AM (변동)
   List<bool> selectedDays = [
+    // 운동 알림 요일 (변동)
     false,
     false,
-    true,
+    false,
     false,
     false,
     false,
     false,
   ]; // 월, 화, 수, 목, 금, 토, 일
 
+  // 운동 알림 시간
   void _showTimePicker() {
     showModalBottomSheet(
       context: context,
@@ -50,6 +64,8 @@ class _NotificationSettingsScreenState
                   hour: newDateTime.hour,
                   minute: newDateTime.minute,
                 );
+                _updateDailyNotifications(); // 알림 설정/취소 실행
+                _saveNotificationSettings(); // ✅ 설정 변경 후 저장
               });
             },
             use24hFormat: false,
@@ -59,11 +75,103 @@ class _NotificationSettingsScreenState
     );
   }
 
+  // 운동 알림 시간 포맷
   String _formatTimeOfDay(TimeOfDay time) {
     final hour = time.hourOfPeriod == 0 ? 12 : time.hourOfPeriod;
     final minute = time.minute.toString().padLeft(2, '0');
     final period = time.period == DayPeriod.am ? 'AM' : 'PM';
     return '$hour:$minute $period';
+  }
+
+  // 주간 리포트 알림 설정하기
+  void _updateWeekNotifications() async {
+    bool granted = await requestNotificationPermission();
+    if (!granted) {
+      setState(() {
+        weeklyReportEnabled = false;
+        dailyExerciseEnabled = false;
+      });
+      _saveNotificationSettings();
+      return;
+    }
+    if (weeklyReportEnabled) {
+      // 오전 9시 고정
+      const fixedTime = TimeOfDay(hour: 9, minute: 0);
+      // DateTime 에서 월요일 = 1, 일요일 = 7
+      scheduleWeeklyNotification(200, fixedTime.hour, fixedTime.minute);
+    } else {
+      cancelNotifications(200, "weekly_report");
+    }
+  }
+
+  // 운동 알림 설정하기
+  void _updateDailyNotifications() async {
+    bool granted = await requestNotificationPermission();
+    if (!granted) {
+      setState(() {
+        weeklyReportEnabled = false;
+        dailyExerciseEnabled = false;
+      });
+      _saveNotificationSettings();
+      return;
+    }
+    if (dailyExerciseEnabled) {
+      List<int> selectedWeekdays = [];
+      for (int i = 0; i < selectedDays.length; i++) {
+        if (selectedDays[i]) {
+          selectedWeekdays.add(i + 1); // DateTime 에서 월요일 = 1, 일요일 = 7
+        }
+      }
+      scheduleDailyNotification(
+        100,
+        selectedTime.hour,
+        selectedTime.minute,
+        selectedWeekdays,
+      );
+    } else {
+      cancelNotifications(100, "daily_report");
+    }
+  }
+
+  // 알림 설정 저장
+  Future<void> _saveNotificationSettings() async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setBool('weeklyReportEnabled', weeklyReportEnabled);
+    await prefs.setBool('dailyExerciseEnabled', dailyExerciseEnabled);
+    await prefs.setInt('selectedHour', selectedTime.hour);
+    await prefs.setInt('selectedMinute', selectedTime.minute);
+    await prefs.setStringList(
+      'selectedDays',
+      selectedDays.map((e) => e.toString()).toList(),
+    );
+  }
+
+  // 알림 설정 불러오기
+  Future<void> _loadNotificationSettings() async {
+    final prefs = await SharedPreferences.getInstance();
+    setState(() {
+      weeklyReportEnabled = prefs.getBool('weeklyReportEnabled') ?? false;
+      dailyExerciseEnabled = prefs.getBool('dailyExerciseEnabled') ?? false;
+      int hour = prefs.getInt('selectedHour') ?? 9;
+      int minute = prefs.getInt('selectedMinute') ?? 0;
+      selectedTime = TimeOfDay(hour: hour, minute: minute);
+
+      List<String>? savedDays = prefs.getStringList('selectedDays');
+      if (savedDays != null) {
+        selectedDays = savedDays.map((e) => e == 'true').toList();
+      }
+    });
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      ref.read(profileNotifierProvider.notifier).loadProfile();
+    });
+    _loadNotificationSettings();
+    initTimezone();
+    initNotifications();
   }
 
   @override
@@ -123,6 +231,8 @@ class _NotificationSettingsScreenState
                           onChanged: (value) {
                             setState(() {
                               weeklyReportEnabled = value;
+                              _saveNotificationSettings(); // ✅ 설정 변경 후 저장
+                              _updateWeekNotifications(); // 토글이 바뀌면 알림 설정/취소 실행
                             });
                           },
                           activeTrackColor: AppColors.primary,
@@ -157,6 +267,8 @@ class _NotificationSettingsScreenState
                           onChanged: (value) {
                             setState(() {
                               dailyExerciseEnabled = value;
+                              _saveNotificationSettings(); // ✅ 설정 변경 후 저장
+                              _updateDailyNotifications(); // 토글이 바뀌면 알림 설정/취소 실행
                             });
                           },
                           activeTrackColor: AppColors.primary,
@@ -237,6 +349,7 @@ class _NotificationSettingsScreenState
       onTap: () {
         setState(() {
           selectedDays[index] = !selectedDays[index];
+          _updateDailyNotifications(); // 요일 선택 변경 시 알림 갱신
         });
       },
       child: Container(

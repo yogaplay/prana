@@ -31,6 +31,18 @@ dependencies:
 
   fl_chart: ^0.70.2
 
+  flutter_local_notifications: 19.0.0
+  timezone: 0.10.0
+  shared_preferences: 2.5.3
+  permission_handler: 11.4.0
+  intl: 0.20.2
+
+  workmanager:
+    git:
+      url: https://github.com/fluttercommunity/flutter_workmanager.git
+      path: workmanager
+      ref: main
+
 flutter_native_splash:
   color: "#7ECECA"
   image: "assets/images/lotus-white.png"
