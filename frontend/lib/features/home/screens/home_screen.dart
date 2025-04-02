@@ -8,34 +8,45 @@ import 'package:go_router/go_router.dart';
 import '../models/home_model.dart';
 import '../providers/detail_data_provider.dart';
 
-class HomeScreen extends ConsumerWidget {
+class HomeScreen extends ConsumerStatefulWidget {
   const HomeScreen({super.key});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<HomeScreen> createState() => _HomeScreenState();
+}
+
+class _HomeScreenState extends ConsumerState<HomeScreen> {
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    // 홈화면 진입 시 최신 데이터로 invalidate
+    ref.invalidate(homeDataProvider);
+  }
+
+  @override
+  Widget build(BuildContext context) {
     final homeDataAsync = ref.watch(homeDataProvider);
 
     return homeDataAsync.when(
       data: (data) => _buildHomeUI(data, context),
-      loading:
-          () =>
-              const Scaffold(body: Center(child: CircularProgressIndicator())),
-      error:
-          (error, stackTrace) => Scaffold(
-            body: Center(
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Text('에러: ${error.toString()}'),
-                  const SizedBox(height: 16),
-                  ElevatedButton(
-                    onPressed: () => ref.refresh(homeDataProvider),
-                    child: const Text('다시 시도'),
-                  ),
-                ],
+      loading: () => const Scaffold(
+        body: Center(child: CircularProgressIndicator()),
+      ),
+      error: (error, stackTrace) => Scaffold(
+        body: Center(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Text('에러: ${error.toString()}'),
+              const SizedBox(height: 16),
+              ElevatedButton(
+                onPressed: () => ref.refresh(homeDataProvider),
+                child: const Text('다시 시도'),
               ),
-            ),
+            ],
           ),
+        ),
+      ),
     );
   }
 
@@ -103,7 +114,7 @@ class HomeScreen extends ConsumerWidget {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Text(
+              const Text(
                 '리포트',
                 style: TextStyle(
                   fontFamily: 'Pretendard',
@@ -115,7 +126,7 @@ class HomeScreen extends ConsumerWidget {
                 onTap: () {
                   GoRouter.of(context).push('/weekly-report');
                 },
-                child: Icon(Icons.chevron_right, color: Colors.black),
+                child: const Icon(Icons.chevron_right, color: Colors.black),
               ),
             ],
           ),
@@ -144,90 +155,87 @@ class HomeScreen extends ConsumerWidget {
 
   Widget _buildRecentActivity(List<RecentItem> list, BuildContext context) {
     return Column(
-      children:
-          list.map((activity) {
-            return InkWell(
-              onTap: () {
-                context.push('/sequence/${activity.sequenceId}');
-              },
-              child: ListTile(
-                leading: ClipRRect(
-                  borderRadius: BorderRadius.circular(8),
-                  child: Image.network(
-                    activity.image,
-                    width: 50,
-                    height: 50,
-                    fit: BoxFit.cover,
-                  ),
-                ),
-                title: Text(
-                  activity.sequenceName,
+      children: list.map((activity) {
+        return InkWell(
+          onTap: () {
+            context.push('/sequence/${activity.sequenceId}');
+          },
+          child: ListTile(
+            leading: ClipRRect(
+              borderRadius: BorderRadius.circular(8),
+              child: Image.network(
+                activity.image,
+                width: 50,
+                height: 50,
+                fit: BoxFit.cover,
+              ),
+            ),
+            title: Text(
+              activity.sequenceName,
+              style: const TextStyle(
+                fontFamily: 'Pretendard',
+                fontSize: 16,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+            subtitle: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  _formatTimeAgo(activity.updatedAt),
                   style: const TextStyle(
                     fontFamily: 'Pretendard',
-                    fontSize: 16,
-                    fontWeight: FontWeight.bold,
+                    fontSize: 14,
                   ),
                 ),
-                subtitle: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      _formatTimeAgo(activity.updatedAt),
-                      style: const TextStyle(
-                        fontFamily: 'Pretendard',
-                        fontSize: 14,
-                      ),
-                    ),
-                    const SizedBox(height: 4),
-                    LinearProgressIndicator(
-                      value: activity.percent / 100,
-                      color: const Color(0xff7ECECA),
-                      backgroundColor: const Color(0xffE8FAF1),
-                    ),
-                  ],
+                const SizedBox(height: 4),
+                LinearProgressIndicator(
+                  value: activity.percent / 100,
+                  color: const Color(0xff7ECECA),
+                  backgroundColor: const Color(0xffE8FAF1),
                 ),
-              ),
-            );
-          }).toList(),
+              ],
+            ),
+          ),
+        );
+      }).toList(),
     );
   }
 
   Widget _buildFavoriteWorkout(List<StarItem> list, BuildContext context) {
     return Column(
-      children:
-          list.map((item) {
-            return InkWell(
-              onTap: () {
-                context.push('/sequence/${item.sequenceId}');
-              },
-              child: ListTile(
-                leading: ClipRRect(
-                  borderRadius: BorderRadius.circular(8),
-                  child:
-                      item.image != null
-                          ? Image.network(
-                            item.image!,
-                            width: 50,
-                            height: 50,
-                            fit: BoxFit.cover,
-                          )
-                          : const Icon(Icons.image_not_supported),
-                ),
-                title: Text(
-                  item.sequenceName,
-                  style: const TextStyle(
-                    fontFamily: 'Pretendard',
-                    fontSize: 16,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-                subtitle: Row(
-                  children: item.tagList.map((tag) => _buildTag(tag)).toList(),
-                ),
-                trailing: const Icon(Icons.star, color: Color(0xff7ECECA)),
+      children: list.map((item) {
+        return InkWell(
+          onTap: () {
+            context.push('/sequence/${item.sequenceId}');
+          },
+          child: ListTile(
+            leading: ClipRRect(
+              borderRadius: BorderRadius.circular(8),
+              child: item.image != null
+                  ? Image.network(
+                      item.image!,
+                      width: 50,
+                      height: 50,
+                      fit: BoxFit.cover,
+                    )
+                  : const Icon(Icons.image_not_supported),
+            ),
+            title: Text(
+              item.sequenceName,
+              style: const TextStyle(
+                fontFamily: 'Pretendard',
+                fontSize: 16,
+                fontWeight: FontWeight.bold,
               ),
-            );
-          }).toList(),
+            ),
+            subtitle: Wrap(
+              children: item.tagList.map((tag) => _buildTag(tag)).toList(),
+            ),
+            trailing: const Icon(Icons.star, color: Color(0xff7ECECA)),
+          ),
+        );
+      }).toList(),
     );
   }
 
@@ -290,12 +298,15 @@ class HomeScreen extends ConsumerWidget {
     return Container(
       margin: const EdgeInsets.only(right: 8, bottom: 4),
       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+      constraints: const BoxConstraints(maxWidth: 100), // 태그 너무 길어지는 것 방지
       decoration: BoxDecoration(
         color: const Color(0xffE8FAF1),
         borderRadius: BorderRadius.circular(16),
       ),
       child: Text(
         text,
+        overflow: TextOverflow.ellipsis,
+        maxLines: 1,
         style: const TextStyle(fontFamily: 'Pretendard', fontSize: 14),
       ),
     );
@@ -314,14 +325,27 @@ class HomeScreen extends ConsumerWidget {
   }
 }
 
-class DetailPage extends ConsumerWidget {
+
+class DetailPage extends ConsumerStatefulWidget {
   final String title;
 
   const DetailPage({super.key, required this.title});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    final detailAsync = ref.watch(detailDataProvider(title));
+  ConsumerState<DetailPage> createState() => _DetailPageState();
+}
+
+class _DetailPageState extends ConsumerState<DetailPage> {
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    // 진입 시마다 최신화
+    ref.invalidate(detailDataProvider(widget.title));
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final detailAsync = ref.watch(detailDataProvider(widget.title));
 
     return Scaffold(
       appBar: AppBar(
@@ -332,7 +356,7 @@ class DetailPage extends ConsumerWidget {
           onPressed: () => context.pop(),
         ),
         title: Text(
-          title,
+          widget.title,
           style: const TextStyle(
             fontWeight: FontWeight.bold,
             color: Colors.black,
@@ -342,238 +366,199 @@ class DetailPage extends ConsumerWidget {
       ),
       body: detailAsync.when(
         loading: () => const Center(child: CircularProgressIndicator()),
-        error:
-            (error, stackTrace) =>
-                Center(child: Text('에러 발생: ${error.toString()}')),
-        data:
-            (data) =>
-                data.content.isEmpty
-                    ? const Center(child: Text('데이터가 없습니다.'))
-                    : ListView.builder(
-                      itemCount: data.content.length,
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 16,
-                        vertical: 8,
-                      ),
-                      itemBuilder: (context, index) {
-                        final item = data.content[index];
+        error: (error, stackTrace) =>
+            Center(child: Text('에러 발생: ${error.toString()}')),
+        data: (data) => data.content.isEmpty
+            ? const Center(child: Text('데이터가 없습니다.'))
+            : ListView.builder(
+                itemCount: data.content.length,
+                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                itemBuilder: (context, index) {
+                  final item = data.content[index];
 
-                        // 최근 시퀀스용 UI
-                        if (title == '최근') {
-                          return InkWell(
-                            onTap: () {
-                              context.push('/sequence/${item.sequenceId}');
-                            },
-                            child: Container(
-                              margin: const EdgeInsets.only(bottom: 24),
-                              child: Row(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Stack(
-                                    alignment: Alignment.topRight,
-                                    children: [
-                                      ClipRRect(
-                                        borderRadius: BorderRadius.circular(16),
-                                        child: Image.network(
-                                          item.image ?? '',
-                                          width: 60,
-                                          height: 60,
-                                          fit: BoxFit.cover,
-                                        ),
-                                      ),
-                                      Positioned(
-                                        top: 4,
-                                        right: 4,
-                                        child: CircleAvatar(
-                                          radius: 10,
-                                          backgroundColor: Colors.white,
-                                          child: Icon(
-                                            item.resultStatus == 'Y'
-                                                ? Icons.check_circle
-                                                : Icons.more_horiz,
-                                            size: 16,
-                                            color:
-                                                item.resultStatus == 'Y'
-                                                    ? const Color(0xff7ECECA)
-                                                    : Colors.grey,
-                                          ),
-                                        ),
-                                      ),
-                                    ],
-                                  ),
-                                  const SizedBox(width: 12),
-                                  Expanded(
-                                    child: Column(
-                                      crossAxisAlignment:
-                                          CrossAxisAlignment.start,
-                                      children: [
-                                        Text(
-                                          item.sequenceName,
-                                          style: const TextStyle(
-                                            fontSize: 16,
-                                            fontWeight: FontWeight.bold,
-                                          ),
-                                        ),
-                                        const SizedBox(height: 4),
-                                        Text(
-                                          _formatTimeAgo(item.updatedAt),
-                                          style: const TextStyle(
-                                            fontSize: 12,
-                                            color: Colors.grey,
-                                          ),
-                                        ),
-                                        const SizedBox(height: 8),
-                                        Row(
-                                          children: [
-                                            Text(
-                                              '${item.percent}%',
-                                              style: const TextStyle(
-                                                fontSize: 12,
-                                              ),
-                                            ),
-                                            const SizedBox(width: 8),
-                                            Expanded(
-                                              child: LinearProgressIndicator(
-                                                value:
-                                                    (item.percent ?? 0) / 100,
-                                                color: const Color(0xff7ECECA),
-                                                backgroundColor: const Color(
-                                                  0xffE8FAF1,
-                                                ),
-                                                minHeight: 4,
-                                              ),
-                                            ),
-                                          ],
-                                        ),
-                                      ],
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ),
-                          );
-                        }
-
-                        // 즐겨찾기 UI
-                        return InkWell(
-                          onTap: () {
-                            context.push('/sequence/${item.sequenceId}');
-                          },
-                          child: Container(
-                            margin: const EdgeInsets.only(bottom: 16),
-                            child: Row(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                ClipRRect(
-                                  borderRadius: BorderRadius.circular(12),
-                                  child:
-                                      item.image != null
-                                          ? Image.network(
-                                            item.image!,
-                                            width: 60,
-                                            height: 60,
-                                            fit: BoxFit.cover,
-                                          )
-                                          : Container(
-                                            width: 60,
-                                            height: 60,
-                                            color: Colors.grey[300],
-                                            child: const Icon(
-                                              Icons.image_not_supported,
-                                            ),
-                                          ),
-                                ),
-                                const SizedBox(width: 12),
-                                Expanded(
-                                  child: Column(
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.start,
-                                    children: [
-                                      Text(
-                                        item.sequenceName,
-                                        style: const TextStyle(
-                                          fontSize: 16,
-                                          fontWeight: FontWeight.bold,
-                                        ),
-                                      ),
-                                      const SizedBox(height: 8),
-                                      Wrap(
-                                        spacing: 8,
-                                        runSpacing: 4,
-                                        children:
-                                            item.tagList
-                                                .map(
-                                                  (tag) => Container(
-                                                    padding:
-                                                        const EdgeInsets.symmetric(
-                                                          horizontal: 8,
-                                                          vertical: 4,
-                                                        ),
-                                                    decoration: BoxDecoration(
-                                                      color: const Color(
-                                                        0xFFE8FAF1,
-                                                      ),
-                                                      borderRadius:
-                                                          BorderRadius.circular(
-                                                            12,
-                                                          ),
-                                                    ),
-                                                    child: Text(
-                                                      tag,
-                                                      style: const TextStyle(
-                                                        fontSize: 12,
-                                                      ),
-                                                    ),
-                                                  ),
-                                                )
-                                                .toList(),
-                                      ),
-                                    ],
-                                  ),
-                                ),
-                                const SizedBox(width: 8),
-                                IconButton(
-                                  icon: Icon(
-                                    item.star ? Icons.star : Icons.star_border,
-                                    color:
-                                        item.star
-                                            ? const Color(0xff7ECECA)
-                                            : Colors.grey,
-                                  ),
-                                  onPressed: () async {
-                                    try {
-                                      final homeService = ref.read(
-                                        homeServiceProvider,
-                                      );
-                                      await homeService.toggleStar(
-                                        item.sequenceId,
-                                      );
-
-                                      // UI 토글 (리스트를 setState처럼 갱신해야 할 경우)
-                                      ref.invalidate(detailDataProvider(title));
-                                    } catch (e) {
-                                      if (context.mounted) {
-                                        ScaffoldMessenger.of(
-                                          context,
-                                        ).showSnackBar(
-                                          const SnackBar(
-                                            content: Text('즐겨찾기 변경에 실패했습니다.'),
-                                          ),
-                                        );
-                                      }
-                                    }
-                                  },
-                                ),
-                              ],
-                            ),
-                          ),
-                        );
-                      },
-                    ),
+                  if (widget.title == '최근') {
+                    return _buildRecentItem(context, item);
+                  } else {
+                    return _buildStarItem(context, item);
+                  }
+                },
+              ),
       ),
     );
   }
-}
+
+  Widget _buildRecentItem(BuildContext context, dynamic item) {
+    return InkWell(
+      onTap: () {
+        context.push('/sequence/${item.sequenceId}');
+      },
+      child: Container(
+        margin: const EdgeInsets.only(bottom: 24),
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Stack(
+              alignment: Alignment.topRight,
+              children: [
+                ClipRRect(
+                  borderRadius: BorderRadius.circular(16),
+                  child: Image.network(
+                    item.image ?? '',
+                    width: 60,
+                    height: 60,
+                    fit: BoxFit.cover,
+                  ),
+                ),
+                Positioned(
+                  top: 4,
+                  right: 4,
+                  child: CircleAvatar(
+                    radius: 10,
+                    backgroundColor: Colors.white,
+                    child: Icon(
+                      item.resultStatus == 'Y'
+                          ? Icons.check_circle
+                          : Icons.more_horiz,
+                      size: 16,
+                      color: item.resultStatus == 'Y'
+                          ? const Color(0xff7ECECA)
+                          : Colors.grey,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(width: 12),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    item.sequenceName,
+                    style: const TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                  const SizedBox(height: 4),
+                  Text(
+                    _formatTimeAgo(item.updatedAt),
+                    style: const TextStyle(
+                      fontSize: 12,
+                      color: Colors.grey,
+                    ),
+                  ),
+                  const SizedBox(height: 8),
+                  Row(
+                    children: [
+                      Text('${item.percent}%', style: const TextStyle(fontSize: 12)),
+                      const SizedBox(width: 8),
+                      Expanded(
+                        child: LinearProgressIndicator(
+                          value: (item.percent ?? 0) / 100,
+                          color: const Color(0xff7ECECA),
+                          backgroundColor: const Color(0xffE8FAF1),
+                          minHeight: 4,
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildStarItem(BuildContext context, dynamic item) {
+    return InkWell(
+      onTap: () {
+        context.push('/sequence/${item.sequenceId}');
+      },
+      child: Container(
+        margin: const EdgeInsets.only(bottom: 16),
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            ClipRRect(
+              borderRadius: BorderRadius.circular(12),
+              child: item.image != null
+                  ? Image.network(
+                      item.image!,
+                      width: 60,
+                      height: 60,
+                      fit: BoxFit.cover,
+                    )
+                  : Container(
+                      width: 60,
+                      height: 60,
+                      color: Colors.grey[300],
+                      child: const Icon(Icons.image_not_supported),
+                    ),
+            ),
+            const SizedBox(width: 12),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    item.sequenceName,
+                    style: const TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                  const SizedBox(height: 8),
+                  Wrap(
+                    spacing: 8,
+                    runSpacing: 4,
+                    children: item.tagList
+                        .map<Widget>((tag) => Container(
+                              padding: const EdgeInsets.symmetric(
+                                  horizontal: 8, vertical: 4),
+                              decoration: BoxDecoration(
+                                color: const Color(0xffE8FAF1),
+                                borderRadius: BorderRadius.circular(12),
+                              ),
+                              child: Text(
+                                tag,
+                                style: const TextStyle(fontSize: 12),
+                              ),
+                            ))
+                        .toList(),
+                  ),
+                ],
+              ),
+            ),
+            const SizedBox(width: 8),
+            IconButton(
+              icon: Icon(
+                item.star ? Icons.star : Icons.star_border,
+                color: item.star ? const Color(0xff7ECECA) : Colors.grey,
+              ),
+              onPressed: () async {
+                try {
+                  final homeService = ref.read(homeServiceProvider);
+                  await homeService.toggleStar(item.sequenceId);
+
+                  ref.invalidate(detailDataProvider(widget.title));
+                  ref.invalidate(homeDataProvider);
+                } catch (e) {
+                  if (context.mounted) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(content: Text('즐겨찾기 변경에 실패했습니다.')),
+                    );
+                  }
+                }
+              },
+            ),
+          ],
+        ),
+      ),
+    );
+  }
 
 String _formatTimeAgo(DateTime? dateTime) {
   if (dateTime == null) return '날짜 없음';
@@ -581,4 +566,5 @@ String _formatTimeAgo(DateTime? dateTime) {
   if (diff.inMinutes < 60) return '${diff.inMinutes}분 전';
   if (diff.inHours < 24) return '${diff.inHours}시간 전';
   return '${diff.inDays}일 전';
+}
 }
