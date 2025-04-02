@@ -26,7 +26,8 @@ public enum APIErrorCode {
     NOT_FOUND(40400, "Not Found"),
     USER_NOT_FOUND(40410, "존재하지 않는 사용자입니다."),
     SEQUENCE_NOT_FOUND(40411, "존재하지 않는 시퀀스입니다."),
-    WEEKLY_DATA_NOT_FOUNT(40412, "주간 리포트 데이터가 존재하지 않습니다."),
+    WEEKLY_DATA_NOT_FOUND(40412, "주간 리포트 데이터가 존재하지 않습니다."),
+    ACTIVE_DATA_NOT_FOUND(40413, "해당 달에 운동한 데이터가 없습니다."),
 
     // 409 Conflict
     CONFLICT(40900, "Conflict"),
