@@ -1,47 +1,69 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:frontend/features/learning/providers/sequence_providers.dart';
+import 'package:frontend/constants/app_colors.dart';
+import 'package:frontend/features/learning/providers/learning_providers.dart';
+import 'package:video_player/video_player.dart';
 
-class TutorialView extends ConsumerWidget {
+class TutorialView extends ConsumerStatefulWidget {
   const TutorialView({super.key});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    final sequenceDetail = ref.watch(selectedSequenceProvider);
-    print("튜토리얼 화면");
-    return Stack(
-      children: [
-        Container(
-          decoration: BoxDecoration(
-            image: DecorationImage(
-              image: NetworkImage(sequenceDetail!.sequenceImage),
-              fit: BoxFit.cover,
-              colorFilter: ColorFilter.mode(Colors.black26, BlendMode.darken),
-            ),
-          ),
-        ),
-        Positioned.fill(
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Spacer(flex: 2),
-              Container(
-                alignment: Alignment.center,
-                child: Text(
-                  '모든 튜토리얼 영상을 스킵할까요?',
-                  textAlign: TextAlign.center,
-                  style: TextStyle(
-                    color: Colors.white,
-                    fontSize: 28,
-                    fontWeight: FontWeight.bold,
-                  ),
+  ConsumerState<TutorialView> createState() => _TutorialViewState();
+}
+
+class _TutorialViewState extends ConsumerState<TutorialView> {
+  late VideoPlayerController _controller;
+  bool _isInitialized = false;
+
+  @override
+  void initState() {
+    super.initState();
+
+    ref.read(learningStateProvider.notifier).state = LearningState.tutorial;
+    _initializeController();
+  }
+
+  Future<void> _initializeController() async {
+    final currentYoga = ref.read(currentYogaProvider);
+    if (currentYoga != null) {
+      _controller = VideoPlayerController.networkUrl(
+        Uri.parse(currentYoga.video),
+      );
+
+      await _controller.initialize();
+
+      if (mounted) {
+        setState(() {
+          _isInitialized = true;
+        });
+
+        // 초기화 후 자동 재생
+        _controller.play();
+      }
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      backgroundColor: AppColors.blackText,
+      body: Center(
+        child:
+            _controller.value.isInitialized
+                ? AspectRatio(
+                  aspectRatio: _controller.value.aspectRatio,
+                  child: VideoPlayer(_controller),
+                )
+                : const Center(
+                  child: CircularProgressIndicator(color: AppColors.primary),
                 ),
-              ),
-              Spacer(),
-            ],
-          ),
-        ),
-      ],
+      ),
     );
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
   }
 }
