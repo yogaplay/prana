@@ -127,7 +127,10 @@ final routerProvider = Provider<GoRouter>((ref) {
       GoRoute(
         path: "/weekly-report",
         name: "weekly_report",
-        builder: (_, __) => const ReportScreen(),
+        builder: (context, state) {
+          final date = state.uri.queryParameters['date'] ?? '2025-03-30';
+          return ReportScreen(date: date);
+        },
       ),
       GoRoute(
         path: '/sequence/:id',
