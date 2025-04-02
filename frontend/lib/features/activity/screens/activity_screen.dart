@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:table_calendar/table_calendar.dart';
 import 'package:frontend/core/api/api_client.dart';
 import 'package:frontend/features/activity/services/activity_service.dart';
@@ -50,7 +51,9 @@ class _ActivityPageState extends State<ActivityPage> {
 
   Future<void> _loadActiveDatesForMonth(DateTime month) async {
     try {
-      final activeDates = await _activityService.fetchActiveDatesForMonth(month);
+      final activeDates = await _activityService.fetchActiveDatesForMonth(
+        month,
+      );
       setState(() {
         _activeDates = activeDates;
       });
@@ -69,12 +72,35 @@ class _ActivityPageState extends State<ActivityPage> {
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('활동', style: TextStyle(fontFamily: 'Pretendard', fontWeight: FontWeight.bold, fontSize: 24)),
+        title: const Text(
+          '활동',
+          style: TextStyle(
+            fontFamily: 'Pretendard',
+            fontWeight: FontWeight.bold,
+            fontSize: 24,
+          ),
+        ),
         actions: [
           TextButton(
-            onPressed: () {},
-            child: const Text('주간리포트', style: TextStyle(fontFamily: 'Pretendard', fontWeight: FontWeight.bold, fontSize: 16, color: Colors.black)),
-          )
+            onPressed: () {
+              final date = (_selectedDay ?? _focusedDay);
+              final formatted =
+                  "${date.year.toString().padLeft(4, '0')}-${date.month.toString().padLeft(2, '0')}-${date.day.toString().padLeft(2, '0')}";
+              context.pushNamed(
+                "weekly_report",
+                queryParameters: {'date': formatted},
+              );
+            },
+            child: const Text(
+              '주간리포트',
+              style: TextStyle(
+                fontFamily: 'Pretendard',
+                fontWeight: FontWeight.bold,
+                fontSize: 16,
+                color: Colors.black,
+              ),
+            ),
+          ),
         ],
       ),
       body: Column(
@@ -85,75 +111,97 @@ class _ActivityPageState extends State<ActivityPage> {
             padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
             child: Text(
               '${displayDay.month}월 ${displayDay.day}일의 운동',
-              style: const TextStyle(fontFamily: 'Pretendard', fontSize: 16, fontWeight: FontWeight.bold),
+              style: const TextStyle(
+                fontFamily: 'Pretendard',
+                fontSize: 16,
+                fontWeight: FontWeight.bold,
+              ),
             ),
           ),
           Expanded(
             child: ListView(
               padding: const EdgeInsets.symmetric(horizontal: 16),
-              children: _getEventsForDay(displayDay).map((event) {
-                final title = event['sequence_name'] ?? '제목 없음';
-                final percentText = '${event['percent'] ?? '0'}%';
-                final parsedValue = double.tryParse(event['percent'] ?? '0') ?? 0.0;
-                final imageUrl = event['image'] ?? '';
-                final isDone = event['result_status'] == 'Y';
+              children:
+                  _getEventsForDay(displayDay).map((event) {
+                    final title = event['sequence_name'] ?? '제목 없음';
+                    final percentText = '${event['percent'] ?? '0'}%';
+                    final parsedValue =
+                        double.tryParse(event['percent'] ?? '0') ?? 0.0;
+                    final imageUrl = event['image'] ?? '';
+                    final isDone = event['result_status'] == 'Y';
 
-                return Container(
-                  margin: const EdgeInsets.only(bottom: 12),
-                  padding: const EdgeInsets.all(12),
-                  decoration: BoxDecoration(
-                    color: Colors.grey.shade100,
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                  child: Row(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      ClipRRect(
-                        borderRadius: BorderRadius.circular(8),
-                        child: Image.network(
-                          imageUrl,
-                          width: 75,
-                          height: 75,
-                          fit: BoxFit.cover,
-                          errorBuilder: (_, __, ___) => Image.asset(
-                            'assets/images/Uttana_Shishosana.png',
-                            width: 75,
-                            height: 75,
-                            fit: BoxFit.cover,
+                    return Container(
+                      margin: const EdgeInsets.only(bottom: 12),
+                      padding: const EdgeInsets.all(12),
+                      decoration: BoxDecoration(
+                        color: Colors.grey.shade100,
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      child: Row(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          ClipRRect(
+                            borderRadius: BorderRadius.circular(8),
+                            child: Image.network(
+                              imageUrl,
+                              width: 75,
+                              height: 75,
+                              fit: BoxFit.cover,
+                              errorBuilder:
+                                  (_, __, ___) => Image.asset(
+                                    'assets/images/Uttana_Shishosana.png',
+                                    width: 75,
+                                    height: 75,
+                                    fit: BoxFit.cover,
+                                  ),
+                            ),
                           ),
-                        ),
-                      ),
-                      const SizedBox(width: 12),
-                      Icon(
-                        isDone ? Icons.check_circle : Icons.more_horiz,
-                        size: 16,
-                        color: isDone ? const Color(0xFF7ECECA) : Colors.black54,
-                      ),
-                      const SizedBox(width: 12),
-                      Expanded(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(title, style: const TextStyle(fontFamily: 'Pretendard', fontWeight: FontWeight.bold)),
-                            const SizedBox(height: 4),
-                            LinearProgressIndicator(
-                              value: parsedValue / 100,
-                              backgroundColor: const Color(0xffE8FAF1),
-                              color: const Color(0xff7ECECA),
+                          const SizedBox(width: 12),
+                          Icon(
+                            isDone ? Icons.check_circle : Icons.more_horiz,
+                            size: 16,
+                            color:
+                                isDone
+                                    ? const Color(0xFF7ECECA)
+                                    : Colors.black54,
+                          ),
+                          const SizedBox(width: 12),
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  title,
+                                  style: const TextStyle(
+                                    fontFamily: 'Pretendard',
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                                const SizedBox(height: 4),
+                                LinearProgressIndicator(
+                                  value: parsedValue / 100,
+                                  backgroundColor: const Color(0xffE8FAF1),
+                                  color: const Color(0xff7ECECA),
+                                ),
+                                Align(
+                                  alignment: Alignment.centerRight,
+                                  child: Text(
+                                    percentText,
+                                    style: const TextStyle(
+                                      fontFamily: 'Pretendard',
+                                      fontSize: 12,
+                                    ),
+                                  ),
+                                ),
+                              ],
                             ),
-                            Align(
-                              alignment: Alignment.centerRight,
-                              child: Text(percentText, style: const TextStyle(fontFamily: 'Pretendard', fontSize: 12)),
-                            ),
-                          ],
-                        ),
+                          ),
+                        ],
                       ),
-                    ],
-                  ),
-                );
-              }).toList(),
+                    );
+                  }).toList(),
             ),
-          )
+          ),
         ],
       ),
     );
@@ -172,7 +220,11 @@ class _ActivityPageState extends State<ActivityPage> {
       selectedDayPredicate: (day) => isSameDay(_selectedDay, day),
       eventLoader: _getEventsForDay,
       headerStyle: const HeaderStyle(
-        titleTextStyle: TextStyle(fontFamily: 'Pretendard', fontSize: 16, fontWeight: FontWeight.bold),
+        titleTextStyle: TextStyle(
+          fontFamily: 'Pretendard',
+          fontSize: 16,
+          fontWeight: FontWeight.bold,
+        ),
         titleCentered: true,
         formatButtonVisible: false,
       ),
@@ -183,7 +235,6 @@ class _ActivityPageState extends State<ActivityPage> {
         });
 
         await _loadEventsForDay(selectedDay);
-        
       },
       onPageChanged: (focusedDay) {
         setState(() {
@@ -193,7 +244,10 @@ class _ActivityPageState extends State<ActivityPage> {
       },
       calendarStyle: CalendarStyle(
         defaultTextStyle: const TextStyle(fontFamily: 'Pretendard'),
-        selectedTextStyle: const TextStyle(fontFamily: 'Pretendard', color: Colors.white),
+        selectedTextStyle: const TextStyle(
+          fontFamily: 'Pretendard',
+          color: Colors.white,
+        ),
         todayTextStyle: const TextStyle(fontFamily: 'Pretendard'),
         selectedDecoration: const BoxDecoration(
           color: Color(0xFF7ECECA),
@@ -211,10 +265,17 @@ class _ActivityPageState extends State<ActivityPage> {
       calendarBuilders: CalendarBuilders(
         dowBuilder: (context, day) {
           const daysKor = ['월', '화', '수', '목', '금', '토', '일'];
-          return Center(child: Text(daysKor[day.weekday - 1], style: const TextStyle(fontFamily: 'Pretendard')));
+          return Center(
+            child: Text(
+              daysKor[day.weekday - 1],
+              style: const TextStyle(fontFamily: 'Pretendard'),
+            ),
+          );
         },
         markerBuilder: (context, day, events) {
-          final isMarked = _activeDates.contains(DateTime.utc(day.year, day.month, day.day));
+          final isMarked = _activeDates.contains(
+            DateTime.utc(day.year, day.month, day.day),
+          );
           if (isMarked && !isSameDay(day, _selectedDay)) {
             return Positioned(
               bottom: 1,
