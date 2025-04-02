@@ -241,6 +241,9 @@ public class CalendarService {
                 .build();
 
         return WeeklyReportResponseDTO.builder()
+                .year(year)
+                .month(month)
+                .week(week)
                 .feedbacks(feedbacks)
                 .feedbacksOrigin(feedbacksOrigin)
                 .recommendSequences(recommendSequences)
