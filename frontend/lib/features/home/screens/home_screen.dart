@@ -2,7 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:frontend/constants/app_colors.dart';
 import 'package:frontend/core/providers/providers.dart';
+import 'package:frontend/features/alarm/widgets/alarm_icon_button.dart';
 import 'package:go_router/go_router.dart';
+
 import '../models/home_model.dart';
 import '../providers/detail_data_provider.dart';
 
@@ -52,12 +54,7 @@ class HomeScreen extends ConsumerWidget {
             color: Colors.black,
           ),
         ),
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.notifications, color: Colors.black),
-            onPressed: () {},
-          ),
-        ],
+        actions: [AlarmIconButton()],
       ),
       body: SingleChildScrollView(
         padding: const EdgeInsets.symmetric(horizontal: 20),

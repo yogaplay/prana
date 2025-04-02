@@ -6,16 +6,22 @@ import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:kakao_flutter_sdk_user/kakao_flutter_sdk_user.dart';
 import 'package:intl/date_symbol_data_local.dart';
 import 'dart:ui' as ui;
+import 'package:workmanager/workmanager.dart';
+import 'package:frontend/features/alarm/services/alarm_service.dart';
 
 void main() async {
   WidgetsBinding widgetsBinding = WidgetsFlutterBinding.ensureInitialized();
   FlutterNativeSplash.preserve(widgetsBinding: widgetsBinding);
 
+  // WorkManager 를 위한 설정
+  WidgetsFlutterBinding.ensureInitialized();
+  await Workmanager().initialize(callbackDispatcher, isInDebugMode: false);
+
   await dotenv.load(fileName: '.env');
 
   WidgetsFlutterBinding.ensureInitialized();
   KakaoSdk.init(nativeAppKey: dotenv.env['KAKAO_NATIVE_APP_KEY'] ?? '');
-  
+
   final localeCode = ui.window.locale.languageCode;
   await initializeDateFormatting(localeCode, null);
   
