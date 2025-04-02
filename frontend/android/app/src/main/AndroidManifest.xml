@@ -6,7 +6,7 @@
     <uses-permission android:name="android.permission.USE_EXACT_ALARM" />
     <uses-permission android:name="android.permission.BIND_JOB_SERVICE" />
     <application
-        android:label="PRANA"
+        android:label="Prana"
         android:icon="@mipmap/ic_launcher">
 <!-- 카카오 로그인 커스텀 URL 스킴 설정 -->
         <activity android:name="com.kakao.sdk.flutter.AuthCodeCustomTabsActivity" 
