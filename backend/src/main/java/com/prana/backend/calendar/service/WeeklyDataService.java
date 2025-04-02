@@ -162,7 +162,7 @@ public class WeeklyDataService {
             if(prevWeeklyDataMap.containsKey(userId)) {
                 WeeklyData wd = prevWeeklyDataMap.get(userId);
                 data.add(new WeeklyData().builder()
-                        .user(User.builder().id(userId).build())
+                        .user(userRepository.getReferenceById(userId))
                         .year(year)
                         .month(month)
                         .week(week)
@@ -196,7 +196,7 @@ public class WeeklyDataService {
             } else {
                 // 전주 데이터가 없는 경우(첫 회원)
                 data.add(new WeeklyData().builder()
-                        .user(User.builder().id(userId).build())
+                        .user(userRepository.getReferenceById(userId))
                         .year(year)
                         .month(month)
                         .week(week)
