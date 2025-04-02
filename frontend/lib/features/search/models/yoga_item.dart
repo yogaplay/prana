@@ -10,4 +10,13 @@ class YogaItem {
     required this.duration,
     required this.imageUrl,
   });
+
+  factory YogaItem.fromJson(Map<String, dynamic> json) {
+    return YogaItem(
+      id: json['sequence_id'],
+      title: json['sequence_name'],
+      duration: '${json['sequence_time']}분',
+      imageUrl: json['image'],
+    );
+  }
 }
