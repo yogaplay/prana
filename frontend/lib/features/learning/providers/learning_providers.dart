@@ -10,6 +10,11 @@ final learningStateProvider = StateProvider<LearningState>((ref) {
     return LearningState.initial;
 });
 
+// 모든 튜토리얼 스킵 여부
+final skipAllTutorialsProvider = StateProvider<bool>((ref) {
+  return false;
+});
+
 // 화면 방향 제어
 final orientationProvider = StateProvider<List<DeviceOrientation>>((ref) {
   return [

@@ -165,7 +165,7 @@ class SequenceDetailScreen extends ConsumerWidget {
                   onPressed: () {
                     ref.read(selectedSequenceProvider.notifier).state =
                         sequence;
-                    context.go('/sequence/${sequence.sequenceId}/learning');
+                    context.push('/sequence/${sequence.sequenceId}/learning');
                   },
                 ),
               ],

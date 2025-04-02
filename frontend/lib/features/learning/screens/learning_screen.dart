@@ -5,6 +5,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:frontend/features/learning/providers/learning_providers.dart';
 import 'package:frontend/features/learning/providers/sequence_providers.dart';
 import 'package:frontend/features/learning/screens/learning/practice_view.dart';
+import 'package:frontend/features/learning/screens/learning/skip_view.dart';
 import 'package:frontend/features/learning/screens/learning/tutorial_view.dart';
 
 class LearningScreen extends ConsumerStatefulWidget {
@@ -21,35 +22,35 @@ class _LearningScreenState extends ConsumerState<LearningScreen> {
   void initState() {
     super.initState();
 
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      // device 방향 가로방향으로
-      ref.read(orientationProvider.notifier).state = [
-        DeviceOrientation.landscapeLeft,
-        DeviceOrientation.landscapeRight,
-      ];
+    print('화면방향 가로로 설정');
+    SystemChrome.setPreferredOrientations([
+      DeviceOrientation.landscapeLeft,
+      DeviceOrientation.landscapeRight,
+    ]);
 
+    SystemChrome.setEnabledSystemUIMode(SystemUiMode.immersiveSticky);
+
+    WidgetsBinding.instance.addPostFrameCallback((_) {
       // 학습 상태 초기화
-      ref.read(learningStateProvider.notifier).state = LearningState.tutorial;
+      ref.read(learningStateProvider.notifier).state = LearningState.initial;
       ref.read(currentYogaIndexProvider.notifier).state = 0;
+      ref.read(skipAllTutorialsProvider.notifier).state = false;
     });
   }
 
   @override
   void dispose() {
-    // device 방향 세로방향으로
+    print('화면 방향 세로로 설정');
     SystemChrome.setPreferredOrientations([
       DeviceOrientation.portraitUp,
       DeviceOrientation.portraitDown,
     ]);
+
+    SystemChrome.setEnabledSystemUIMode(SystemUiMode.edgeToEdge);
     super.dispose();
   }
 
-  void _onComplete() {
-    ref.read(learningStateProvider.notifier).state = LearningState.completed;
-    // 리포트 화면으로 라우팅하는 코드 추가하기 ...
-  }
-
-  void _onNextYoga() {
+  void onNextYoga() {
     final currentIndex = ref.read(currentYogaIndexProvider);
     final sequenceDetail = ref.read(selectedSequenceProvider);
 
@@ -59,24 +60,24 @@ class _LearningScreenState extends ConsumerState<LearningScreen> {
       ref.read(currentYogaIndexProvider.notifier).state = currentIndex + 1;
       ref.read(learningStateProvider.notifier).state = LearningState.tutorial;
     } else {
-      _onComplete();
+      ref.read(learningStateProvider.notifier).state = LearningState.completed;
     }
   }
 
+  @override
   Widget build(BuildContext context) {
     final learningState = ref.watch(learningStateProvider);
-    final currentYoga = ref.watch(currentYogaProvider);
 
-    if (currentYoga == null) {
-      // 뭔갈 반환하자 ..
+    if (learningState == LearningState.completed) {
+      // 결과 리포트 화면 이동 추가해야됨
     }
+
     return Scaffold(
       body: Stack(
         children: [
-          if (learningState == LearningState.tutorial)
-            TutorialView()
-          else if (learningState == LearningState.practice)
-            PracticeView(),
+          if (learningState == LearningState.initial) const SkipView(),
+          if (learningState == LearningState.tutorial) const TutorialView(),
+          if (learningState == LearningState.practice) const PracticeView(),
         ],
       ),
     );
