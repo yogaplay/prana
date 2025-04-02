@@ -56,6 +56,7 @@ public class AccuracyService {
                     .userSequence(userSequence)
                     .yogaName(yoga.getYogaName())
                     .yogaImage(yoga.getImage())
+                    .accuracy((feedback.getSuccessCount() * 100 / (feedback.getFailureCount() + feedback.getSuccessCount())))
                     .build();
             sequenceYogaRepository.save(sequenceYoga);
 
@@ -68,7 +69,7 @@ public class AccuracyService {
                         .build();
                 feedbackRepository.save(nextFeedback);
 
-                Optional<SequenceBody> sequenceBody = sequenceBodyRepository.findByUserSequence_Id(userSequenceId);
+                Optional<SequenceBody> sequenceBody = sequenceBodyRepository.findByUserSequence_IdAndBodyPart(userSequenceId, feed.getPosition());
                 if (sequenceBody.isPresent()) {
                     SequenceBody sequenceBody1 = sequenceBody.get();
                     sequenceBody1.setFeedbackCnt(sequenceBody1.getFeedbackCnt() + 1);

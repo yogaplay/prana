@@ -22,7 +22,7 @@ public class SequenceYoga {
     @JoinColumn(name = "user_sequence_id", nullable = false)
     private UserSequence userSequence;
 
-    @Column(name = "yoga_name", nullable = false, length = 20)
+    @Column(name = "yoga", nullable = false, length = 20)
     private String yogaName;
 
     @Column(name = "accuracy", nullable = false)
