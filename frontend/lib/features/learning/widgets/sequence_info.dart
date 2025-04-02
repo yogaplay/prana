@@ -42,7 +42,9 @@ class SequenceInfo extends ConsumerWidget {
               data:
                   (isFavorite) => IconButton(
                     icon: Icon(
-                      isFavorite ? Icons.star : Icons.star_border,
+                      isFavorite
+                          ? Icons.star_rounded
+                          : Icons.star_border_rounded,
                       color:
                           isFavorite ? AppColors.primary : AppColors.graytext,
                       size: 32,
