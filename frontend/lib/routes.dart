@@ -3,6 +3,7 @@ import 'package:frontend/core/providers/providers.dart';
 import 'package:frontend/features/auth/screens/onboarding_screen.dart';
 import 'package:frontend/features/auth/screens/signup_screen.dart';
 import 'package:frontend/features/home/screens/home_screen.dart';
+import 'package:frontend/features/learning/screens/sequence_result_screen.dart';
 import 'package:frontend/features/report/screens/report_screen.dart';
 import 'package:frontend/features/search/screens/see_all_screen.dart';
 import 'package:frontend/main_shell.dart';
@@ -135,6 +136,11 @@ final routerProvider = Provider<GoRouter>((ref) {
           final sequenceId = int.parse(state.pathParameters['id']!);
           return SequenceDetailScreen(sequenceId: sequenceId);
         },
+      ),
+      GoRoute(
+        path: '/sequence-result',
+        name: 'sequenceResult',
+        builder: (_, __) => const SequenceResultScreen(),
       ),
     ],
   );

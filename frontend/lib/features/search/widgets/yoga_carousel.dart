@@ -57,7 +57,7 @@ class YogaCarousel extends StatelessWidget {
             children: [
               Text(
                 _getTitleWithTagType(title, tagType),
-                style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+                style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
               ),
               TextButton(
                 onPressed: onSeeAll,
