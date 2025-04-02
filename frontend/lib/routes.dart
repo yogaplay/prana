@@ -3,6 +3,7 @@ import 'package:frontend/core/providers/providers.dart';
 import 'package:frontend/features/auth/screens/onboarding_screen.dart';
 import 'package:frontend/features/auth/screens/signup_screen.dart';
 import 'package:frontend/features/home/screens/home_screen.dart';
+import 'package:frontend/features/report/screens/report_screen.dart';
 import 'package:frontend/features/search/screens/see_all_screen.dart';
 import 'package:frontend/main_shell.dart';
 import 'package:frontend/features/activity/screens/activity_screen.dart';
@@ -121,6 +122,11 @@ final routerProvider = Provider<GoRouter>((ref) {
             tagType: extra['tagType'] as String,
           );
         },
+      ),
+      GoRoute(
+        path: "/weekly-report",
+        name: "weekly_report",
+        builder: (_, __) => const ReportScreen(),
       ),
       GoRoute(
         path: '/sequence/:id',

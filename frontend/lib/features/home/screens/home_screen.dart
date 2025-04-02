@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:frontend/constants/app_colors.dart';
 import 'package:frontend/core/providers/providers.dart';
 import 'package:go_router/go_router.dart';
 import '../models/home_model.dart';
@@ -63,7 +64,7 @@ class HomeScreen extends ConsumerWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            _buildReportCard(data.report),
+            _buildReportCard(data.report, context),
             _buildSectionWithSeeAll(
               '최근',
               context,
@@ -80,12 +81,12 @@ class HomeScreen extends ConsumerWidget {
     );
   }
 
-  Widget _buildReportCard(Report report) {
+  Widget _buildReportCard(Report report, BuildContext context) {
     return Container(
       margin: const EdgeInsets.only(bottom: 16),
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: AppColors.boxWhite,
         borderRadius: BorderRadius.circular(16),
         boxShadow: [
           BoxShadow(
@@ -102,7 +103,7 @@ class HomeScreen extends ConsumerWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Row(
+          Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Text(
@@ -113,7 +114,12 @@ class HomeScreen extends ConsumerWidget {
                   fontWeight: FontWeight.bold,
                 ),
               ),
-              Icon(Icons.chevron_right, color: Colors.black),
+              GestureDetector(
+                onTap: () {
+                  GoRouter.of(context).push('/weekly-report');
+                },
+                child: Icon(Icons.chevron_right, color: Colors.black),
+              ),
             ],
           ),
           const SizedBox(height: 12),

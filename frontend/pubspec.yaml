@@ -29,6 +29,8 @@ dependencies:
 
   flutter_native_splash: ^2.4.5
 
+  fl_chart: ^0.70.2
+
 flutter_native_splash:
   color: "#7ECECA"
   image: "assets/images/lotus-white.png"
