@@ -67,16 +67,19 @@ class ReportScreen extends StatelessWidget {
     final Map<String, List<YogaItem>> dummyRecommendedItems = {
       '등': [
         YogaItem(
+          id: 0,
           title: '등을 위한 요가 1',
           imageUrl: 'https://picsum.photos/id/1011/200/120',
           duration: '30분',
         ),
         YogaItem(
+          id: 1,
           title: '등을 위한 요가 2',
           imageUrl: 'https://picsum.photos/id/1012/200/120',
           duration: '30분',
         ),
         YogaItem(
+          id: 2,
           title: '등을 위한 요가 3',
           imageUrl: 'https://picsum.photos/id/1013/200/120',
           duration: '20분',
@@ -84,16 +87,19 @@ class ReportScreen extends StatelessWidget {
       ],
       '다리': [
         YogaItem(
+          id: 0,
           title: '다리를 위한 요가 1',
           imageUrl: 'https://picsum.photos/id/1021/200/120',
           duration: '25분',
         ),
         YogaItem(
+          id: 1,
           title: '다리를 위한 요가 2',
           imageUrl: 'https://picsum.photos/id/1022/200/120',
           duration: '30분',
         ),
         YogaItem(
+          id: 2,
           title: '다리를 위한 요가 3',
           imageUrl: 'https://picsum.photos/id/1023/200/120',
           duration: '30분',
