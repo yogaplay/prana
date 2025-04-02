@@ -62,6 +62,7 @@ class SkipView extends ConsumerWidget {
                       color: Colors.white,
                       fontSize: 36,
                       fontWeight: FontWeight.bold,
+                      height: 1.2,
                     ),
                   ),
                 ),
