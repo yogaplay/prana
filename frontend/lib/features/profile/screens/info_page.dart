@@ -5,6 +5,7 @@ import 'package:frontend/constants/app_colors.dart';
 import 'package:frontend/core/providers/profile_providers.dart';
 import 'package:frontend/features/alarm/screens/alarm_setting_screen.dart';
 import 'package:frontend/features/profile/screens/edit_profile_screen.dart';
+import 'package:go_router/go_router.dart';
 
 class InfoPage extends ConsumerWidget {
   const InfoPage({super.key});
@@ -103,6 +104,13 @@ class InfoPage extends ConsumerWidget {
                 onTap: () {
                   // 배경음악 선택 페이지로 이동
                 },
+              ),
+
+              TextButton(
+                onPressed: () {
+                  context.push('/sequence-result');
+                },
+                child: Text('결과 페이지'),
               ),
             ],
           ),
