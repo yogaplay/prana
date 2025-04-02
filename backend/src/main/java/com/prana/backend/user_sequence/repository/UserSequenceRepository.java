@@ -44,4 +44,11 @@ public interface UserSequenceRepository extends JpaRepository<UserSequence, Inte
     )
     List<FindActiveSequenceDTO> findActiveSequenceByWeek(@Param("start") LocalDateTime start, @Param("end") LocalDateTime end);
 
+    @Query(value = """
+        SELECT distinct us.updatedAt
+        FROM UserSequence us
+        WHERE us.user.id = :userId
+        AND us.updatedAt >= :start AND us.updatedAt <= :end
+""")
+    List<LocalDateTime> findActiveDatesByUserIdAndDate(@Param("userId") int userId, @Param("start") LocalDateTime start, @Param("end") LocalDateTime end);
 }

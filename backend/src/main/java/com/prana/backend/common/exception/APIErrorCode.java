@@ -8,6 +8,7 @@ public enum APIErrorCode {
     BAD_REQUEST(40000, "Bad Request"),
     INVALID_INPUT(40001, "유효하지 않은 값입니다."),
     RECOMMENDATION_SEQUENCE_COUNT_MISMATCH(40002, "추천 시퀀스 개수가 부족하거나 초과되었습니다."),
+    INVALID_YEAR_MONTH_FORMAT(40003, "날짜 형식이 잘못되었습니다"),
 
     // 401 Unauthorized
     UNAUTHORIZED(40100, "Unauthorized"),
