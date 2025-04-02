@@ -4,6 +4,7 @@ import com.prana.backend.calendar.controller.response.ActiveDateResponseDTO;
 import com.prana.backend.calendar.controller.response.DailySequenceResponseDTO;
 import com.prana.backend.calendar.controller.response.WeeklyReportResponseDTO;
 import com.prana.backend.calendar.exception.InvalidYearMonthFormatException;
+import com.prana.backend.calendar.exception.NoActiveDataException;
 import com.prana.backend.calendar.exception.RecommendationSequenceNot3Exception;
 import com.prana.backend.calendar.exception.WeelyDataNullPointException;
 import com.prana.backend.entity.Sequence;
@@ -331,6 +332,10 @@ public class CalendarService {
         }
 
         List<LocalDateTime> activeDates = userSequenceRepository.findActiveDatesByUserIdAndDate(userId, firstDay.atStartOfDay(), endDay.atTime(LocalTime.MAX));
+
+        if(activeDates.isEmpty()) {
+            throw new NoActiveDataException("해당 달에 운동한 데이터가 없습니다.");
+        }
 
         return ActiveDateResponseDTO.builder()
                 .activeDates(activeDates.stream()
