@@ -4,7 +4,6 @@ import com.prana.backend.calendar.controller.response.DailySequenceResponseDTO;
 import com.prana.backend.calendar.controller.response.WeeklyReportResponseDTO;
 import com.prana.backend.calendar.exception.RecommendationSequenceNot3Exception;
 import com.prana.backend.calendar.exception.WeelyDataNullPointException;
-import com.prana.backend.common.exception.PranaException;
 import com.prana.backend.entity.Sequence;
 import com.prana.backend.entity.WeeklyData;
 import com.prana.backend.sequence.repository.SequenceRepository;
@@ -242,6 +241,9 @@ public class CalendarService {
                 .build();
 
         return WeeklyReportResponseDTO.builder()
+                .year(year)
+                .month(month)
+                .week(week)
                 .feedbacks(feedbacks)
                 .feedbacksOrigin(feedbacksOrigin)
                 .recommendSequences(recommendSequences)
