@@ -1,43 +1,39 @@
 import 'package:frontend/core/api/api_client.dart';
-import '../models/sequence_event.dart';
 
 class ActivityService {
-  final ApiClient _apiClient;
+  final ApiClient apiClient;
 
-  ActivityService(this._apiClient);
+  ActivityService(this.apiClient);
 
-  /// 활동이 있는 날짜 (예: ["2025-04-01", "2025-04-02"])
-  Future<List<DateTime>> fetchActiveDays(String yearMonth) async {
-    try {
-      print('[📤 REQUEST] /calendar/active/$yearMonth');
-      final res = await _apiClient.get('/calendar/active/$yearMonth');
-      print('[📥 RESPONSE] /calendar/active/$yearMonth → $res');
+  Future<List<Map<String, dynamic>>> fetchDailySequence(DateTime date) async {
+    final String formattedDate = "${date.year.toString().padLeft(4, '0')}-${date.month.toString().padLeft(2, '0')}-${date.day.toString().padLeft(2, '0')}";
+    final response = await apiClient.get('/calendar/daily-sequence/$formattedDate');
 
-      // 예시: 날짜 리스트가 있다고 가정하는 경우
-      if (res.containsKey('data')) {
-        final List<String> dateStrings = List<String>.from(res['data']);
-        return dateStrings.map((e) => DateTime.parse(e)).toList();
-      }
+    // 응답이 List일 경우 처리 (Map 형태로 래핑되어 올 수도 있음)
+    final List<dynamic> data = response['data'] ?? [];
 
-      return []; // data 없으면 빈 리스트
-    } catch (e) {
-      print('[❌ ERROR] fetchActiveDays: $e');
-      return [];
-    }
+    return data.map((item) => {
+      'sequence_id': item['sequenceId'],
+      'sequence_name': item['sequenceName'],
+      'result_status': item['resultStatus'],
+      'percent': item['percent'].toString(),
+      'image': item['image']
+    }).toList();
   }
+  
+  Future<Set<DateTime>> fetchActiveDatesForMonth(DateTime date) async {
+    final String formattedMonth = "${date.year.toString().padLeft(4, '0')}-${date.month.toString().padLeft(2, '0')}";
+    
+    print(formattedMonth);
+    final response = await apiClient.get('/calendar/active/$formattedMonth');
 
-  /// 하루의 시퀀스 리스트
-  Future<List<SequenceEvent>> fetchDailySequences(String yyyyMMdd) async {
-    try {
-      print('[📤 REQUEST] /calendar/daily-sequence/$yyyyMMdd');
-      final res = await _apiClient.get('/calendar/daily-sequence/$yyyyMMdd');
-      print('[📥 RESPONSE] /calendar/daily-sequence/$yyyyMMdd → $res');
+      // ✅ 응답 전체 로그 찍기
+    print('📥 activeDates 응답: $response');
+    final List<dynamic> data = response['activeDates'] ?? [];
 
-      final List<dynamic> data = res['data'];
-      return data.map((json) => SequenceEvent.fromJson(json)).toList();
-    } catch (e) {
-      print('[❌ ERROR] fetchDailySequences: $e');
-      return [];
-    }
+    return data.map<DateTime>((dateStr) {
+      final date = DateTime.parse(dateStr);
+      return DateTime.utc(date.year, date.month, date.day);
+    }).toSet();
   }
 }
