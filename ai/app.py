@@ -98,6 +98,7 @@ class FeedbackRequest(BaseModel):
     yoga_id: int
     correct_angles: str  # 예: "133.4,69.17,68.03,24.78,35.71,47.98,45.29,33.76,35.55,158.53,138.07"
     image: str  # Base64 인코딩된 이미지
+    std: str    # 예: "133.4,69.17,68.03,24.78,35.71,47.98,45.29,33.76,35.55,158.53,138.07"
 
 
 def calculate_angle_2d(A, B, C):
@@ -177,12 +178,31 @@ async def short_feedback(request: FeedbackRequest):
         logger.info(f"정답 각도: {correct_angles}")
         logger.info(f"실제 각도: {live_angles}")
 
+        std_value = np.array([float(x.strip()) for x in request.std.split(',')])
+
         # Cosine similarity 계산 및 로깅
         similarity = 1 - cosine(correct_angles, live_angles)
         logger.info(f"Cosine similarity: {similarity}")
 
+
+        # 1. 가중치 계산 (표준편차의 역수)
+        epsilon = 1e-6  # prevent zero division error
+        weights = 1 / (std_value + epsilon)
+        weights = weights / weights.sum()  # 가중치 총합이 1이 되도록 정규화
+
+        # 2. 절대 차이 계산
+        diffs = np.abs(live_angles - correct_angles)
+
+        # 3. 가중합으로 점수 계산
+        weighted_error = np.sum(weights * diffs)
+
+        # 4. 점수를 100점 만점에서 감점 방식으로 계산 (예: max_error=30으로 설정)
+        max_error = 30
+        score = max(0, 100 * (1 - weighted_error / max_error))
+
+
         result_str = "success" if similarity >= 0.95 else "fail"
-        return JSONResponse(content={"result": result_str})
+        return JSONResponse(content={"result": result_str, "score": score})
     except Exception as e:
         logger.exception("단기 피드백 처리 중 오류 발생")
         raise HTTPException(status_code=500, detail=str(e))
