@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:frontend/constants/app_colors.dart';
 import 'package:frontend/core/providers/profile_providers.dart';
 import 'package:frontend/features/alarm/screens/alarm_setting_screen.dart';
+import 'package:frontend/features/music/screens/music_selection_screen.dart';
 import 'package:frontend/features/profile/screens/edit_profile_screen.dart';
 import 'package:go_router/go_router.dart';
 
@@ -103,6 +104,12 @@ class InfoPage extends ConsumerWidget {
                 title: '배경음악 선택',
                 onTap: () {
                   // 배경음악 선택 페이지로 이동
+                  Navigator.push(
+                    context,
+                    CupertinoPageRoute(
+                      builder: (context) => const MusicSelectionScreen(),
+                    ),
+                  );
                 },
               ),
 
