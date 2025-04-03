@@ -19,6 +19,11 @@ public interface SequenceRepository extends JpaRepository<Sequence, Integer> {
         """, nativeQuery = true)
     List<Sequence> findRandom3ByTagName(@Param("tagName") String tagName);
 
+    @Query("SELECT st.sequence FROM SequenceTag st " +
+            "JOIN st.tag t " +
+            "WHERE t.name = :tagName")
+    List<Sequence> findSequencesByTagName(@Param("tagName") String tagName);
+
     @Query(value = """
         SELECT s.sequence_id, s.sequence_name, s.image, GROUP_CONCAT(DISTINCT t.tag_name)
         FROM sequence s
