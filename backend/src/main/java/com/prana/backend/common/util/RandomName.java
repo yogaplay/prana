@@ -6,8 +6,8 @@ import java.util.Random;
 public class RandomName {
 
     private static final String[] adjectives = {
-            "유연한", "고요한", "균형잡힌", "조화로운", "평온한",
-            "집중된", "깊은", "자연스러운", "활력있는", "명상적인"
+            "유연한", "고요한", "평온한",
+            "집중된", "깊은",
     };
 
     private static final String[] nouns = {
@@ -26,6 +26,6 @@ public class RandomName {
         int randomNumber = random.nextInt(1000) + 1;
 
         // 닉네임 생성
-        return randomAdjective + " " + randomNoun + " " + randomNumber;
+        return randomAdjective + randomNoun;
     }
 }
