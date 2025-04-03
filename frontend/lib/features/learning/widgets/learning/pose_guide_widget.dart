@@ -21,26 +21,26 @@ class PoseGuideWidget extends StatelessWidget {
     final currentPose = sequence.yogaSequence[currentIndex];
 
     return Positioned(
-      top: 60,
-      right: 16,
+      top: 20,
+      right: 20,
       child: Container(
-        width: 160,
-        padding: const EdgeInsets.all(8),
+        width: 130,
+        padding: const EdgeInsets.all(6),
         decoration: BoxDecoration(
-          color: Colors.white.withOpacity(0.8),
-          borderRadius: BorderRadius.circular(12),
+          color: Colors.white.withOpacity(0.3),
+          borderRadius: BorderRadius.circular(3),
         ),
         child: ClipRRect(
-          borderRadius: BorderRadius.circular(8),
+          borderRadius: BorderRadius.circular(6),
           child: Image.network(
             currentPose.image,
-            width: 150,
-            height: 150,
+            width: 130,
+            height: 130,
             fit: BoxFit.cover,
             errorBuilder:
                 (context, error, stackTrace) => Container(
-                  width: 150,
-                  height: 150,
+                  width: 130,
+                  height: 120,
                   color: AppColors.lightGray,
                   child: const Icon(Icons.image_not_supported),
                 ),
