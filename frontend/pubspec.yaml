@@ -44,6 +44,8 @@ dependencies:
       ref: main
   video_player: ^2.9.5
   camera: ^0.11.1
+
+  just_audio: 0.9.46
   
 flutter_native_splash:
   color: "#7ECECA"

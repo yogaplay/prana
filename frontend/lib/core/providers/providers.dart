@@ -4,6 +4,7 @@ import 'package:frontend/features/auth/services/auth_service.dart';
 import 'package:frontend/features/auth/services/signup_service.dart';
 import 'package:frontend/features/home/models/home_model.dart';
 import 'package:frontend/features/home/services/home_service.dart';
+import 'package:frontend/features/music/services/music_service.dart';
 
 
 final apiClientProvider = Provider<ApiClient>((ref) {
@@ -38,6 +39,11 @@ final isFirstLoginProvider = FutureProvider<bool>((ref) async {
 final homeServiceProvider = Provider<HomeService>((ref) {
   final apiClient = ref.watch(apiClientProvider);
   return HomeService(apiClient);
+});
+
+final musicServiceProvider = Provider<MusicService>((ref) {
+  final apiClient = ref.watch(apiClientProvider);
+  return MusicService(apiClient: apiClient);
 });
 
 final homeDataProvider = FutureProvider<ReportResponse>((ref) async {
