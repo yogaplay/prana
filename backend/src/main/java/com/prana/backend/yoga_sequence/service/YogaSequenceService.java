@@ -68,7 +68,7 @@ public class YogaSequenceService {
         userSequenceRepository.save(userSequence);
 
         //만약 userSequence가 어제 있고 오늘 userSequence를 처음 저장하는거면 streak +1
-        if (userSequenceRepository.existsYesterdayUserSequence() && !userSequenceRepository.existsTodayUserSequence()) {
+        if (userSequenceRepository.existsYesterdayUserSequence()==0 && userSequenceRepository.existsTodayUserSequence() !=0) {
             user.setStreakDays(user.getStreakDays() + 1);
         }
         return UserSequenceResponse.builder()

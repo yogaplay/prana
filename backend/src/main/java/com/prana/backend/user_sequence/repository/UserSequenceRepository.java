@@ -13,11 +13,12 @@ import java.util.List;
 
 public interface UserSequenceRepository extends JpaRepository<UserSequence, Integer> {
 
-    @Query(value = "SELECT CASE WHEN EXISTS(SELECT 1 FROM user_sequence WHERE DATE(updated_at) = CURDATE() - INTERVAL 1 DAY) THEN true ELSE false END", nativeQuery = true)
-    boolean existsYesterdayUserSequence();
+    @Query(value = "SELECT IF(EXISTS(SELECT 1 FROM user_sequence WHERE DATE(updated_at) = CURDATE() - INTERVAL 1 DAY), 1, 0)", nativeQuery = true)
+    Integer existsYesterdayUserSequence();
 
-    @Query(value = "SELECT CASE WHEN EXISTS(SELECT 1 FROM user_sequence WHERE DATE(updated_at) = CURDATE()) THEN true ELSE false END", nativeQuery = true)
-    boolean existsTodayUserSequence();
+    @Query(value = "SELECT IF(EXISTS(SELECT 1 FROM user_sequence WHERE DATE(updated_at) = CURDATE()), 1, 0)", nativeQuery = true)
+    Integer existsTodayUserSequence();
+
 
     @Query("SELECT new com.prana.backend.user_sequence.repository.dto.DailySequenceRepositoryDTO("
             + "us.id, s.name, CONCAT(us.resultStatus, ''), us.lastPoint, s.image, s.yogaCount) "
