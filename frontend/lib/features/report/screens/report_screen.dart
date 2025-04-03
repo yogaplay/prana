@@ -1,139 +1,124 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:frontend/features/report/models/weekly_yoga_data.dart';
+import 'package:frontend/features/report/providers/weekly_report_provider.dart';
 import 'package:frontend/features/report/widgets/feedback_summary_text.dart';
 import 'package:frontend/features/report/widgets/pose_feedback_diagram.dart';
+import 'package:frontend/features/report/widgets/recommended_yoga_section.dart';
 import 'package:frontend/features/report/widgets/report_header.dart';
 import 'package:frontend/features/report/widgets/yoga_accuracy_chart.dart';
 import 'package:frontend/features/report/widgets/yoga_bmi_chart.dart';
 import 'package:frontend/features/report/widgets/yoga_time_chart.dart';
-import 'package:frontend/features/search/models/yoga_item.dart';
-import 'package:frontend/features/search/widgets/recommended_yoga_section.dart';
 
-class ReportScreen extends StatelessWidget {
-  const ReportScreen({super.key});
+class ReportScreen extends ConsumerWidget {
+  final String date;
+
+  const ReportScreen({super.key, required this.date});
 
   @override
-  Widget build(BuildContext context) {
-    final dummyData = [
-      WeeklyYogaData(
-        year: 2025,
-        month: 2,
-        week: 2,
-        time: 72,
-        accurary: 78,
-        bmi: 21,
-      ),
-      WeeklyYogaData(
-        year: 2025,
-        month: 2,
-        week: 3,
-        time: 88,
-        accurary: 82,
-        bmi: 20,
-      ),
-      WeeklyYogaData(
-        year: 2025,
-        month: 2,
-        week: 4,
-        time: 95,
-        accurary: 85,
-        bmi: 20,
-      ),
-      WeeklyYogaData(
-        year: 2025,
-        month: 3,
-        week: 1,
-        time: 100,
-        accurary: 90,
-        bmi: 20,
-      ),
-      WeeklyYogaData(
-        year: 2025,
-        month: 3,
-        week: 2,
-        time: 90,
-        accurary: 87,
-        bmi: 20,
-      ),
-    ];
-
-    final List<BodyFeedback> dummyFeedbacks = [
-      BodyFeedback(part: BodyPart.back, count: 3),
-      BodyFeedback(part: BodyPart.arm, count: 1),
-      BodyFeedback(part: BodyPart.core, count: 4),
-      BodyFeedback(part: BodyPart.leg, count: 2),
-    ];
-
-    final Map<String, List<YogaItem>> dummyRecommendedItems = {
-      '등': [
-        YogaItem(
-          id: 0,
-          title: '등을 위한 요가 1',
-          imageUrl: 'https://picsum.photos/id/1011/200/120',
-          duration: '30분',
-        ),
-        YogaItem(
-          id: 1,
-          title: '등을 위한 요가 2',
-          imageUrl: 'https://picsum.photos/id/1012/200/120',
-          duration: '30분',
-        ),
-        YogaItem(
-          id: 2,
-          title: '등을 위한 요가 3',
-          imageUrl: 'https://picsum.photos/id/1013/200/120',
-          duration: '20분',
-        ),
-      ],
-      '다리': [
-        YogaItem(
-          id: 0,
-          title: '다리를 위한 요가 1',
-          imageUrl: 'https://picsum.photos/id/1021/200/120',
-          duration: '25분',
-        ),
-        YogaItem(
-          id: 1,
-          title: '다리를 위한 요가 2',
-          imageUrl: 'https://picsum.photos/id/1022/200/120',
-          duration: '30분',
-        ),
-        YogaItem(
-          id: 2,
-          title: '다리를 위한 요가 3',
-          imageUrl: 'https://picsum.photos/id/1023/200/120',
-          duration: '30분',
-        ),
-      ],
-    };
+  Widget build(BuildContext context, WidgetRef ref) {
+    print(date);
+    final reportAsync = ref.watch(weeklyReportProvider(date));
 
     return Scaffold(
       body: SafeArea(
-        child: SingleChildScrollView(
-          padding: EdgeInsets.all(16),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              ReportHeader(),
-              SizedBox(height: 16),
-              Text('이번 주의 피드백', style: TextStyle(fontSize: 16)),
-              SizedBox(height: 8),
-              FeedbackSummaryText(parts: ['등', '팔', '다리']),
-              SizedBox(height: 16),
-              PoseFeedbackDiagram(isMale: true, feedbacks: dummyFeedbacks),
-              SizedBox(height: 16),
-              RecommendedYogaSection(recommendedItems: dummyRecommendedItems),
-              SizedBox(height: 16),
-              YogaTimeChart(data: dummyData),
-              SizedBox(height: 16),
-              YogaAccuracyChart(data: dummyData),
-              SizedBox(height: 16),
-              YogaBmiChart(data: dummyData),
-            ],
-          ),
+        child: reportAsync.when(
+          data: (report) {
+            final feedbackParts =
+                report.feedbacks
+                    .where((f) => f.count > 0)
+                    .map((f) => _mapToKor(f.position))
+                    .toList();
+            final feedbackWidgets =
+                report.feedbacks
+                    .map(
+                      (f) => BodyFeedback(
+                        part: _mapToBodyPartEnum(f.position),
+                        count: f.count,
+                      ),
+                    )
+                    .toList();
+            final recommendedMap = {
+              for (var group in report.recommendSequences)
+                group.position: group.sequences,
+            };
+            final chartData =
+                report.lastFiveWeeks
+                    .map(
+                      (e) => WeeklyYogaData(
+                        year: e.year,
+                        month: e.month,
+                        week: e.week,
+                        time: e.time,
+                        accurary: e.accuracy,
+                        bmi: e.bmi,
+                      ),
+                    )
+                    .toList();
+
+            return SingleChildScrollView(
+              padding: EdgeInsets.all(16),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  ReportHeader(
+                    year: report.year,
+                    month: report.month,
+                    week: report.week,
+                  ),
+                  SizedBox(height: 16),
+                  Text('이번 주의 피드백', style: TextStyle(fontSize: 16)),
+                  SizedBox(height: 8),
+                  FeedbackSummaryText(parts: feedbackParts),
+                  SizedBox(height: 16),
+                  PoseFeedbackDiagram(isMale: true, feedbacks: feedbackWidgets),
+                  SizedBox(height: 16),
+                  RecommendedYogaSection(recommendedItems: recommendedMap),
+                  SizedBox(height: 16),
+                  YogaTimeChart(data: chartData),
+                  SizedBox(height: 32),
+                  YogaAccuracyChart(data: chartData),
+                  SizedBox(height: 32),
+                  YogaBmiChart(data: chartData),
+                ],
+              ),
+            );
+          },
+          error: (err, stack) => Center(child: Text('에러 발생: $err')),
+          loading: () => Center(child: CircularProgressIndicator()),
         ),
       ),
     );
+  }
+
+  String _mapToKor(String key) {
+    switch (key) {
+      case 'back':
+        return '등';
+      case 'arm':
+        return '팔';
+      case 'core':
+        return '코어';
+      case 'leg':
+        return '다리';
+      default:
+        return key;
+    }
+  }
+
+  BodyPart _mapToBodyPartEnum(String key) {
+    switch (key) {
+      case 'back':
+        return BodyPart.back;
+      case 'arm':
+        return BodyPart.arm;
+      case 'core':
+        return BodyPart.core;
+      case 'leg':
+        return BodyPart.leg;
+      default:
+        throw Exception('Unknown body part: $key');
+    }
   }
 }

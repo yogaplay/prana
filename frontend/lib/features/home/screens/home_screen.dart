@@ -29,24 +29,25 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
 
     return homeDataAsync.when(
       data: (data) => _buildHomeUI(data, context),
-      loading: () => const Scaffold(
-        body: Center(child: CircularProgressIndicator()),
-      ),
-      error: (error, stackTrace) => Scaffold(
-        body: Center(
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Text('에러: ${error.toString()}'),
-              const SizedBox(height: 16),
-              ElevatedButton(
-                onPressed: () => ref.refresh(homeDataProvider),
-                child: const Text('다시 시도'),
+      loading:
+          () =>
+              const Scaffold(body: Center(child: CircularProgressIndicator())),
+      error:
+          (error, stackTrace) => Scaffold(
+            body: Center(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Text('에러: ${error.toString()}'),
+                  const SizedBox(height: 16),
+                  ElevatedButton(
+                    onPressed: () => ref.refresh(homeDataProvider),
+                    child: const Text('다시 시도'),
+                  ),
+                ],
               ),
-            ],
+            ),
           ),
-        ),
-      ),
     );
   }
 
@@ -122,12 +123,6 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                   fontWeight: FontWeight.bold,
                 ),
               ),
-              GestureDetector(
-                onTap: () {
-                  GoRouter.of(context).push('/weekly-report');
-                },
-                child: const Icon(Icons.chevron_right, color: Colors.black),
-              ),
             ],
           ),
           const SizedBox(height: 12),
@@ -155,87 +150,90 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
 
   Widget _buildRecentActivity(List<RecentItem> list, BuildContext context) {
     return Column(
-      children: list.map((activity) {
-        return InkWell(
-          onTap: () {
-            context.push('/sequence/${activity.sequenceId}');
-          },
-          child: ListTile(
-            leading: ClipRRect(
-              borderRadius: BorderRadius.circular(8),
-              child: Image.network(
-                activity.image,
-                width: 50,
-                height: 50,
-                fit: BoxFit.cover,
-              ),
-            ),
-            title: Text(
-              activity.sequenceName,
-              style: const TextStyle(
-                fontFamily: 'Pretendard',
-                fontSize: 16,
-                fontWeight: FontWeight.bold,
-              ),
-            ),
-            subtitle: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  _formatTimeAgo(activity.updatedAt),
-                  style: const TextStyle(
-                    fontFamily: 'Pretendard',
-                    fontSize: 14,
+      children:
+          list.map((activity) {
+            return InkWell(
+              onTap: () {
+                context.push('/sequence/${activity.sequenceId}');
+              },
+              child: ListTile(
+                leading: ClipRRect(
+                  borderRadius: BorderRadius.circular(8),
+                  child: Image.network(
+                    activity.image,
+                    width: 50,
+                    height: 50,
+                    fit: BoxFit.cover,
                   ),
                 ),
-                const SizedBox(height: 4),
-                LinearProgressIndicator(
-                  value: activity.percent / 100,
-                  color: const Color(0xff7ECECA),
-                  backgroundColor: const Color(0xffE8FAF1),
+                title: Text(
+                  activity.sequenceName,
+                  style: const TextStyle(
+                    fontFamily: 'Pretendard',
+                    fontSize: 16,
+                    fontWeight: FontWeight.bold,
+                  ),
                 ),
-              ],
-            ),
-          ),
-        );
-      }).toList(),
+                subtitle: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      _formatTimeAgo(activity.updatedAt),
+                      style: const TextStyle(
+                        fontFamily: 'Pretendard',
+                        fontSize: 14,
+                      ),
+                    ),
+                    const SizedBox(height: 4),
+                    LinearProgressIndicator(
+                      value: activity.percent / 100,
+                      color: const Color(0xff7ECECA),
+                      backgroundColor: const Color(0xffE8FAF1),
+                    ),
+                  ],
+                ),
+              ),
+            );
+          }).toList(),
     );
   }
 
   Widget _buildFavoriteWorkout(List<StarItem> list, BuildContext context) {
     return Column(
-      children: list.map((item) {
-        return InkWell(
-          onTap: () {
-            context.push('/sequence/${item.sequenceId}');
-          },
-          child: ListTile(
-            leading: ClipRRect(
-              borderRadius: BorderRadius.circular(8),
-              child: item.image != null
-                  ? Image.network(
-                      item.image!,
-                      width: 50,
-                      height: 50,
-                      fit: BoxFit.cover,
-                    )
-                  : const Icon(Icons.image_not_supported),
-            ),
-            title: Text(
-              item.sequenceName,
-              style: const TextStyle(
-                fontFamily: 'Pretendard',
-                fontSize: 16,
-                fontWeight: FontWeight.bold,
+      children:
+          list.map((item) {
+            return InkWell(
+              onTap: () {
+                context.push('/sequence/${item.sequenceId}');
+              },
+              child: ListTile(
+                leading: ClipRRect(
+                  borderRadius: BorderRadius.circular(8),
+                  child:
+                      item.image != null
+                          ? Image.network(
+                            item.image!,
+                            width: 50,
+                            height: 50,
+                            fit: BoxFit.cover,
+                          )
+                          : const Icon(Icons.image_not_supported),
+                ),
+                title: Text(
+                  item.sequenceName,
+                  style: const TextStyle(
+                    fontFamily: 'Pretendard',
+                    fontSize: 16,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+                subtitle: Wrap(
+                  children: item.tagList.map((tag) => _buildTag(tag)).toList(),
+                ),
+                trailing: const Icon(Icons.star, color: Color(0xff7ECECA)),
               ),
-            ),
-            subtitle: Wrap(
-              children: item.tagList.map((tag) => _buildTag(tag)).toList(),
-            ),
-            trailing: const Icon(Icons.star, color: Color(0xff7ECECA)),
-          ),
-        );
-      }).toList(),
+            );
+          }).toList(),
     );
   }
 
@@ -325,7 +323,6 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
   }
 }
 
-
 class DetailPage extends ConsumerStatefulWidget {
   final String title;
 
@@ -366,23 +363,29 @@ class _DetailPageState extends ConsumerState<DetailPage> {
       ),
       body: detailAsync.when(
         loading: () => const Center(child: CircularProgressIndicator()),
-        error: (error, stackTrace) =>
-            Center(child: Text('에러 발생: ${error.toString()}')),
-        data: (data) => data.content.isEmpty
-            ? const Center(child: Text('데이터가 없습니다.'))
-            : ListView.builder(
-                itemCount: data.content.length,
-                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                itemBuilder: (context, index) {
-                  final item = data.content[index];
+        error:
+            (error, stackTrace) =>
+                Center(child: Text('에러 발생: ${error.toString()}')),
+        data:
+            (data) =>
+                data.content.isEmpty
+                    ? const Center(child: Text('데이터가 없습니다.'))
+                    : ListView.builder(
+                      itemCount: data.content.length,
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 16,
+                        vertical: 8,
+                      ),
+                      itemBuilder: (context, index) {
+                        final item = data.content[index];
 
-                  if (widget.title == '최근') {
-                    return _buildRecentItem(context, item);
-                  } else {
-                    return _buildStarItem(context, item);
-                  }
-                },
-              ),
+                        if (widget.title == '최근') {
+                          return _buildRecentItem(context, item);
+                        } else {
+                          return _buildStarItem(context, item);
+                        }
+                      },
+                    ),
       ),
     );
   }
@@ -420,9 +423,10 @@ class _DetailPageState extends ConsumerState<DetailPage> {
                           ? Icons.check_circle
                           : Icons.more_horiz,
                       size: 16,
-                      color: item.resultStatus == 'Y'
-                          ? const Color(0xff7ECECA)
-                          : Colors.grey,
+                      color:
+                          item.resultStatus == 'Y'
+                              ? const Color(0xff7ECECA)
+                              : Colors.grey,
                     ),
                   ),
                 ),
@@ -443,15 +447,15 @@ class _DetailPageState extends ConsumerState<DetailPage> {
                   const SizedBox(height: 4),
                   Text(
                     _formatTimeAgo(item.updatedAt),
-                    style: const TextStyle(
-                      fontSize: 12,
-                      color: Colors.grey,
-                    ),
+                    style: const TextStyle(fontSize: 12, color: Colors.grey),
                   ),
                   const SizedBox(height: 8),
                   Row(
                     children: [
-                      Text('${item.percent}%', style: const TextStyle(fontSize: 12)),
+                      Text(
+                        '${item.percent}%',
+                        style: const TextStyle(fontSize: 12),
+                      ),
                       const SizedBox(width: 8),
                       Expanded(
                         child: LinearProgressIndicator(
@@ -484,19 +488,20 @@ class _DetailPageState extends ConsumerState<DetailPage> {
           children: [
             ClipRRect(
               borderRadius: BorderRadius.circular(12),
-              child: item.image != null
-                  ? Image.network(
-                      item.image!,
-                      width: 60,
-                      height: 60,
-                      fit: BoxFit.cover,
-                    )
-                  : Container(
-                      width: 60,
-                      height: 60,
-                      color: Colors.grey[300],
-                      child: const Icon(Icons.image_not_supported),
-                    ),
+              child:
+                  item.image != null
+                      ? Image.network(
+                        item.image!,
+                        width: 60,
+                        height: 60,
+                        fit: BoxFit.cover,
+                      )
+                      : Container(
+                        width: 60,
+                        height: 60,
+                        color: Colors.grey[300],
+                        child: const Icon(Icons.image_not_supported),
+                      ),
             ),
             const SizedBox(width: 12),
             Expanded(
@@ -514,20 +519,25 @@ class _DetailPageState extends ConsumerState<DetailPage> {
                   Wrap(
                     spacing: 8,
                     runSpacing: 4,
-                    children: item.tagList
-                        .map<Widget>((tag) => Container(
-                              padding: const EdgeInsets.symmetric(
-                                  horizontal: 8, vertical: 4),
-                              decoration: BoxDecoration(
-                                color: const Color(0xffE8FAF1),
-                                borderRadius: BorderRadius.circular(12),
+                    children:
+                        item.tagList
+                            .map<Widget>(
+                              (tag) => Container(
+                                padding: const EdgeInsets.symmetric(
+                                  horizontal: 8,
+                                  vertical: 4,
+                                ),
+                                decoration: BoxDecoration(
+                                  color: const Color(0xffE8FAF1),
+                                  borderRadius: BorderRadius.circular(12),
+                                ),
+                                child: Text(
+                                  tag,
+                                  style: const TextStyle(fontSize: 12),
+                                ),
                               ),
-                              child: Text(
-                                tag,
-                                style: const TextStyle(fontSize: 12),
-                              ),
-                            ))
-                        .toList(),
+                            )
+                            .toList(),
                   ),
                 ],
               ),
@@ -560,11 +570,11 @@ class _DetailPageState extends ConsumerState<DetailPage> {
     );
   }
 
-String _formatTimeAgo(DateTime? dateTime) {
-  if (dateTime == null) return '날짜 없음';
-  final diff = DateTime.now().difference(dateTime);
-  if (diff.inMinutes < 60) return '${diff.inMinutes}분 전';
-  if (diff.inHours < 24) return '${diff.inHours}시간 전';
-  return '${diff.inDays}일 전';
-}
+  String _formatTimeAgo(DateTime? dateTime) {
+    if (dateTime == null) return '날짜 없음';
+    final diff = DateTime.now().difference(dateTime);
+    if (diff.inMinutes < 60) return '${diff.inMinutes}분 전';
+    if (diff.inHours < 24) return '${diff.inHours}시간 전';
+    return '${diff.inDays}일 전';
+  }
 }

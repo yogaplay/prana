@@ -1,4 +1,5 @@
 import 'package:fl_chart/fl_chart.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:frontend/constants/app_colors.dart';
 import 'package:frontend/features/report/models/weekly_yoga_data.dart';
@@ -106,9 +107,14 @@ class YogaTimeChart extends StatelessWidget {
   }
 
   LineChartData _buildChartData(List<WeeklyYogaData> data) {
+    final maxTime = data
+        .map((e) => e.time)
+        .fold<int>(0, (prev, el) => el > prev ? el : prev);
+    final paddedMaxY = (maxTime * 1.2).ceil();
+    final interval = (paddedMaxY / 3).ceilToDouble();
     return LineChartData(
       minY: 0,
-      maxY: 120,
+      maxY: paddedMaxY.toDouble(),
       titlesData: FlTitlesData(
         topTitles: AxisTitles(sideTitles: SideTitles(showTitles: false)),
         rightTitles: AxisTitles(sideTitles: SideTitles(showTitles: false)),
@@ -116,7 +122,7 @@ class YogaTimeChart extends StatelessWidget {
           sideTitles: SideTitles(
             showTitles: true,
             getTitlesWidget: (value, meta) {
-              if (value == 0 || value == 120) {
+              if (value == 0 || value == paddedMaxY) {
                 return SideTitleWidget(
                   meta: meta,
                   space: 12,
@@ -129,7 +135,7 @@ class YogaTimeChart extends StatelessWidget {
               }
               return SizedBox.shrink();
             },
-            reservedSize: 36,
+            reservedSize: 48,
           ),
         ),
         bottomTitles: AxisTitles(
@@ -159,7 +165,7 @@ class YogaTimeChart extends StatelessWidget {
         show: true,
         drawHorizontalLine: true,
         drawVerticalLine: true,
-        horizontalInterval: 40,
+        horizontalInterval: interval,
         verticalInterval: 1,
         getDrawingHorizontalLine:
             (value) => FlLine(color: AppColors.lightGray, strokeWidth: 1),
@@ -172,7 +178,7 @@ class YogaTimeChart extends StatelessWidget {
       ),
       lineBarsData: [
         LineChartBarData(
-          isCurved: true,
+          isCurved: false,
           spots: List.generate(
             data.length,
             (i) => FlSpot(i.toDouble(), data[i].time.toDouble()),
@@ -181,6 +187,33 @@ class YogaTimeChart extends StatelessWidget {
           dotData: FlDotData(show: true),
         ),
       ],
+      lineTouchData: LineTouchData(
+        getTouchedSpotIndicator: (
+          LineChartBarData barData,
+          List<int> spotIndexes,
+        ) {
+          return spotIndexes.map((index) {
+            return null;
+          }).toList();
+        },
+        touchTooltipData: LineTouchTooltipData(
+          getTooltipColor: (touchedSpot) => Colors.transparent,
+          tooltipPadding: EdgeInsets.zero,
+          tooltipMargin: 16,
+          getTooltipItems: (touchedSpots) {
+            return touchedSpots.map((spot) {
+              return LineTooltipItem(
+                '${spot.y.toInt()}분',
+                TextStyle(
+                  fontSize: 14,
+                  fontWeight: FontWeight.bold,
+                  color: AppColors.primary,
+                ),
+              );
+            }).toList();
+          },
+        ),
+      ),
     );
   }
 }

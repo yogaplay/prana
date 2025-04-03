@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:frontend/constants/app_colors.dart';
 
 class FeedbackSummaryText extends StatelessWidget {
   final List<String> parts;
