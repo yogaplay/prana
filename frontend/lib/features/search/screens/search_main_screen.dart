@@ -106,7 +106,7 @@ class _SearchMainScreenState extends State<SearchMainScreen> {
                 }
 
                 final categories = snapshot.data!;
-              
+
                 return Column(
                   children:
                       categories.map((category) {
@@ -117,15 +117,6 @@ class _SearchMainScreenState extends State<SearchMainScreen> {
                               category.items
                                   .map((item) => item.toYogaItem())
                                   .toList(),
-                          onSeeAll: () {
-                            context.push(
-                              '/search/see-all',
-                              extra: {
-                                'tagName': category.tagName,
-                                'tagType': category.tagType,
-                              },
-                            );
-                          },
                         );
                       }).toList(),
                 );

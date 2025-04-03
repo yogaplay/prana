@@ -2,18 +2,17 @@ import 'package:flutter/material.dart';
 import 'package:frontend/constants/app_colors.dart';
 import 'package:frontend/features/search/models/yoga_item.dart';
 import 'package:frontend/features/search/widgets/yoga_card.dart';
+import 'package:go_router/go_router.dart';
 
 class YogaCarousel extends StatelessWidget {
   final String title;
   final String tagType;
   final List<YogaItem> items;
-  final VoidCallback onSeeAll;
 
   const YogaCarousel({
     super.key,
     required this.title,
     required this.items,
-    required this.onSeeAll,
     required this.tagType,
   });
 
@@ -45,6 +44,10 @@ class YogaCarousel extends StatelessWidget {
     }
   }
 
+  void _handleSeeAll(BuildContext context) {
+    context.push('/see-all', extra: {'tagName': title, 'tagType': tagType});
+  }
+
   @override
   Widget build(BuildContext context) {
     return Column(
@@ -60,7 +63,7 @@ class YogaCarousel extends StatelessWidget {
                 style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
               ),
               TextButton(
-                onPressed: onSeeAll,
+                onPressed: () => _handleSeeAll(context),
                 child: Row(
                   children: [
                     Text('전체 보기', style: TextStyle(color: AppColors.graytext)),
