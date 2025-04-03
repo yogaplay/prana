@@ -1,14 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:frontend/constants/app_colors.dart';
-import 'package:frontend/core/providers/providers.dart';
 import 'package:frontend/features/learning/models/sequence_detail_model.dart';
+import 'package:frontend/features/learning/providers/sequence_providers.dart';
 import 'package:frontend/features/learning/screens/skeleton_sequence_detail_screen.dart';
 import 'package:frontend/features/learning/widgets/pose_item.dart';
 import 'package:frontend/features/learning/widgets/sequence_header.dart';
 import 'package:frontend/features/learning/widgets/sequence_info.dart';
 import 'package:frontend/screens/error_screen.dart';
 import 'package:frontend/widgets/button.dart';
+import 'package:go_router/go_router.dart';
 
 class SequenceDetailScreen extends ConsumerWidget {
   final int sequenceId;
@@ -42,7 +43,12 @@ class SequenceDetailScreen extends ConsumerWidget {
                 message: '요청하신 정보가 존재하지 않습니다',
                 icon: Icons.search_off_rounded,
               ),
-          data: (sequence) => _buildContent(context, sequence, ref),
+          data: (sequence) {
+            WidgetsBinding.instance.addPostFrameCallback((_) {
+              ref.read(selectedSequenceProvider.notifier).state = sequence;
+            });
+            return _buildContent(context, sequence, ref);
+          },
         ),
       ),
     );
@@ -152,7 +158,18 @@ class SequenceDetailScreen extends ConsumerWidget {
             width: double.infinity,
             color: const Color.fromARGB(255, 255, 255, 255),
             padding: const EdgeInsets.only(bottom: 24),
-            child: Column(children: [Button(text: '시작하기', onPressed: () {})]),
+            child: Column(
+              children: [
+                Button(
+                  text: '시작하기',
+                  onPressed: () {
+                    ref.read(selectedSequenceProvider.notifier).state =
+                        sequence;
+                    context.push('/sequence/${sequence.sequenceId}/learning');
+                  },
+                ),
+              ],
+            ),
           ),
         ],
       ),

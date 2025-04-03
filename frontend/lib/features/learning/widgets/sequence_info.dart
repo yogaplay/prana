@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:frontend/constants/app_colors.dart';
-import 'package:frontend/core/providers/providers.dart';
+import 'package:frontend/features/learning/providers/sequence_providers.dart';
 
 class SequenceInfo extends ConsumerWidget {
   final String title;
@@ -42,7 +42,9 @@ class SequenceInfo extends ConsumerWidget {
               data:
                   (isFavorite) => IconButton(
                     icon: Icon(
-                      isFavorite ? Icons.star : Icons.star_border,
+                      isFavorite
+                          ? Icons.star_rounded
+                          : Icons.star_border_rounded,
                       color:
                           isFavorite ? AppColors.primary : AppColors.graytext,
                       size: 32,
