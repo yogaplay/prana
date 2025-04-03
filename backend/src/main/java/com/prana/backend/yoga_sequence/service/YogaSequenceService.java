@@ -5,6 +5,7 @@ import com.prana.backend.common.exception.sequence.SequenceNotFoundException;
 import com.prana.backend.common.exception.user.UserNotFoundException;
 import com.prana.backend.entity.*;
 import com.prana.backend.home.repository.StarRepository;
+import com.prana.backend.user_music.repository.UserMusicRepository;
 import com.prana.backend.sequence.repository.SequenceRepository;
 import com.prana.backend.sequence_body.repository.SequenceBodyRepository;
 import com.prana.backend.sequence_yoga.repository.SequenceYogaRepository;
@@ -34,11 +35,13 @@ public class YogaSequenceService {
     private final StarRepository starRepository;
     private final SequenceBodyRepository sequenceBodyRepository;
     private final SequenceYogaRepository sequenceYogaRepository;
+    private final UserMusicRepository userMusicRepository;
 
     public SequenceResponse getYogaSequence(Integer sequenceId, Integer userId) {
         List<YogaSequenceResponse> yogaSequence = yogaSequenceRepository.findYogaBySequenceIdOrderByOrder(sequenceId);
         Sequence sequence = sequenceRepository.findById(sequenceId).orElseThrow(SequenceNotFoundException::new);
         Star star = starRepository.findBySequence_IdAndUser_Id(sequenceId, userId).orElse(null);
+        String musicLocation = userMusicRepository.findMusicLocationsByUserId(userId);
 
         return SequenceResponse.builder()
                 .sequenceId(sequence.getId())
@@ -48,6 +51,7 @@ public class YogaSequenceService {
                 .time(sequence.getTime())
                 .description(sequence.getDescription())
                 .isStar(star != null)
+                .music(musicLocation)
                 .yogaSequence(yogaSequence)
                 .build();
     }

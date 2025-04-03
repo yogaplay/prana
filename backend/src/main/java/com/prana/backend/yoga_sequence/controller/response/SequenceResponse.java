@@ -19,5 +19,6 @@ public class SequenceResponse {
     private int time;
     private int yogaCnt;
     private boolean isStar;
+    private String music;
     List<YogaSequenceResponse> yogaSequence;
 }
