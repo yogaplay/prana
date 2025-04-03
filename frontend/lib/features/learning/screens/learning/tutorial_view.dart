@@ -48,6 +48,11 @@ class _TutorialViewState extends ConsumerState<TutorialView> {
   }
 
   void _videoListener() {
+    if (_controller.value.position >= _controller.value.duration) {
+      if (ref.read(learningStateProvider) == LearningState.tutorial) {
+        ref.read(learningStateProvider.notifier).state = LearningState.practice;
+      }
+    }
     setState(() {});
   }
 
@@ -87,7 +92,7 @@ class _TutorialViewState extends ConsumerState<TutorialView> {
                           ? _controller.value.position.inSeconds /
                               _controller.value.duration.inSeconds
                           : 0.0,
-                  backgroundColor: Colors.white.withOpacity(0.3),
+                  backgroundColor: Colors.black.withAlpha(179),
                   valueColor: const AlwaysStoppedAnimation<Color>(
                     AppColors.primary,
                   ),
