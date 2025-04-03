@@ -17,7 +17,7 @@ public class WeeklyDataScheduler {
 
     // 매주 월요일 00:00:00에 업데이트
         @Scheduled(cron = "0 0 0 * * MON")
-//  @Scheduled(cron = "0 */1 * * * *") // Todo:delete 테스트용 3분마다 업데이트
+//  @Scheduled(cron = "0 */2 * * * *") // Todo:delete 테스트용 2분마다 업데이트
     public void batchWeeklyData() {
         LocalDateTime today = LocalDateTime.now();
         weeklyDataService.insertWeeklyData(today);
