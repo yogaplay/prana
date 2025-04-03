@@ -1,5 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/rendering.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:frontend/features/learning/models/pose_result.dart';
+import 'package:frontend/features/learning/models/sequence_result_response.dart';
+import 'package:frontend/features/learning/providers/sequence_result_provider.dart';
 import 'package:frontend/features/learning/widgets/result/completed_sequence_banner.dart';
 import 'package:frontend/features/learning/widgets/result/congratulations_message.dart';
 import 'package:frontend/features/learning/widgets/result/instability_summary_section.dart';
@@ -9,97 +13,106 @@ import 'package:frontend/features/learning/widgets/result/stat_card.dart';
 import 'package:frontend/features/search/models/yoga_item.dart';
 import 'package:frontend/widgets/button.dart';
 
-class SequenceResultScreen extends StatelessWidget {
-  const SequenceResultScreen({super.key});
+class SequenceResultScreen extends ConsumerWidget {
+  final int userSequenceId;
+  final int sequenceId;
 
-  List<YogaItem> get dummyRecommendedSequences => [
-    YogaItem(
-      id: 1,
-      title: '허리를 위한 요가',
-      duration: '15분',
-      imageUrl: 'https://picsum.photos/150/100',
-    ),
-    YogaItem(
-      id: 2,
-      title: '하체 안정 루틴',
-      duration: '12분',
-      imageUrl: 'https://picsum.photos/150/100',
-    ),
-    YogaItem(
-      id: 3,
-      title: '전신 스트레칭',
-      duration: '10분',
-      imageUrl: 'https://picsum.photos/150/100',
-    ),
-  ];
+  SequenceResultScreen({
+    super.key,
+    required this.userSequenceId,
+    required this.sequenceId,
+  });
 
   @override
-  Widget build(BuildContext context) {
-    final dummyPoseResults = [
-      PoseResult(
-        imageUrl: 'https://picsum.photos/100',
-        poseName: '아도 무카 비라사나',
-        accuracy: 87,
-      ),
-      PoseResult(
-        imageUrl: 'https://picsum.photos/100',
-        poseName: '차투랑가 단다사나',
-        accuracy: 79,
-      ),
-      PoseResult(
-        imageUrl: 'https://picsum.photos/100',
-        poseName: '우타나아사나',
-        accuracy: 92,
-      ),
-    ];
+  Widget build(BuildContext context, WidgetRef ref) {
+    final sequenceResultAsync = ref.watch(sequenceResultProvider((1, 1)));
+
     return Scaffold(
-      body: SafeArea(
-        child: Stack(
-          children: [
-            ListView(
-              padding: EdgeInsets.fromLTRB(16, 16, 16, 140),
-              children: [
-                CongratulationsMessage(),
-                CompletedSequenceBanner(
-                  sequenceName: '엉덩이를 위한 요가 시퀀스',
-                  onSharePressed: () {
-                    ScaffoldMessenger.of(
-                      context,
-                    ).showSnackBar(SnackBar(content: Text('공유 기능은 준비 중입니다!')));
-                  },
-                ),
-                SizedBox(height: 16),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                  children: [
-                    Expanded(child: StatCard(label: '운동 시간', value: '8분')),
-                    SizedBox(width: 16),
-                    Expanded(child: StatCard(label: '완료 동작', value: '5개')),
-                    SizedBox(width: 16),
-                    Expanded(
-                      child: StatCard(
-                        label: '정확도',
-                        value: '85%',
-                        showInfoIcon: true,
-                      ),
+      body: sequenceResultAsync.when(
+        loading: () => Center(child: CircularProgressIndicator()),
+        error: (error, _) => Center(child: Text('에러 발생: $error')),
+        data: (result) => _buildResultBody(context, result),
+      ),
+    );
+  }
+
+  Widget _buildResultBody(BuildContext context, SequenceResultResponse result) {
+    return SafeArea(
+      child: Stack(
+        children: [
+          ListView(
+            padding: EdgeInsets.fromLTRB(16, 16, 16, 140),
+            children: [
+              CongratulationsMessage(),
+              CompletedSequenceBanner(
+                sequenceName: result.sequenceName,
+                onSharePressed: () {
+                  ScaffoldMessenger.of(
+                    context,
+                  ).showSnackBar(SnackBar(content: Text('공유 기능은 준비 중입니다!')));
+                },
+              ),
+              SizedBox(height: 16),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                children: [
+                  Expanded(
+                    child: StatCard(
+                      label: '운동 시간',
+                      value: '${result.yogaTime}분',
                     ),
-                  ],
-                ),
-                SizedBox(height: 16),
-                InstabilitySummarySection(
-                  feedbackCounts: {'어깨': 3, '엉덩이': 5, '손목': 1},
-                ),
-                SizedBox(height: 16),
-                RecommendedSequencesAccordion(
-                  recommendedSequences: dummyRecommendedSequences,
-                ),
-                SizedBox(height: 16),
-                PoseResultSummarySection(results: dummyPoseResults),
-              ],
-            ),
-            _buildBottomButton(context),
-          ],
-        ),
+                  ),
+                  SizedBox(width: 16),
+                  Expanded(
+                    child: StatCard(
+                      label: '완료 동작',
+                      value: '${result.sequenceCnt}',
+                    ),
+                  ),
+                  SizedBox(width: 16),
+                  Expanded(
+                    child: StatCard(
+                      label: '정확도',
+                      value: '${result.totalAccuracy}%',
+                      showInfoIcon: true,
+                    ),
+                  ),
+                ],
+              ),
+              SizedBox(height: 16),
+              InstabilitySummarySection(
+                feedbackCounts: {
+                  for (final item in result.totalFeedback)
+                    item.position: item.feedbackCnt,
+                },
+              ),
+              SizedBox(height: 16),
+              RecommendedSequencesAccordion(
+                recommendedSequences:
+                    result.recommendSequence.map((r) {
+                      return YogaItem(
+                        id: r.sequenceId,
+                        title: r.sequenceName,
+                        duration: '${(r.sequenceTime / 60).round()}분',
+                        imageUrl: r.sequenceImage,
+                      );
+                    }).toList(),
+              ),
+              SizedBox(height: 16),
+              PoseResultSummarySection(
+                results:
+                    result.positionAccuracy.map((p) {
+                      return PoseResult(
+                        imageUrl: p.image,
+                        poseName: p.yogaName,
+                        accuracy: p.accuracy,
+                      );
+                    }).toList(),
+              ),
+            ],
+          ),
+          _buildBottomButton(context),
+        ],
       ),
     );
   }

@@ -160,7 +160,13 @@ final routerProvider = Provider<GoRouter>((ref) {
       GoRoute(
         path: '/sequence-result',
         name: 'sequenceResult',
-        builder: (_, __) => const SequenceResultScreen(),
+        builder: (context, state) {
+          final (userSequenceId, sequenceId) = state.extra! as (int, int);
+          return SequenceResultScreen(
+            userSequenceId: userSequenceId,
+            sequenceId: sequenceId,
+          );
+        },
       ),
       GoRoute(
         path: '/sequence/:id/learning',
