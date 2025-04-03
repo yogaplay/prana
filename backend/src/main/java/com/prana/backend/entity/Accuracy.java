@@ -35,6 +35,9 @@ public class Accuracy {
     @Column(name = "fail", nullable = false)
     private int fail;
 
+    @Column(name = "score", nullable = false)
+    private int score;
+
     @CreationTimestamp
     @Column(name = "created_at", nullable = false, updatable = false)
     private Timestamp createdAt;
