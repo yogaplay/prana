@@ -26,7 +26,7 @@ import java.util.stream.Collectors;
 @Service
 @Slf4j
 @RequiredArgsConstructor
-@Transactional(readOnly = true)
+@Transactional
 public class YogaSequenceService {
     private final YogaSequenceRepository yogaSequenceRepository;
     private final UserSequenceRepository userSequenceRepository;
