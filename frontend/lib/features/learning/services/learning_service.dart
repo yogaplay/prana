@@ -1,6 +1,4 @@
 import 'dart:io';
-
-import 'package:dio/dio.dart';
 import 'package:frontend/core/api/api_client.dart';
 
 class LearningService {
@@ -42,12 +40,12 @@ class LearningService {
   // 매 0.5초마다 성공, 실패 여부를 판단하기 위한 API
   Future<String> sendShortFeedback({
     required int yogaId,
-    required int userSequenceiD,
+    required int userSequenceId,
     required File imageFile,
   }) async {
     final response = await _apiClient.postMultipart(
       '/feedback/short',
-      fields: {'yogaId': yogaId, 'userSequenceId': userSequenceiD},
+      fields: {'yogaId': yogaId, 'userSequenceId': userSequenceId},
       files: {'image': imageFile},
     );
     return response['data'];
@@ -64,6 +62,6 @@ class LearningService {
       'yogaId': yogaId,
       'sequenceId': sequenceId
     });
-    
+
   }
 }

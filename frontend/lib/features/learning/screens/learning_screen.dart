@@ -75,8 +75,10 @@ class _LearningScreenState extends ConsumerState<LearningScreen> {
       body: Stack(
         children: [
           if (learningState == LearningState.initial) const SkipView(),
-          if (learningState == LearningState.tutorial) const TutorialView(),
-          if (learningState == LearningState.practice) const PracticeView(),
+          if (learningState == LearningState.tutorial)
+            TutorialView(sequenceId: widget.sequenceId),
+          if (learningState == LearningState.practice)
+            PracticeView(sequenceId: widget.sequenceId),
         ],
       ),
     );

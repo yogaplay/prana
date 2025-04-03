@@ -6,7 +6,8 @@ import 'package:video_player/video_player.dart';
 import 'dart:async';
 
 class TutorialView extends ConsumerStatefulWidget {
-  const TutorialView({super.key});
+  final int sequenceId;
+  const TutorialView({super.key, required this.sequenceId});
 
   @override
   ConsumerState<TutorialView> createState() => _TutorialViewState();
