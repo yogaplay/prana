@@ -3,8 +3,10 @@ import 'dart:async';
 import 'package:camera/camera.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:frontend/core/providers/providers.dart';
 import 'package:frontend/features/learning/models/sequence_detail_model.dart';
 import 'package:frontend/features/learning/providers/sequence_providers.dart';
+import 'package:frontend/features/learning/services/learning_service.dart';
 
 enum LearningState { initial, tutorial, practice, completed }
 
@@ -56,7 +58,7 @@ final cameraControllerProvider = FutureProvider.autoDispose<CameraController?>((
 
   final controller = CameraController(
     camera,
-    ResolutionPreset.veryHigh, 
+    ResolutionPreset.veryHigh,
     enableAudio: false,
     imageFormatGroup: ImageFormatGroup.jpeg,
   );
@@ -66,9 +68,10 @@ final cameraControllerProvider = FutureProvider.autoDispose<CameraController?>((
 });
 
 // 카운트다운 타이머 상태를 관리하는 provider
-final countdownProvider = StateNotifierProvider.autoDispose<CountdownNotifier, int>((ref) {
-  return CountdownNotifier();
-});
+final countdownProvider =
+    StateNotifierProvider.autoDispose<CountdownNotifier, int>((ref) {
+      return CountdownNotifier();
+    });
 
 class CountdownNotifier extends StateNotifier<int> {
   CountdownNotifier() : super(0);
@@ -92,3 +95,10 @@ class CountdownNotifier extends StateNotifier<int> {
     super.dispose();
   }
 }
+
+final learningServiceProvider = Provider<LearningService>((ref) {
+  final apiClient = ref.watch(apiClientProvider);
+  return LearningService(apiClient);
+});
+
+final userSequenceIdProvider = StateProvider<int?>((ref) => null);
