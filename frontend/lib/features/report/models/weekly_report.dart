@@ -74,24 +74,24 @@ class WeeklyReport {
 
   factory WeeklyReport.fromJson(Map<String, dynamic> json) {
     return WeeklyReport(
-      year: json['weekly_feedback']['year'],
-      month: json['weekly_feedback']['month'],
-      week: json['weekly_feedback']['week'],
+      year: json['year'],
+      month: json['month'],
+      week: json['week'],
       feedbacks:
-          (json['weekly_feedback']['feedbacks'] as List)
+          (json['feedbacks'] as List)
               .map((e) => BodyFeedback.fromJson(e))
               .toList(),
       recommendSequences:
-          (json['weekly_feedback']['recommendSequences'] as List)
+          (json['recommendSequences'] as List)
               .map((e) => RecommendedSequenceGroup.fromJson(e))
               .toList(),
       lastFiveWeeks:
           [
-            json['week1'],
-            json['week2'],
-            json['week3'],
-            json['week4'],
             json['week5'],
+            json['week4'],
+            json['week3'],
+            json['week2'],
+            json['week1'],
           ].map((e) => WeeklyYogaStat.fromJson(e)).toList(),
     );
   }

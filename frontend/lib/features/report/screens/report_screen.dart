@@ -9,7 +9,6 @@ import 'package:frontend/features/report/widgets/report_header.dart';
 import 'package:frontend/features/report/widgets/yoga_accuracy_chart.dart';
 import 'package:frontend/features/report/widgets/yoga_bmi_chart.dart';
 import 'package:frontend/features/report/widgets/yoga_time_chart.dart';
-import 'package:frontend/features/search/models/yoga_item.dart';
 
 class ReportScreen extends ConsumerWidget {
   final String date;
@@ -18,6 +17,7 @@ class ReportScreen extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    print(date);
     final reportAsync = ref.watch(weeklyReportProvider(date));
 
     return Scaffold(
@@ -77,9 +77,9 @@ class ReportScreen extends ConsumerWidget {
                   RecommendedYogaSection(recommendedItems: recommendedMap),
                   SizedBox(height: 16),
                   YogaTimeChart(data: chartData),
-                  SizedBox(height: 16),
+                  SizedBox(height: 32),
                   YogaAccuracyChart(data: chartData),
-                  SizedBox(height: 16),
+                  SizedBox(height: 32),
                   YogaBmiChart(data: chartData),
                 ],
               ),

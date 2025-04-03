@@ -1,4 +1,5 @@
 import 'package:fl_chart/fl_chart.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:frontend/constants/app_colors.dart';
 import 'package:frontend/features/report/models/weekly_yoga_data.dart';
@@ -58,7 +59,7 @@ class YogaAccuracyChart extends StatelessWidget {
   }
 
   Widget buildAccuracyDifferenceMessage(double thisWeek, double lastWeek) {
-    final diff = thisWeek - lastWeek;
+    final diff = (thisWeek - lastWeek).ceilToDouble();
 
     if (diff == 0) {
       return RichText(
@@ -168,7 +169,7 @@ class YogaAccuracyChart extends StatelessWidget {
       ),
       lineBarsData: [
         LineChartBarData(
-          isCurved: true,
+          isCurved: false,
           spots: List.generate(
             data.length,
             (i) => FlSpot(i.toDouble(), data[i].accurary.toDouble()),
@@ -177,6 +178,33 @@ class YogaAccuracyChart extends StatelessWidget {
           dotData: FlDotData(show: true),
         ),
       ],
+      lineTouchData: LineTouchData(
+        getTouchedSpotIndicator: (
+          LineChartBarData barData,
+          List<int> spotIndexes,
+        ) {
+          return spotIndexes.map((index) {
+            return null;
+          }).toList();
+        },
+        touchTooltipData: LineTouchTooltipData(
+          getTooltipColor: (touchedSpot) => Colors.transparent,
+          tooltipPadding: EdgeInsets.zero,
+          tooltipMargin: 16,
+          getTooltipItems: (touchedSpots) {
+            return touchedSpots.map((spot) {
+              return LineTooltipItem(
+                '${spot.y.toInt()}분',
+                TextStyle(
+                  fontSize: 14,
+                  fontWeight: FontWeight.bold,
+                  color: AppColors.primary,
+                ),
+              );
+            }).toList();
+          },
+        ),
+      ),
     );
   }
 }

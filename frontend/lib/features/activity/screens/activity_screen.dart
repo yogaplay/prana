@@ -1,17 +1,18 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:frontend/features/report/providers/weekly_report_provider.dart';
 import 'package:go_router/go_router.dart';
 import 'package:table_calendar/table_calendar.dart';
-import 'package:frontend/core/api/api_client.dart';
 import 'package:frontend/features/activity/services/activity_service.dart';
 
-class ActivityPage extends StatefulWidget {
+class ActivityPage extends ConsumerStatefulWidget {
   const ActivityPage({super.key});
 
   @override
-  State<ActivityPage> createState() => _ActivityPageState();
+  ConsumerState<ActivityPage> createState() => _ActivityPageState();
 }
 
-class _ActivityPageState extends State<ActivityPage> {
+class _ActivityPageState extends ConsumerState<ActivityPage> {
   DateTime _focusedDay = DateTime.now();
   DateTime? _selectedDay;
 
@@ -19,16 +20,18 @@ class _ActivityPageState extends State<ActivityPage> {
   Set<DateTime> _activeDates = {};
 
   late final ActivityService _activityService;
-  final ApiClient _apiClient = ApiClient();
 
   @override
   void initState() {
     super.initState();
-    _activityService = ActivityService(_apiClient);
 
-    _apiClient.getStoredToken().then((token) {
+    final apiClient = ref.read(apiClientProvider);
+    _activityService = ActivityService(apiClient);
+
+    apiClient.getStoredToken().then((token) {
+      print(token);
       if (token != null) {
-        _apiClient.setAuthToken(token);
+        apiClient.setAuthToken(token);
       }
       _loadEventsForDay(_focusedDay);
       _loadActiveDatesForMonth(_focusedDay); // ✅ 초기 마커 로딩
@@ -86,6 +89,7 @@ class _ActivityPageState extends State<ActivityPage> {
               final date = (_selectedDay ?? _focusedDay);
               final formatted =
                   "${date.year.toString().padLeft(4, '0')}-${date.month.toString().padLeft(2, '0')}-${date.day.toString().padLeft(2, '0')}";
+              print(formatted);
               context.pushNamed(
                 "weekly_report",
                 queryParameters: {'date': formatted},

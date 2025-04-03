@@ -13,10 +13,10 @@ class YogaItem {
 
   factory YogaItem.fromJson(Map<String, dynamic> json) {
     return YogaItem(
-      id: json['sequence_id'],
-      title: json['sequence_name'],
-      duration: '${json['sequence_time']}분',
-      imageUrl: json['image'],
+      id: json['sequenceId'] ?? 0,
+      title: json['sequenceName'] ?? '제목 없음',
+      duration: '${json['sequenceTime'] ~/ 60}분',
+      imageUrl: json['image'] ?? 'https://picsum.photos/100/150',
     );
   }
 }
