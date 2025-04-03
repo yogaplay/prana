@@ -15,6 +15,7 @@ public class FinishResponse {
     private int sequenceId;
     private String sequenceName;
     private int yogaTime;
+    private int sequenceCnt;
     private int totalAccuracy;
     private List<RecommendSequence> recommendSequence;
     private List<FeedbackResponse> totalFeedback;

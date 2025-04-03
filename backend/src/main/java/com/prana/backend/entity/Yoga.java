@@ -38,4 +38,7 @@ public class Yoga {
     @Column(name = "yoga_time")
     private Integer time;
 
+    @Column(name = "std")
+    private String std;
+
 }

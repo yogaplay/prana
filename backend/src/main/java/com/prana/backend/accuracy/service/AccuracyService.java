@@ -49,6 +49,7 @@ public class AccuracyService {
                     .sequenceId(sequenceId)
                     .success(feedback.getSuccessCount())
                     .fail(feedback.getFailureCount())
+                    .score(feedback.getFeedbackSum())
                     .build();
             accuracyRepository.save(accuracy);
 

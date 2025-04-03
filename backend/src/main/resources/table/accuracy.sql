@@ -6,6 +6,7 @@ CREATE TABLE accuracy
     sequence_id INT                    NOT NULL,                                         -- 시퀀스 ID (외래 키)
     success     INT                    NOT NULL,                                         -- 성공 횟수
     fail        INT                    NOT NULL,                                         -- 실패 횟수
+    score       INT                    NOT NULL,                                         -- 피드백을 받는 점수
     created_at  TIMESTAMP              NOT NULL DEFAULT CURRENT_TIMESTAMP,               -- 피드백 생성 시간 (기본값: 현재 시간)
 
     CONSTRAINT fk_a_user FOREIGN KEY (user_id) REFERENCES user (user_id),                -- 외래 키 (user 테이블)
