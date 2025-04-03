@@ -51,13 +51,11 @@ class _RecommendedSequencesAccordionState
             YogaCarousel(
               title: '팔',
               items: widget.recommendedSequences,
-              onSeeAll: () {},
               tagType: '운동 부위',
             ),
             YogaCarousel(
               title: '코어',
               items: widget.recommendedSequences,
-              onSeeAll: () {},
               tagType: '운동 부위',
             ),
           ],

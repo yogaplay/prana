@@ -53,7 +53,6 @@ class _RecommendedYogaSectionState extends State<RecommendedYogaSection> {
             return YogaCarousel(
               title: entry.key,
               items: entry.value,
-              onSeeAll: () {},
               tagType: '운동 부위',
             );
           }),

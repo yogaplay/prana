@@ -1,36 +1,18 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:frontend/all/models/see_all_item.dart';
+import 'package:frontend/all/providers/see_all_provider.dart';
+import 'package:frontend/all/services/see_all_service.dart';
 import 'package:frontend/features/search/models/yoga_search_result.dart';
 import 'package:frontend/features/search/services/search_service.dart';
 import 'package:frontend/widgets/yoga_tile.dart';
 
-class SeeAllScreen extends StatefulWidget {
+class SeeAllScreen extends ConsumerWidget {
   final String tagName;
   final String tagType;
 
   const SeeAllScreen({super.key, required this.tagName, required this.tagType});
-
-  @override
-  State<SeeAllScreen> createState() => _SeeAllScreenState();
-}
-
-class _SeeAllScreenState extends State<SeeAllScreen> {
-  late Future<List<YogaSearchResult>> _futureResults;
-
-  @override
-  void initState() {
-    super.initState();
-    _futureResults = _fetchData();
-  }
-
-  Future<List<YogaSearchResult>> _fetchData() async {
-    final response = await SearchService.fetchSearchResults(
-      tagNames: [widget.tagName],
-      page: 0,
-      size: 20,
-    );
-    return response['results'] as List<YogaSearchResult>;
-  }
 
   String _getPostPosition(String word, String post1, String post2) {
     final lastChar = word.characters.last;
@@ -61,8 +43,9 @@ class _SeeAllScreenState extends State<SeeAllScreen> {
   }
 
   @override
-  Widget build(BuildContext context) {
-    final title = _getTitleWithTagType(widget.tagName, widget.tagType);
+  Widget build(BuildContext context, WidgetRef ref) {
+    final title = _getTitleWithTagType(tagName, tagType);
+    final asyncItem = ref.watch(seeAllItemsProvider(tagName));
 
     return Scaffold(
       body: SafeArea(
@@ -77,18 +60,11 @@ class _SeeAllScreenState extends State<SeeAllScreen> {
               ),
               SizedBox(height: 16),
               Expanded(
-                child: FutureBuilder<List<YogaSearchResult>>(
-                  future: _futureResults,
-                  builder: (context, snapshot) {
-                    if (snapshot.connectionState == ConnectionState.waiting) {
-                      return Center(child: CircularProgressIndicator());
-                    } else if (snapshot.hasError) {
-                      return Center(child: Text('오류 발생: ${snapshot.error}'));
-                    } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
+                child: asyncItem.when(
+                  data: (items) {
+                    if (items.isEmpty) {
                       return Center(child: Text('콘텐츠가 없습니다.'));
                     }
-
-                    final items = snapshot.data!;
                     return ListView.builder(
                       itemCount: items.length,
                       itemBuilder: (context, index) {
@@ -96,11 +72,13 @@ class _SeeAllScreenState extends State<SeeAllScreen> {
                         return YogaTile(
                           imageUrl: item.image,
                           title: item.sequenceName,
-                          tags: item.tagList,
+                          tags: item.tags,
                         );
                       },
                     );
                   },
+                  error: (error, _) => Center(child: Text('오류 발생: $error')),
+                  loading: () => Center(child: CircularProgressIndicator()),
                 ),
               ),
             ],
