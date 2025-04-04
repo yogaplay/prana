@@ -37,3 +37,9 @@ ai:
   server:
     shortFeedbackUrl : http://ai-yoga:8000/api/short-feedback
     longFeedbackUrl : http://ai-yoga:8000/api/long-feedback
+
+
+# open AI
+openai:
+  api:
+    key: ${OPENAI_API_KEY}
