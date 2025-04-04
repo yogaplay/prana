@@ -5,15 +5,11 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
-import java.util.List;
-
 @Getter
-@AllArgsConstructor
 @NoArgsConstructor
+@AllArgsConstructor
 @Builder
-public class AccuracyResponse {
-    private String yogaName;
-    private String image;
-    private int accuracy;
-    private List<YogaFeedbackResponse> feedback;
+public class YogaFeedbackResponse {
+    private String feedback;
+    private int feedbackCnt;
 }
