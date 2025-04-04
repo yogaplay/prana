@@ -8,6 +8,7 @@ public enum APIErrorCode {
     BAD_REQUEST(40000, "Bad Request"),
     INVALID_INPUT(40001, "유효하지 않은 값입니다."),
     RECOMMENDATION_SEQUENCE_COUNT_MISMATCH(40002, "추천 시퀀스 개수가 부족하거나 초과되었습니다."),
+    INVALID_YEAR_MONTH_FORMAT(40003, "날짜 형식이 잘못되었습니다"),
 
     // 401 Unauthorized
     UNAUTHORIZED(40100, "Unauthorized"),
@@ -25,7 +26,9 @@ public enum APIErrorCode {
     NOT_FOUND(40400, "Not Found"),
     USER_NOT_FOUND(40410, "존재하지 않는 사용자입니다."),
     SEQUENCE_NOT_FOUND(40411, "존재하지 않는 시퀀스입니다."),
-    WEEKLY_DATA_NOT_FOUNT(40412, "주간 리포트 데이터가 존재하지 않습니다."),
+    WEEKLY_DATA_NOT_FOUND(40412, "주간 리포트 데이터가 존재하지 않습니다."),
+    ACTIVE_DATA_NOT_FOUND(40413, "해당 달에 운동한 데이터가 없습니다."),
+    MUSIC_NOT_FOUND(40414, "존재하지 않는 음악입니다."),
 
     // 409 Conflict
     CONFLICT(40900, "Conflict"),

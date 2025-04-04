@@ -11,6 +11,9 @@ import java.util.List;
 @Builder
 @AllArgsConstructor
 public class WeeklyReportResponseDTO {
+    private int year;
+    private int month;
+    private int week;
     private List<Feedback> feedbacks; // length=4
     private List<Feedback> feedbacksOrigin; // length=11
     private List<RecommendSequences> recommendSequences; // length=2

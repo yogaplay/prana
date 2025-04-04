@@ -24,6 +24,7 @@ public class AiFeedback implements Serializable {
 
     private int successCount;
     private int failureCount;
+    private int feedbackSum;
 
     @NoArgsConstructor
     @AllArgsConstructor

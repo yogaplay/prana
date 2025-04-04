@@ -3,18 +3,18 @@ package com.prana.backend.yoga_sequence.controller;
 import com.prana.backend.common.PranaPrincipal;
 import com.prana.backend.yoga_sequence.controller.request.CheckSequenceRequest;
 import com.prana.backend.yoga_sequence.controller.request.YogaSequenceRequest;
+import com.prana.backend.yoga_sequence.controller.response.FinishResponse;
 import com.prana.backend.yoga_sequence.controller.response.SequenceResponse;
 import com.prana.backend.yoga_sequence.controller.response.UserSequenceResponse;
 import com.prana.backend.yoga_sequence.service.YogaSequenceService;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
+@Slf4j
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/yoga")
@@ -48,8 +48,14 @@ public class YogaSequenceController {
      * @return 저장 성공 시, 200 ok 반환
      */
     @PostMapping("/pose")
-    public ResponseEntity<String> checkYogaSequence(@RequestBody CheckSequenceRequest request) {
+    public ResponseEntity<Void> checkYogaSequence(@RequestBody CheckSequenceRequest request) {
         yogaService.checkYogaSequence(request.getUserSequenceId());
-        return ResponseEntity.status(HttpStatus.OK).body("200 OK");
+        return ResponseEntity.ok().build();
+    }
+
+    @GetMapping("/end")
+    public ResponseEntity<FinishResponse> finishYogaSequence(@RequestParam("userSequenceId") int userSequenceId,
+                                                             @RequestParam("sequenceId") int sequenceId) {
+        return ResponseEntity.status(HttpStatus.OK).body(yogaService.finishYogaSequence(userSequenceId, sequenceId));
     }
 }

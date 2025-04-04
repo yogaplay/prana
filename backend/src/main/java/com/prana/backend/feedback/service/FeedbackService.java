@@ -2,6 +2,7 @@ package com.prana.backend.feedback.service;
 
 import com.prana.backend.ai_feedback.service.AiFeedbackService;
 import com.prana.backend.entity.AiFeedback;
+import com.prana.backend.entity.Yoga;
 import com.prana.backend.yoga.repository.YogaRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
@@ -31,18 +32,20 @@ public class FeedbackService {
     // 0.5초 요청 처리: 성공/실패 횟수
     public String handleShortFeedback(MultipartFile image, Integer yogaId, Integer userSequenceId) {
         String base64Image = convertImageToBase64(image);
-        String correct_angles = yogaRepository.findById(yogaId).get().getSolutionPose();
+        Yoga yoga = yogaRepository.findById(yogaId).get();
         Map<String, Object> payload = new HashMap<>();
         payload.put("userSequenceId", userSequenceId);
         payload.put("image", base64Image);
-        payload.put("correct_angles", correct_angles);
+        payload.put("correct_angles", yoga.getSolutionPose());
         payload.put("yoga_id", yogaId);
+        payload.put("std", yoga.getStd());
 
         ResponseEntity<Map> response = restTemplate.postForEntity(shortFeedbackUrl, payload, Map.class);
         if (response.getStatusCode().is2xxSuccessful()) {
             Map result = response.getBody();
             assert result != null;
             String resultStr = (String) result.get("result");
+            int feedbackScore = (int) Double.parseDouble(result.get("score").toString());
 
             AiFeedback feedback = aiFeedbackCacheService.getAiFeedbackByUserSequenceId(userSequenceId);
             if (feedback == null) {
@@ -55,6 +58,7 @@ public class FeedbackService {
             } else {
                 feedback.setFailureCount(feedback.getFailureCount() + 1);
             }
+            feedback.setFeedbackSum(feedback.getFeedbackSum() + feedbackScore);
 
             aiFeedbackCacheService.saveAiFeedback(feedback);
             return resultStr;
@@ -65,12 +69,13 @@ public class FeedbackService {
     // 3초 요청 처리: 상세 피드백 (피드백 목록)
     public String handleLongFeedback(MultipartFile image, Integer yogaId, Integer userSequenceId) {
         String base64Image = convertImageToBase64(image);
-        String correct_angles = yogaRepository.findById(yogaId).get().getSolutionPose();
+        Yoga yoga = yogaRepository.findById(yogaId).get();
         Map<String, Object> payload = new HashMap<>();
         payload.put("userSequenceId", userSequenceId);
         payload.put("image", base64Image);
-        payload.put("correct_angles", correct_angles);
+        payload.put("correct_angles", yoga.getSolutionPose());
         payload.put("yoga_id", yogaId);
+        payload.put("std", yoga.getStd());
 
         ResponseEntity<Map> response = restTemplate.postForEntity(longFeedbackUrl, payload, Map.class);
         if (response.getStatusCode().is2xxSuccessful()) {

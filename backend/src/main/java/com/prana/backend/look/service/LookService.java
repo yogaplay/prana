@@ -4,11 +4,13 @@ import com.prana.backend.common.PagedResponse;
 import com.prana.backend.entity.Tag;
 import com.prana.backend.look.controller.request.LookRequest;
 import com.prana.backend.look.controller.request.LookSearchRequest;
+import com.prana.backend.look.controller.response.GetSequenceByTagResponseDTO;
 import com.prana.backend.look.controller.response.LookResponse;
 import com.prana.backend.look.controller.response.LookResult;
 import com.prana.backend.look.controller.response.LookSearchResponse;
 import com.prana.backend.look.repository.CustomLookRepository;
 import com.prana.backend.look.repository.RandomTagRepository;
+import com.prana.backend.sequence.repository.SequenceRepository;
 import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -30,6 +32,7 @@ public class LookService {
 
     private final CustomLookRepository customLookRepository;
     private final RandomTagRepository randomTagRepository;
+    private final SequenceRepository sequenceRepository;
 
     /**
      * 둘러보기 페이지
@@ -81,4 +84,20 @@ public class LookService {
         return ResponseEntity.ok().body(response);
     }
 
+    public GetSequenceByTagResponseDTO getSequenceByTag(String tagName) {
+        List<Object[]> sequences = sequenceRepository.findByTag(tagName);
+
+        List<GetSequenceByTagResponseDTO.Sequence> sequenceList = sequences.stream()
+                .map(row -> GetSequenceByTagResponseDTO.Sequence.builder()
+                        .sequenceId((Integer) row[0])
+                        .sequenceName((String) row[1])
+                        .image((String) row[2])
+                        .tags(List.of(((String) row[3]).split(",")))
+                        .build())
+                .toList();
+
+        return GetSequenceByTagResponseDTO.builder()
+                .sequences(sequenceList)
+                .build();
+    }
 }

@@ -15,7 +15,7 @@ import lombok.Setter;
 @AllArgsConstructor
 public class PatchMyInfoRequest {
 
-    @Size(min = 2, max = 40, message = "2글자 이상 40글자 이하여야 합니다.")
+    @Size(min = 2, max = 6, message = "2글자 이상 6글자 이하여야 합니다.")
     private String nickname;
 
     @DecimalMin(value = "1", message = "신장은 1cm 이상이어야 합니다.")

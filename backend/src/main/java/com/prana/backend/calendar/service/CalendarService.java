@@ -1,7 +1,10 @@
 package com.prana.backend.calendar.service;
 
+import com.prana.backend.calendar.controller.response.ActiveDateResponseDTO;
 import com.prana.backend.calendar.controller.response.DailySequenceResponseDTO;
 import com.prana.backend.calendar.controller.response.WeeklyReportResponseDTO;
+import com.prana.backend.calendar.exception.InvalidYearMonthFormatException;
+import com.prana.backend.calendar.exception.NoActiveDataException;
 import com.prana.backend.calendar.exception.RecommendationSequenceNot3Exception;
 import com.prana.backend.calendar.exception.WeelyDataNullPointException;
 import com.prana.backend.entity.Sequence;
@@ -15,7 +18,9 @@ import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
-import java.time.LocalDate;
+import java.time.*;
+import java.time.format.DateTimeFormatter;
+import java.time.format.DateTimeParseException;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -241,6 +246,9 @@ public class CalendarService {
                 .build();
 
         return WeeklyReportResponseDTO.builder()
+                .year(year)
+                .month(month)
+                .week(week)
                 .feedbacks(feedbacks)
                 .feedbacksOrigin(feedbacksOrigin)
                 .recommendSequences(recommendSequences)
@@ -256,7 +264,7 @@ public class CalendarService {
         // date에서 day만 1로 변경
         LocalDate firstDay = date.withDayOfMonth(1);
 
-        // 요일 추출 (일~토 = 0~6)
+        // 요일 추출 (일~토 = 0~6로 맞추기)
         int firstDayWeekValue = (firstDay.getDayOfWeek().getValue()) % 7;
 
         int day = date.getDayOfMonth();
@@ -292,5 +300,49 @@ public class CalendarService {
         return result;
     }
 
+    public ActiveDateResponseDTO getActiveDate(int userId, String yearMonthStr) {
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM");
+        YearMonth ym;
+
+        try{
+            ym = YearMonth.parse(yearMonthStr, formatter);
+        } catch (DateTimeParseException e) {
+            throw new InvalidYearMonthFormatException( yearMonthStr.toString() + " 형식은 잘못되었습니다. 입력값은 yyyy-MM 형태여야합니다");
+        }
+
+        // 해당달의 1일
+        LocalDate firstDay = ym.atDay(1);
+        // 해당달 1일의 요일
+        DayOfWeek dayOfWeekStart = firstDay.getDayOfWeek();
+
+        // 이번달 1일이 일요일이 아니라면 (월~일 = 1~7) 일요일로 이동
+        if(dayOfWeekStart != DayOfWeek.SUNDAY) {
+            firstDay = firstDay.minusDays(dayOfWeekStart.getValue());
+        }
+
+        // 해당달의 마지막날
+        LocalDate endDay = ym.atEndOfMonth();
+        // 해당달 마지막날의 요일
+        DayOfWeek dayOfweekEnd = endDay.getDayOfWeek();
+
+        // 이번달 마지막날이 토요일이 아니라면 토요일로 이동(월~일 = 1~7)
+        if(dayOfweekEnd != DayOfWeek.SATURDAY) {
+            int daysToAdd = (6 - dayOfweekEnd.getValue() + 7) % 7;
+            endDay = endDay.plusDays(daysToAdd);
+        }
+
+        List<LocalDateTime> activeDates = userSequenceRepository.findActiveDatesByUserIdAndDate(userId, firstDay.atStartOfDay(), endDay.atTime(LocalTime.MAX));
+
+        if(activeDates.isEmpty()) {
+            throw new NoActiveDataException("해당 달에 운동한 데이터가 없습니다.");
+        }
+
+        return ActiveDateResponseDTO.builder()
+                .activeDates(activeDates.stream()
+                        .map(LocalDateTime::toLocalDate)
+                        .distinct()
+                        .toList())
+                .build();
+    }
 }
 
