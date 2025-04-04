@@ -48,9 +48,9 @@ public class YogaSequenceController {
      * @return 저장 성공 시, 200 ok 반환
      */
     @PostMapping("/pose")
-    public ResponseEntity<String> checkYogaSequence(@RequestBody CheckSequenceRequest request) {
+    public ResponseEntity<Void> checkYogaSequence(@RequestBody CheckSequenceRequest request) {
         yogaService.checkYogaSequence(request.getUserSequenceId());
-        return ResponseEntity.status(HttpStatus.OK).body("200 OK");
+        return ResponseEntity.ok().build();
     }
 
     @GetMapping("/end")
