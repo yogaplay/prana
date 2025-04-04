@@ -15,6 +15,7 @@ import com.prana.backend.yoga.repository.YogaRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.StringUtils;
 
 import java.util.Optional;
 
@@ -62,6 +63,7 @@ public class AccuracyService {
             sequenceYogaRepository.save(sequenceYoga);
 
             for(AiFeedback.FeedbackTotal feed : feedback.getFeedbackTotal()) {
+                if(!StringUtils.hasText(feed.getPosition())) continue;
                 Feedback nextFeedback = Feedback.builder()
                         .user(user)
                         .yoga(yoga)
