@@ -54,7 +54,6 @@ final camerasProvider = FutureProvider<List<CameraDescription>>((ref) async {
   return await availableCameras();
 });
 
-// 카메라 컨트롤러
 final cameraControllerProvider = FutureProvider.autoDispose<CameraController?>((
   ref,
 ) async {
@@ -77,13 +76,26 @@ final cameraControllerProvider = FutureProvider.autoDispose<CameraController?>((
       imageFormatGroup: ImageFormatGroup.jpeg,
     );
 
-    await controller.initialize();
-    if (!controller.value.isInitialized) {
-      throw Exception('카메라 초기화 실패');
+    // 초기화 전에 Provider가 dispose되었는지 확인
+    if (ref.state is AsyncLoading) {
+      await controller.initialize();
+    } else {
+      // Provider가 이미 dispose된 경우 카메라도 해제
+      await controller.dispose();
+      return null;
     }
 
+    // 명시적인 dispose 콜백 등록
     ref.onDispose(() {
-      controller.dispose();
+      print('카메라 컨트롤러 해제 중...');
+      controller
+          .dispose()
+          .then((_) {
+            print('카메라 컨트롤러 해제 완료');
+          })
+          .catchError((e) {
+            print('카메라 컨트롤러 해제 오류: $e');
+          });
     });
 
     return controller;
@@ -148,21 +160,60 @@ class CountdownNotifier extends StateNotifier<int> {
     });
   }
 
+  void cancelSession() {
+    _timer?.cancel();
+    _ref.read(isCancelledProvider.notifier).state = true;
+
+    // 초기 상태로 리셋
+    _ref.read(currentYogaIndexProvider.notifier).state = 0;
+    _ref.read(learningStateProvider.notifier).state = LearningState.initial;
+    _ref.read(isSequenceCompletedProvider.notifier).state = false;
+  }
+
   void _moveToNextYoga() {
     final sequenceProvider = _ref.read(selectedSequenceProvider);
     final currentIndex = _ref.read(currentYogaIndexProvider);
 
+    print('요가 동작 $currentIndex 완료, 다음 동작으로 이동 시도');
+
     if (sequenceProvider == null) return;
 
     // 현재 요가 동작의 정확도 저장
-    if (currentIndex > 0) {
-      _saveYogaAccuracy(sequenceProvider, currentIndex);
+    if (currentIndex >= 0) {
+      try {
+        _saveYogaAccuracy(sequenceProvider, currentIndex);
+      } catch (e) {
+        print('정확도 저장 오류: $e');
+      }
     }
 
     // 다음 동작으로 이동하거나 시퀀스 완료 처리
     if (currentIndex < sequenceProvider.yogaSequence.length - 1) {
-      _moveToNextPose(sequenceProvider);
+      // 현재 인덱스에서 정확히 1 증가
+      final nextIndex = currentIndex + 1;
+      print('다음 요가 동작 $nextIndex으로 이동');
+
+      // 기존 타이머 취소 확인
+      _timer?.cancel();
+
+      // 인덱스 업데이트
+      _ref.read(currentYogaIndexProvider.notifier).state = nextIndex;
+      _ref.read(learningStateProvider.notifier).state = LearningState.tutorial;
+
+      // 요가 포즈 정보를 서버에 저장
+      final learningService = _ref.read(learningServiceProvider);
+      final userSequenceId = _ref.read(userSequenceIdProvider);
+
+      if (userSequenceId != null) {
+        print("userSequenceId 전송: $userSequenceId");
+        try {
+          learningService.saveYogaPose(userSequenceId);
+        } catch (e) {
+          print('요가 포즈 저장 오류 (무시): $e');
+        }
+      }
     } else {
+      print('모든 요가 동작 완료, 결과 화면으로 이동');
       _completeSequence();
     }
   }
@@ -173,7 +224,10 @@ class CountdownNotifier extends StateNotifier<int> {
       final learningService = _ref.read(learningServiceProvider);
       final userSequenceId = _ref.read(userSequenceIdProvider);
 
+      print("userSequencId: $userSequenceId");
       if (userSequenceId != null) {
+        print("요가 동작 정확도 저장");
+
         final yogaId = sequence.yogaSequence[yogaIndex].yogaId;
         learningService.saveAccuracyComplete(
           userSequenceId: userSequenceId,
@@ -183,23 +237,6 @@ class CountdownNotifier extends StateNotifier<int> {
       }
     } catch (e) {
       print('자세 정확도 저장 에러!!: $e');
-    }
-  }
-
-  // 다음 요가 동작으로 이동
-  void _moveToNextPose(SequenceDetailModel sequence) {
-    // 다음 인덱스로 이동
-    _ref.read(currentYogaIndexProvider.notifier).update((state) => state + 1);
-
-    // 상태를 튜토리얼로 변경
-    _ref.read(learningStateProvider.notifier).state = LearningState.tutorial;
-
-    // 요가 포즈 정보를 서버에 저장
-    final learningService = _ref.read(learningServiceProvider);
-    final userSequenceId = _ref.read(userSequenceIdProvider);
-
-    if (userSequenceId != null) {
-      learningService.saveYogaPose(userSequenceId);
     }
   }
 
@@ -218,3 +255,6 @@ class CountdownNotifier extends StateNotifier<int> {
 
 // 시퀀스 완료 상태 관리
 final isSequenceCompletedProvider = StateProvider<bool>((ref) => false);
+
+// 요가 취소 상태 관리
+final isCancelledProvider = StateProvider<bool>((ref) => false);

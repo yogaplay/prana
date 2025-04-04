@@ -22,6 +22,9 @@ class _TutorialViewState extends ConsumerState<TutorialView> {
   void initState() {
     super.initState();
 
+    final currentIndex = ref.read(currentYogaIndexProvider);
+    print('튜토리얼 시작: 요가 동작 인덱스 $currentIndex');
+
     ref.read(learningStateProvider.notifier).state = LearningState.tutorial;
     _initializeController();
   }
@@ -50,6 +53,9 @@ class _TutorialViewState extends ConsumerState<TutorialView> {
 
   void _videoListener() {
     if (_controller.value.position >= _controller.value.duration) {
+      final currentIndex = ref.read(currentYogaIndexProvider);
+      print('튜토리얼 완료: 요가 동작 인덱스 $currentIndex, 연습 모드로 전환');
+
       if (ref.read(learningStateProvider) == LearningState.tutorial) {
         ref.read(learningStateProvider.notifier).state = LearningState.practice;
       }

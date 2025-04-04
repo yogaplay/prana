@@ -70,16 +70,59 @@ class _LearningScreenState extends ConsumerState<LearningScreen> {
     if (learningState == LearningState.completed) {
       // 결과 리포트 화면 이동 추가해야됨
     }
+    return PopScope(
+      canPop: false,
+      onPopInvokedWithResult: (didPop, result) async {
+        if (didPop) return;
 
-    return Scaffold(
-      body: Stack(
-        children: [
-          if (learningState == LearningState.initial) const SkipView(),
-          if (learningState == LearningState.tutorial)
-            TutorialView(sequenceId: widget.sequenceId),
-          if (learningState == LearningState.practice)
-            PracticeView(sequenceId: widget.sequenceId),
-        ],
+        // 뒤로가기 버튼이 눌렸을 때 확인 다이얼로그 표시
+        final shouldPop =
+            await showDialog<bool>(
+              context: context,
+              builder:
+                  (context) => AlertDialog(
+                    title: const Text('세션 종료'),
+                    content: const Text('요가 세션을 종료하시겠습니까?'),
+                    actions: [
+                      TextButton(
+                        onPressed: () => Navigator.of(context).pop(false),
+                        child: const Text('아니오'),
+                      ),
+                      TextButton(
+                        onPressed: () {
+                          // 세션 상태 초기화
+                          ref.read(currentYogaIndexProvider.notifier).state = 0;
+                          ref.read(learningStateProvider.notifier).state =
+                              LearningState.initial;
+                          ref.read(isSequenceCompletedProvider.notifier).state =
+                              false;
+
+                          // 타이머 취소 - 메소드 호출
+                          ref.read(countdownProvider.notifier).cancelSession();
+
+                          Navigator.of(context).pop(true);
+                        },
+                        child: const Text('예'),
+                      ),
+                    ],
+                  ),
+            ) ??
+            false;
+
+        if (shouldPop && mounted) {
+          Navigator.of(context).pop(); // 현재 화면 닫기
+        }
+      },
+      child: Scaffold(
+        body: Stack(
+          children: [
+            if (learningState == LearningState.initial) const SkipView(),
+            if (learningState == LearningState.tutorial)
+              TutorialView(sequenceId: widget.sequenceId),
+            if (learningState == LearningState.practice)
+              PracticeView(sequenceId: widget.sequenceId),
+          ],
+        ),
       ),
     );
   }

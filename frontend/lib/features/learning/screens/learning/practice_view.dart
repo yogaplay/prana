@@ -28,13 +28,27 @@ class _PracticeViewState extends ConsumerState<PracticeView>
   void initState() {
     super.initState();
     WidgetsBinding.instance.addObserver(this);
-    _initializeYogaSession();
+
+    final currentIndex = ref.read(currentYogaIndexProvider);
+    print('연습 시작: 요가 동작 인덱스 $currentIndex');
+    Future.microtask(() => _initializeYogaSession());
   }
 
   @override
   void dispose() {
-    _cancelTimers();
+    print('PracticeView dispose 시작');
+    _shortFeedbackTimer?.cancel();
+    _longFeedbackTimer?.cancel();
+
+    // 카메라 관련 Provider 상태 초기화
+    Future.microtask(() {
+      if (mounted) {
+        ref.invalidate(cameraControllerProvider);
+      }
+    });
+
     WidgetsBinding.instance.removeObserver(this);
+    print('PracticeView dispose 완료');
     super.dispose();
   }
 
@@ -45,60 +59,74 @@ class _PracticeViewState extends ConsumerState<PracticeView>
 
   @override
   void didChangeAppLifecycleState(AppLifecycleState state) {
-    if (state == AppLifecycleState.paused) {
-      _cancelTimers();
-    } else if (state == AppLifecycleState.resumed) {
-      _startFeedbackTimers();
+    print('앱 생명주기 변경: $state');
+
+    if (state == AppLifecycleState.inactive ||
+        state == AppLifecycleState.paused) {
+      // 앱이 백그라운드로 갈 때 타이머 및 카메라 정리
+      _shortFeedbackTimer?.cancel();
+      _longFeedbackTimer?.cancel();
       ref.invalidate(cameraControllerProvider);
+    } else if (state == AppLifecycleState.resumed) {
+      // 앱이 다시 포그라운드로 왔을 때
+      if (mounted) {
+        Future.microtask(() {
+          _startFeedbackTimers();
+        });
+      }
     }
   }
 
   // 요가 세션 초기화
   Future<void> _initializeYogaSession() async {
     try {
-      print('~~요가 세션 초기화~~');
+      final currentIndex = ref.read(currentYogaIndexProvider);
 
-      // 요가 시작
-      final learningService = ref.read(learningServiceProvider);
-      final userSequenceId = await learningService.startYoga(widget.sequenceId);
-      print('유저 시퀀스 ID: $userSequenceId');
+      // 여기에서 첫 번째 동작인 경우에만 요가 세션 시작 API 호출
+      if (currentIndex == 0) {
+        // 요가 시작
+        final learningService = ref.read(learningServiceProvider);
+        final userSequenceId = await learningService.startYoga(
+          widget.sequenceId,
+        );
+        print('유저 시퀀스 ID: $userSequenceId');
 
-      // 사용자 시퀀스 ID 저장
-      ref.read(userSequenceIdProvider.notifier).state = userSequenceId;
+        // 사용자 시퀀스 ID 저장
+        ref.read(userSequenceIdProvider.notifier).state = userSequenceId;
 
-      // 시퀀스 정보 로드 및 타이머 시작
-      await _loadSequenceAndStartTimer(userSequenceId, learningService);
+        // 시퀀스 정보 로드
+        await ref.read(sequenceDetailProvider(widget.sequenceId).future);
+        print('시퀀스 정보 로드 완료');
+      }
+
+      // 현재 요가 동작의 타이머 시작
+      final sequence = ref.read(selectedSequenceProvider);
+      if (sequence != null && sequence.yogaSequence.isNotEmpty) {
+        final yogaTime = sequence.yogaSequence[currentIndex].yogaTime;
+        print('요가 동작 $currentIndex 시간: $yogaTime초');
+
+        // 타이머 시작 전 로그
+        print('타이머 시작 시도');
+        ref.read(countdownProvider.notifier).startCountdown(yogaTime);
+        print('타이머 시작 완료');
+
+        // 첫 요가 포즈 저장은 첫 번째 동작에서만
+        if (currentIndex == 0) {
+          final userSequenceId = ref.read(userSequenceIdProvider);
+          if (userSequenceId != null) {
+            final learningService = ref.read(learningServiceProvider);
+            await learningService.saveYogaPose(userSequenceId);
+          }
+        }
+
+        // 피드백 타이머 시작
+        _startFeedbackTimers();
+        print('피드백 타이머 시작 완료');
+      } else {
+        print('시퀀스 정보가 없거나 요가 시퀀스가 비어 있습니다.');
+      }
     } catch (e) {
       print('요가 세션 초기화 오류: $e');
-    }
-  }
-
-  // 시퀀스 정보 로드 및 타이머 시작 로직 분리
-  Future<void> _loadSequenceAndStartTimer(
-    int userSequenceId,
-    dynamic learningService,
-  ) async {
-    await ref.read(sequenceDetailProvider(widget.sequenceId).future);
-    print('시퀀스 정보 로드 완료');
-
-    final sequence = ref.read(selectedSequenceProvider);
-    if (sequence != null && sequence.yogaSequence.isNotEmpty) {
-      final firstYogaTime = sequence.yogaSequence[0].yogaTime;
-      print('첫 번째 요가 시간: $firstYogaTime초');
-
-      // 타이머 시작
-      print('타이머 시작 시도');
-      ref.read(countdownProvider.notifier).startCountdown(firstYogaTime);
-      print('타이머 시작 완료');
-
-      // 첫 요가 포즈 저장
-      await learningService.saveYogaPose(userSequenceId);
-
-      // 피드백 타이머 시작
-      _startFeedbackTimers();
-      print('피드백 타이머 시작 완료');
-    } else {
-      print('시퀀스 정보가 없거나 요가 시퀀스가 비어 있습니다.');
     }
   }
 
@@ -117,6 +145,8 @@ class _PracticeViewState extends ConsumerState<PracticeView>
 
   // 짧은 피드백 가져오기
   Future<void> _getShortFeedback() async {
+    if (!mounted) return;
+
     try {
       final feedbackData = _getFeedbackData();
       if (feedbackData == null) return;
@@ -124,7 +154,7 @@ class _PracticeViewState extends ConsumerState<PracticeView>
       final imageFile = await _captureImage();
       if (imageFile == null) return;
 
-      final status = await feedbackData.learningService.sendShortFeedback(
+      await feedbackData.learningService.sendShortFeedback(
         yogaId: feedbackData.yogaId,
         userSequenceId: feedbackData.userSequenceId,
         imageFile: imageFile,
@@ -137,6 +167,8 @@ class _PracticeViewState extends ConsumerState<PracticeView>
   // 긴 피드백 가져오기
   Future<void> _getLongFeedback() async {
     try {
+      if (!mounted) return;
+
       final feedbackData = _getFeedbackData();
       if (feedbackData == null) return;
 
@@ -198,11 +230,6 @@ class _PracticeViewState extends ConsumerState<PracticeView>
       return _buildLoadingScreen();
     }
 
-    // 완료 화면
-    if (isCompleted) {
-      return _buildCompletionScreen();
-    }
-
     // 연습 화면
     return _buildPracticeScreen(sequence, currentIndex);
   }
@@ -210,61 +237,35 @@ class _PracticeViewState extends ConsumerState<PracticeView>
   // 로딩 화면
   Widget _buildLoadingScreen() {
     return const Scaffold(
-      body: Center(child: CircularProgressIndicator(color: AppColors.primary)),
-    );
-  }
-
-  // 완료 화면
-  Widget _buildCompletionScreen() {
-    return Scaffold(
       body: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            const Icon(Icons.check_circle, color: AppColors.primary, size: 80),
-            const SizedBox(height: 16),
-            const Text(
-              '요가 시퀀스 완료!',
-              style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
-            ),
-            const SizedBox(height: 24),
-            ElevatedButton(
-              onPressed: () => Navigator.of(context).pop(),
-              style: ElevatedButton.styleFrom(
-                backgroundColor: AppColors.primary,
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 24,
-                  vertical: 12,
-                ),
-              ),
-              child: const Text('완료', style: TextStyle(color: Colors.white)),
-            ),
-          ],
+        child: CircularProgressIndicator(
+          color: AppColors.primary,
+          backgroundColor: AppColors.blackText,
         ),
       ),
     );
   }
+}
 
-  // 연습 화면
-  Widget _buildPracticeScreen(dynamic sequence, int currentIndex) {
-    return Scaffold(
-      body: Stack(
-        children: [
-          // 카메라 미리보기
-          const CameraPreviewWidget(),
+// 연습 화면
+Widget _buildPracticeScreen(dynamic sequence, int currentIndex) {
+  return Scaffold(
+    body: Stack(
+      children: [
+        // 카메라 미리보기
+        const CameraPreviewWidget(),
 
-          // 요가 포즈 가이드 (오른쪽 상단)
-          PoseGuideWidget(
-            sequence: sequence,
-            currentIndex: currentIndex,
-            // UI 수정: 이미지 크기 축소 및 radius 줄임
-          ),
+        // 요가 포즈 가이드 (오른쪽 상단)
+        PoseGuideWidget(
+          sequence: sequence,
+          currentIndex: currentIndex,
+          // UI 수정: 이미지 크기 축소 및 radius 줄임
+        ),
 
-          const TimerWidget(),
-        ],
-      ),
-    );
-  }
+        const TimerWidget(),
+      ],
+    ),
+  );
 }
 
 // 피드백 데이터를 담는 클래스

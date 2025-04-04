@@ -34,7 +34,7 @@ class LearningService {
       fields: {'yogaId': yogaId, 'userSequenceId': userSequenceId},
       files: {'image': imageFile},
     );
-    return response['data'];
+    return response['message'];
   }
 
   // 매 0.5초마다 성공, 실패 여부를 판단하기 위한 API
@@ -48,20 +48,22 @@ class LearningService {
       fields: {'yogaId': yogaId, 'userSequenceId': userSequenceId},
       files: {'image': imageFile},
     );
-    return response['data'];
+    return response['message'];
   }
 
-  // 시퀀스 진행 중, 요가 동작이 끝날때마다 피드백 저장  
+  // 시퀀스 진행 중, 요가 동작이 끝날때마다 피드백 저장
   Future<void> saveAccuracyComplete({
     required int userSequenceId,
     required int yogaId,
-    required int sequenceId 
+    required int sequenceId,
   }) async {
-    await _apiClient.post('/accuracy/complete', body:{
-      'userSequenceId': userSequenceId,
-      'yogaId': yogaId,
-      'sequenceId': sequenceId
-    });
-
+    await _apiClient.post(
+      '/accuracy/complete',
+      body: {
+        'userSequenceId': userSequenceId,
+        'yogaId': yogaId,
+        'sequenceId': sequenceId,
+      },
+    );
   }
 }
