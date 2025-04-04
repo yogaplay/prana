@@ -76,7 +76,13 @@ class SequenceResultScreen extends StatelessWidget {
                     SizedBox(width: 16),
                     Expanded(child: StatCard(label: '완료 동작', value: '5개')),
                     SizedBox(width: 16),
-                    Expanded(child: StatCard(label: '정확도', value: '85%')),
+                    Expanded(
+                      child: StatCard(
+                        label: '정확도',
+                        value: '85%',
+                        showInfoIcon: true,
+                      ),
+                    ),
                   ],
                 ),
                 SizedBox(height: 16),

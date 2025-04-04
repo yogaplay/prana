@@ -18,9 +18,52 @@ class InstabilitySummarySection extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(
-            '분석 결과',
-            style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+          Row(
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              Text(
+                '분석 결과',
+                style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+              ),
+              SizedBox(width: 4),
+              GestureDetector(
+                onTap: () {
+                  showDialog(
+                    context: context,
+                    builder:
+                        (_) => AlertDialog(
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(16),
+                          ),
+                          backgroundColor: AppColors.background,
+                          title: Text('분석 기준'),
+                          content: Text(
+                            '총 11개 부위의 불안정한 자세 횟수를 다음과 같이 그룹별로 분류하여 합산합니다:\n\n'
+                            '등 = 어깨\n'
+                            '팔 = 왼팔 + 오른팔 + 왼팔꿈치 + 오른팔꿈치\n'
+                            '코어 = 왼엉덩이 + 오른엉덩이\n'
+                            '다리 = 왼무릎 + 오른무릎 + 왼다리 + 오른다리',
+                            style: TextStyle(fontSize: 15),
+                          ),
+                          actions: [
+                            TextButton(
+                              onPressed: () => Navigator.pop(context),
+                              style: TextButton.styleFrom(
+                                foregroundColor: AppColors.primary,
+                              ),
+                              child: Text('확인'),
+                            ),
+                          ],
+                        ),
+                  );
+                },
+                child: Icon(
+                  Icons.info_outline_rounded,
+                  size: 16,
+                  color: AppColors.graytext,
+                ),
+              ),
+            ],
           ),
           SizedBox(height: 8),
           ...feedbackCounts.entries.map(
