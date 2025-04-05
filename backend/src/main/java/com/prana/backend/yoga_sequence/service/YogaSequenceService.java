@@ -4,6 +4,7 @@ import com.prana.backend.calendar.service.TagUtil;
 import com.prana.backend.common.exception.sequence.SequenceNotFoundException;
 import com.prana.backend.common.exception.user.UserNotFoundException;
 import com.prana.backend.entity.*;
+import com.prana.backend.entity.YogaFeedback;
 import com.prana.backend.home.repository.StarRepository;
 import com.prana.backend.user_music.repository.JpaUserMusicRepository;
 import com.prana.backend.sequence.repository.SequenceRepository;
@@ -11,6 +12,7 @@ import com.prana.backend.sequence_body.repository.SequenceBodyRepository;
 import com.prana.backend.sequence_yoga.repository.SequenceYogaRepository;
 import com.prana.backend.user.repository.UserRepository;
 import com.prana.backend.user_sequence.repository.UserSequenceRepository;
+import com.prana.backend.yoga_feedback.repository.YogaFeedbackRepository;
 import com.prana.backend.yoga_sequence.controller.response.*;
 import com.prana.backend.yoga_sequence.repository.YogaSequenceRepository;
 import lombok.RequiredArgsConstructor;
@@ -19,6 +21,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -36,6 +39,7 @@ public class YogaSequenceService {
     private final SequenceBodyRepository sequenceBodyRepository;
     private final SequenceYogaRepository sequenceYogaRepository;
     private final JpaUserMusicRepository userMusicRepository;
+    private final YogaFeedbackRepository yogaFeedbackRepository;
 
     public SequenceResponse getYogaSequence(Integer sequenceId, Integer userId) {
         List<YogaSequenceResponse> yogaSequence = yogaSequenceRepository.findYogaBySequenceIdOrderByOrder(sequenceId);
@@ -83,7 +87,18 @@ public class YogaSequenceService {
     }
 
     public FinishResponse finishYogaSequence(Integer userSequenceId, Integer sequenceId) {
-        List<AccuracyResponse> accuracyResponses = sequenceYogaRepository.findAccuracyByUserSequenceId(userSequenceId);
+        List<AccuracyResponse> accuracyResponses = new ArrayList<>();
+        List<SequenceYoga> sequenceYoga = sequenceYogaRepository.findByUserSequence_Id(userSequenceId);
+        for(SequenceYoga yoga : sequenceYoga) {
+            accuracyResponses.add(AccuracyResponse.builder()
+                    .yogaName(yoga.getYogaName())
+                    .accuracy(yoga.getAccuracy())
+                    .image(yoga.getYogaImage())
+                    .feedback(yogaFeedbackRepository.findFeedbackBySequenceYogaId(yoga.getSequenceYogaId()))
+                    .build());
+        }
+
+
         List<FeedbackResponse> feedbackResponses = sequenceBodyRepository.findFeedbackByUserSequenceId(userSequenceId);
         List<RecommendSequence> recommendSequences = getRecommendedSequences(userSequenceId);
         int averageAccuracy = (int) Math.round(accuracyResponses.stream()

@@ -12,6 +12,7 @@ import com.prana.backend.sequence_yoga.repository.SequenceYogaRepository;
 import com.prana.backend.user.repository.UserRepository;
 import com.prana.backend.user_sequence.repository.UserSequenceRepository;
 import com.prana.backend.yoga.repository.YogaRepository;
+import com.prana.backend.yoga_feedback.repository.YogaFeedbackRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -33,6 +34,7 @@ public class AccuracyService {
     private final SequenceYogaRepository sequenceYogaRepository;
     private final SequenceBodyRepository sequenceBodyRepository;
     private final UserSequenceRepository userSequenceRepository;
+    private final YogaFeedbackRepository yogaFeedbackRepository;
 
     /**
      * 클라이언트가 동작 완료를 알리는 경우, Redis에 저장된 AiFeedback을 읽어 DB의 Accuracy 테이블에 저장
@@ -84,6 +86,20 @@ public class AccuracyService {
                             .feedbackCnt(1)
                             .build();
                     sequenceBodyRepository.save(newSequenceBody);
+                }
+
+                Optional<YogaFeedback> yogaFeedback = yogaFeedbackRepository.findBySequenceYoga_SequenceYogaIdAndBodyPart(sequenceYoga.getSequenceYogaId(), feed.getPosition());
+                if (yogaFeedback.isPresent()) {
+                    YogaFeedback yogaFeedback1 = yogaFeedback.get();
+                    yogaFeedback1.setFeedbackCnt(yogaFeedback1.getFeedbackCnt() + 1);
+                    yogaFeedbackRepository.save(yogaFeedback1);
+                } else {
+                    YogaFeedback newYogaFeedback = YogaFeedback.builder()
+                            .sequenceYoga(sequenceYoga)
+                            .bodyPart(feed.getPosition())
+                            .feedbackCnt(1)
+                            .build();
+                    yogaFeedbackRepository.save(newYogaFeedback);
                 }
             }
 
