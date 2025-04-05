@@ -7,6 +7,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
 import java.util.List;
+import java.util.Optional;
 
 public interface YogaFeedbackRepository extends JpaRepository<YogaFeedback, Integer> {
 
@@ -14,4 +15,6 @@ public interface YogaFeedbackRepository extends JpaRepository<YogaFeedback, Inte
             "from YogaFeedback y " +
             "where y.sequenceYoga.sequenceYogaId = :sequenceYogaId")
     List<YogaFeedbackResponse> findFeedbackBySequenceYogaId(@Param("sequenceYogaId") Integer sequenceYogaId);
+
+    Optional<YogaFeedback> findBySequenceYoga_SequenceYogaIdAndBodyPart(Integer sequenceYogaId, String bodyPart);
 }
