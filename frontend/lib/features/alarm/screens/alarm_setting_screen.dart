@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:frontend/constants/app_colors.dart';
 import 'package:frontend/core/providers/profile_providers.dart';
 import 'package:frontend/features/alarm/services/alarm_service.dart';
+import 'package:frontend/widgets/button.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class NotificationSettingsScreen extends ConsumerStatefulWidget {
@@ -16,7 +17,6 @@ class NotificationSettingsScreen extends ConsumerStatefulWidget {
 
 class _NotificationSettingsScreenState
     extends ConsumerState<NotificationSettingsScreen> {
-
   bool weeklyReportEnabled = false; // 주간 리포트 설정
   bool dailyExerciseEnabled = false; // 매일 운동 알림 설정
   TimeOfDay weeklyReportTime = const TimeOfDay(
@@ -40,6 +40,7 @@ class _NotificationSettingsScreenState
 
   // 운동 알림 시간
   void _showTimePicker() {
+    TimeOfDay initialTime = selectedTime;
     showModalBottomSheet(
       context: context,
       backgroundColor: Colors.white,
@@ -47,32 +48,70 @@ class _NotificationSettingsScreenState
         borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
       ),
       builder: (BuildContext context) {
-        return SizedBox(
-          height: 250,
-          child: CupertinoDatePicker(
-            mode: CupertinoDatePickerMode.time,
-            initialDateTime: DateTime(
-              DateTime.now().year,
-              DateTime.now().month,
-              DateTime.now().day,
-              selectedTime.hour,
-              selectedTime.minute,
-            ),
-            onDateTimeChanged: (DateTime newDateTime) {
-              setState(() {
-                selectedTime = TimeOfDay(
-                  hour: newDateTime.hour,
-                  minute: newDateTime.minute,
-                );
-                _updateDailyNotifications(); // 알림 설정/취소 실행
-                _saveNotificationSettings(); // ✅ 설정 변경 후 저장
-              });
-            },
-            use24hFormat: false,
-          ),
+        return StatefulBuilder(
+          builder: (context, setState) {
+            return SizedBox(
+              height: 280,
+              child: Column(
+                children: [
+                  Expanded(
+                    child: CupertinoDatePicker(
+                      mode: CupertinoDatePickerMode.time,
+                      initialDateTime: DateTime(
+                        DateTime.now().year,
+                        DateTime.now().month,
+                        DateTime.now().day,
+                        selectedTime.hour,
+                        selectedTime.minute,
+                      ),
+                      onDateTimeChanged: (DateTime newDateTime) {
+                        initialTime = TimeOfDay(
+                          hour: newDateTime.hour,
+                          minute: newDateTime.minute,
+                        );
+                      },
+                      use24hFormat: false,
+                    ),
+                  ),
+                  Padding(
+                    padding: const EdgeInsets.all(21.0),
+                    child: SizedBox(
+                      width: double.infinity,
+                      child: ElevatedButton(
+                        onPressed: () => Navigator.of(context).pop(initialTime),
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: AppColors.primary,
+                          foregroundColor: Colors.white,
+                          padding: const EdgeInsets.symmetric(vertical: 16),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(8),
+                          ),
+                        ),
+                        child: const Text(
+                          '저장하기',
+                          style: TextStyle(
+                            fontSize: 16,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            );
+          },
         );
       },
-    );
+    ).then((result) {
+      if (result != null) {
+        setState(() {
+          selectedTime = result;
+          _updateDailyNotifications(); // 알림 설정/취소 실행
+          _saveNotificationSettings(); // ✅ 설정 변경 후 저장
+        });
+      }
+    });
   }
 
   // 운동 알림 시간 포맷
@@ -300,16 +339,29 @@ class _NotificationSettingsScreenState
                               fontWeight: FontWeight.bold,
                             ),
                           ),
-                          GestureDetector(
-                            onTap: _showTimePicker,
-                            child: Text(
-                              _formatTimeOfDay(selectedTime),
-                              style: const TextStyle(
-                                fontSize: 16,
-                                color: AppColors.blackText,
-                                fontWeight: FontWeight.w500,
+                          Row(
+                            children: [
+                              GestureDetector(
+                                onTap: _showTimePicker,
+                                child: Text(
+                                  _formatTimeOfDay(selectedTime),
+                                  style: const TextStyle(
+                                    fontSize: 16,
+                                    color: AppColors.blackText,
+                                    fontWeight: FontWeight.w500,
+                                  ),
+                                ),
                               ),
-                            ),
+                              const SizedBox(width: 8),
+                              GestureDetector(
+                                onTap: _showTimePicker,
+                                child: const Icon(
+                                  Icons.edit,
+                                  color: AppColors.graytext,
+                                  size: 16,
+                                ),
+                              ),
+                            ],
                           ),
                         ],
                       ),
