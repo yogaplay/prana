@@ -3,6 +3,7 @@ import 'package:frontend/constants/app_colors.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:frontend/core/providers/profile_providers.dart';
 import 'package:frontend/core/providers/providers.dart';
+
 class EditNicknameScreen extends ConsumerStatefulWidget {
   final String initialNickname;
 
@@ -108,7 +109,7 @@ class _EditNicknameScreenState extends ConsumerState<EditNicknameScreen> {
             ),
             const SizedBox(height: 8),
             Text(
-              '2~20자로 입력해주세요.',
+              '2~6자로 입력해주세요.',
               style: TextStyle(
                 fontSize: 14,
                 color: _isValid ? AppColors.graytext : Colors.red,
@@ -140,7 +141,7 @@ class _EditNicknameScreenState extends ConsumerState<EditNicknameScreen> {
                             }
                           }
                         }
-                      : null,
+                        : null,
                 style: ElevatedButton.styleFrom(
                   backgroundColor: AppColors.primary,
                   foregroundColor: Colors.white,
