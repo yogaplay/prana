@@ -1,87 +1,12 @@
-import 'dart:convert';
-
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:frontend/constants/app_colors.dart';
 import 'package:frontend/features/alarm/models/alarm_model.dart';
+import 'package:frontend/features/alarm/providers/alarm_provider.dart';
 import 'package:intl/intl.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 
-class AlarmScreen extends StatefulWidget {
+class AlarmScreen extends ConsumerWidget {
   const AlarmScreen({super.key});
-
-  @override
-  State<AlarmScreen> createState() => _AlarmScreenState();
-}
-
-class _AlarmScreenState extends State<AlarmScreen> {
-  late Future<List<AlarmItem>> _alarmsFuture;
-
-  @override
-  void initState() {
-    super.initState();
-    _alarmsFuture = _loadAlarms();
-  }
-
-  Future<List<AlarmItem>> _loadAlarms() async {
-    final prefs = await SharedPreferences.getInstance();
-    await prefs.reload();
-    final String? storedNotifications = prefs.getString('notifications');
-    if (storedNotifications != null) {
-      List<dynamic> decodedList = jsonDecode(storedNotifications);
-      return decodedList.reversed
-          .map((item) => AlarmItem.fromJson(item))
-          .toList();
-    }
-    return [];
-  }
-
-  // 알림 리스트 업데이트 함수
-  Future<void> _markNotificationAsChecked(int index) async {
-    final prefs = await SharedPreferences.getInstance();
-    await prefs.reload();
-    final storedNotifications = prefs.getString('notifications');
-
-    if (storedNotifications != null) {
-      List<dynamic> decodedList = jsonDecode(storedNotifications);
-      List<AlarmItem> notifications =
-          decodedList.reversed.map((item) => AlarmItem.fromJson(item)).toList();
-
-      // 이미 체크된 알림은 변경하지 않음
-      if (!notifications[index].isChecked) {
-        notifications[index].isChecked = true; // 무조건 true로 설정
-        await prefs.setString(
-          'notifications',
-          jsonEncode(notifications.map((e) => e.toJson()).toList()),
-        );
-      }
-    }
-  }
-
-  void _refreshNotifications() {
-    setState(() {
-      _alarmsFuture = _loadAlarms(); // Future 새로 호출
-    });
-  }
-
-  Future<void> _deleteNotification(int index) async {
-    final prefs = await SharedPreferences.getInstance();
-    await prefs.reload();
-    final String? storedNotifications = prefs.getString('notifications');
-
-    if (storedNotifications != null) {
-      List<dynamic> decodedList = jsonDecode(storedNotifications);
-
-      // UI 인덱스를 실제 저장된 리스트 인덱스로 변환 (역순 저장된 데이터 고려)
-      int originalIndex = decodedList.length - 1 - index;
-      decodedList.removeAt(originalIndex);
-
-      await prefs.setString(
-        'notifications',
-        jsonEncode(decodedList),
-      );
-      _refreshNotifications(); // 리스트 새로고침
-    }
-  }
 
   Widget _buildDeleteBackground() {
     return Container(
@@ -96,7 +21,10 @@ class _AlarmScreenState extends State<AlarmScreen> {
   }
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    final alarms = ref.watch(alarmProvider);
+    final alarmNotifier = ref.read(alarmProvider.notifier);
+
     return Scaffold(
       backgroundColor: AppColors.background,
       appBar: AppBar(
@@ -121,59 +49,35 @@ class _AlarmScreenState extends State<AlarmScreen> {
         actions: [
           IconButton(
             icon: const Icon(Icons.refresh, color: AppColors.blackText),
-            onPressed: _refreshNotifications, // 수동 새로고침
+            onPressed: () => alarmNotifier.loadAlarms(),
           ),
         ],
       ),
-      body: FutureBuilder<List<AlarmItem>>(
-        future: _alarmsFuture,
-        builder: (context, snapshot) {
-          if (snapshot.connectionState == ConnectionState.waiting) {
-            return const Center(
-              child: CircularProgressIndicator(color: AppColors.primary),
-            );
-          }
-          if (snapshot.hasError) {
-            return const Center(child: Text('알림을 불러오는 중 오류가 발생했습니다.'));
-          }
-          final alarms = snapshot.data ?? [];
-          if (alarms.isEmpty) {
-            return const Center(child: Text('알림이 없습니다'));
-          }
-
-          return ListView.separated(
-            padding: const EdgeInsets.all(16),
-            itemCount: alarms.length,
-            separatorBuilder: (context, index) => const SizedBox(height: 12),
-            // itemBuilder:
-            //     (context, index) => AlarmCard(
-            //       alarm: alarms[index],
-            //       index: index,
-            //       onCheck: () async {
-            //         await _markNotificationAsChecked(index);
-            //         _refreshNotifications(); // 리스트 새로고침
-            //       },
-            //     ),
-            itemBuilder: (context, index) {
-              final alarm = alarms[index];
-              return Dismissible(
-                key: ValueKey(alarm.date), // 고유 키 지정
-                direction: DismissDirection.endToStart, // 오른쪽에서 왼쪽으로 스와이프
-                background: _buildDeleteBackground(), // 삭제 배경 UI
-                onDismissed: (direction) => _deleteNotification(index), // 삭제 처리
-                child: AlarmCard(
-                  alarm: alarm,
-                  index: index,
-                  onCheck: () async {
-                    await _markNotificationAsChecked(index);
-                    _refreshNotifications();
-                  },
-                ),
-              );
-            },
-          );
-        },
-      ),
+      body:
+          alarms.isEmpty
+              ? const Center(child: Text('알림이 없습니다'))
+              : ListView.separated(
+                padding: const EdgeInsets.all(16),
+                itemCount: alarms.length,
+                separatorBuilder:
+                    (context, index) => const SizedBox(height: 12),
+                itemBuilder: (context, index) {
+                  final alarm = alarms[index];
+                  return Dismissible(
+                    key: ValueKey(alarm.date),
+                    direction: DismissDirection.endToStart,
+                    background: _buildDeleteBackground(),
+                    onDismissed:
+                        (direction) => alarmNotifier.deleteAlarm(index),
+                    // 삭제 처리
+                    child: AlarmCard(
+                      alarm: alarm,
+                      index: index,
+                      onCheck: () => alarmNotifier.markAsChecked(index),
+                    ),
+                  );
+                },
+              ),
     );
   }
 }
