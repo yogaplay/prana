@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:dio/dio.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:frontend/features/auth/services/auth_service.dart';
@@ -161,6 +163,39 @@ class ApiClient {
         data: body,
         queryParameters: queryParameters,
       );
+      return _processResponse(response);
+    } on DioException catch (e) {
+      throw _handleError(e);
+    }
+  }
+
+  Future<Map<String, dynamic>> postMultipart(
+    String path, {
+    required Map<String, dynamic> fields,
+    required Map<String, File> files,
+  }) async {
+    try {
+      final formData = FormData();
+
+      fields.forEach((key, value) {
+        formData.fields.add(MapEntry(key, value.toString()));
+      });
+
+      for (var entry in files.entries) {
+        final file = entry.value;
+        formData.files.add(
+          MapEntry(
+            entry.key,
+            await MultipartFile.fromFile(
+              file.path,
+              filename: file.path.split('/').last,
+            ),
+          ),
+        );
+      }
+
+      final response = await _dio.post(path, data: formData);
+
       return _processResponse(response);
     } on DioException catch (e) {
       throw _handleError(e);

@@ -14,6 +14,7 @@ dependencies:
   flutter_dotenv: ^5.2.1
   cupertino_icons: ^1.0.8
   table_calendar: ^3.2.0
+  flutter_svg: ^2.0.17
 
   kakao_flutter_sdk_user: ^1.9.7+3
   flutter_secure_storage: ^9.2.4
@@ -46,7 +47,7 @@ dependencies:
   camera: ^0.11.1
 
   just_audio: 0.9.46
-  
+
 flutter_native_splash:
   color: "#7ECECA"
   image: "assets/images/lotus-white.png"
