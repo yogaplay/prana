@@ -6,7 +6,8 @@ import 'package:video_player/video_player.dart';
 import 'dart:async';
 
 class TutorialView extends ConsumerStatefulWidget {
-  const TutorialView({super.key});
+  final int sequenceId;
+  const TutorialView({super.key, required this.sequenceId});
 
   @override
   ConsumerState<TutorialView> createState() => _TutorialViewState();
@@ -20,6 +21,9 @@ class _TutorialViewState extends ConsumerState<TutorialView> {
   @override
   void initState() {
     super.initState();
+
+    final currentIndex = ref.read(currentYogaIndexProvider);
+    print('튜토리얼 시작: 요가 동작 인덱스 $currentIndex');
 
     ref.read(learningStateProvider.notifier).state = LearningState.tutorial;
     _initializeController();
@@ -48,11 +52,19 @@ class _TutorialViewState extends ConsumerState<TutorialView> {
   }
 
   void _videoListener() {
+    if (_controller.value.position >= _controller.value.duration) {
+      final currentIndex = ref.read(currentYogaIndexProvider);
+      print('튜토리얼 완료: 요가 동작 인덱스 $currentIndex, 연습 모드로 전환');
+
+      if (ref.read(learningStateProvider) == LearningState.tutorial) {
+        ref.read(learningStateProvider.notifier).state = LearningState.preparing;
+      }
+    }
     setState(() {});
   }
 
   void _skipTutorial() {
-    ref.read(learningStateProvider.notifier).state = LearningState.practice;
+    ref.read(learningStateProvider.notifier).state = LearningState.preparing;
   }
 
   @override
@@ -87,7 +99,7 @@ class _TutorialViewState extends ConsumerState<TutorialView> {
                           ? _controller.value.position.inSeconds /
                               _controller.value.duration.inSeconds
                           : 0.0,
-                  backgroundColor: Colors.white.withOpacity(0.3),
+                  backgroundColor: Colors.black.withAlpha(179),
                   valueColor: const AlwaysStoppedAnimation<Color>(
                     AppColors.primary,
                   ),

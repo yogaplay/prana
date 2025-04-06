@@ -60,8 +60,7 @@ class FavoriteNotifier extends StateNotifier<AsyncValue<bool>> {
   final int sequenceId;
 
   FavoriteNotifier(this._favoriteService, this.sequenceId)
-    : super(const AsyncValue.loading()) {
-  }
+    : super(const AsyncValue.loading());
 
   void setInitialState(bool isFavorite) {
     state = AsyncValue.data(isFavorite);

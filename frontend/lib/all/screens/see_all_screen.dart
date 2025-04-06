@@ -1,11 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/widgets.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:frontend/all/models/see_all_item.dart';
 import 'package:frontend/all/providers/see_all_provider.dart';
-import 'package:frontend/all/services/see_all_service.dart';
-import 'package:frontend/features/search/models/yoga_search_result.dart';
-import 'package:frontend/features/search/services/search_service.dart';
 import 'package:frontend/widgets/yoga_tile.dart';
 
 class SeeAllScreen extends ConsumerWidget {
