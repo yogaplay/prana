@@ -173,8 +173,7 @@ class CountdownNotifier extends StateNotifier<int> {
   void _moveToNextYoga() {
     final sequenceProvider = _ref.read(selectedSequenceProvider);
     final currentIndex = _ref.read(currentYogaIndexProvider);
-
-    print('요가 동작 $currentIndex 완료, 다음 동작으로 이동 시도');
+    final skipAllTutorials = _ref.read(skipAllTutorialsProvider);
 
     if (sequenceProvider == null) return;
 
@@ -198,7 +197,16 @@ class CountdownNotifier extends StateNotifier<int> {
 
       // 인덱스 업데이트
       _ref.read(currentYogaIndexProvider.notifier).state = nextIndex;
-      _ref.read(learningStateProvider.notifier).state = LearningState.tutorial;
+
+      if (skipAllTutorials) {
+        _ref.read(learningStateProvider.notifier).state =
+            LearningState.practice;
+
+        startCountdown(sequenceProvider.yogaSequence[nextIndex].yogaTime); // 바로 타이머 설정
+      } else {
+        _ref.read(learningStateProvider.notifier).state =
+            LearningState.tutorial;
+      }
 
       // 요가 포즈 정보를 서버에 저장
       final learningService = _ref.read(learningServiceProvider);
