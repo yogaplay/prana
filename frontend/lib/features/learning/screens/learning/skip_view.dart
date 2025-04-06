@@ -120,7 +120,7 @@ class SkipView extends ConsumerWidget {
                             ref.read(skipAllTutorialsProvider.notifier).state =
                                 true;
                             ref.read(learningStateProvider.notifier).state =
-                                LearningState.practice;
+                                LearningState.preparing;
                           },
                           style: OutlinedButton.styleFrom(
                             foregroundColor: Colors.white,

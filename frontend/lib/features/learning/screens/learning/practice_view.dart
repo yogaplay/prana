@@ -190,16 +190,3 @@ class _PracticeViewState extends ConsumerState<PracticeView>
     );
   }
 }
-
-// 피드백 데이터를 담는 클래스
-class _FeedbackData {
-  final dynamic learningService;
-  final int userSequenceId;
-  final int yogaId;
-
-  _FeedbackData({
-    required this.learningService,
-    required this.userSequenceId,
-    required this.yogaId,
-  });
-}

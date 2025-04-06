@@ -17,7 +17,7 @@ final learningServiceProvider = Provider<LearningService>((ref) {
 // 유저 시퀀스 ID 관리
 final userSequenceIdProvider = StateProvider<int?>((ref) => null);
 
-enum LearningState { initial, tutorial, practice, completed }
+enum LearningState { initial, tutorial, preparing, practice, completed }
 
 // 현재 학습 상태 관리
 final learningStateProvider = StateProvider<LearningState>((ref) {

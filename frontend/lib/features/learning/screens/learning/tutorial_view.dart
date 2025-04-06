@@ -57,14 +57,14 @@ class _TutorialViewState extends ConsumerState<TutorialView> {
       print('튜토리얼 완료: 요가 동작 인덱스 $currentIndex, 연습 모드로 전환');
 
       if (ref.read(learningStateProvider) == LearningState.tutorial) {
-        ref.read(learningStateProvider.notifier).state = LearningState.practice;
+        ref.read(learningStateProvider.notifier).state = LearningState.preparing;
       }
     }
     setState(() {});
   }
 
   void _skipTutorial() {
-    ref.read(learningStateProvider.notifier).state = LearningState.practice;
+    ref.read(learningStateProvider.notifier).state = LearningState.preparing;
   }
 
   @override
