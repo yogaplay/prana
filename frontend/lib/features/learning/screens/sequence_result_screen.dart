@@ -25,7 +25,9 @@ class SequenceResultScreen extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final sequenceResultAsync = ref.watch(sequenceResultProvider((1, 1)));
+    final sequenceResultAsync = ref.watch(
+      sequenceResultProvider((userSequenceId, sequenceId)),
+    );
 
     return Scaffold(
       body: sequenceResultAsync.when(
@@ -106,6 +108,15 @@ class SequenceResultScreen extends ConsumerWidget {
                         imageUrl: p.image,
                         poseName: p.yogaName,
                         accuracy: p.accuracy,
+                        feedbacks:
+                            p.feedback
+                                .map(
+                                  (f) => PoseFeedbackItem(
+                                    feedback: f.feedback,
+                                    feedbackCnt: f.feedbackCnt,
+                                  ),
+                                )
+                                .toList(),
                       );
                     }).toList(),
               ),

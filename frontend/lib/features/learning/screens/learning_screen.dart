@@ -81,17 +81,22 @@ class _LearningScreenState extends ConsumerState<LearningScreen> {
 
         SystemChrome.setEnabledSystemUIMode(SystemUiMode.edgeToEdge);
 
+        final userSequenceId = ref.read(userSequenceIdProvider);
+        final sequenceId = widget.sequenceId;
+
         // 결과 페이지로 이동
-        if (mounted) {
-          context.pushNamed('tempResult').then((_) {
-            // 결과 페이지에서 돌아왔을 때 초기 상태로 리셋
-            if (mounted) {
-              ref.read(currentYogaIndexProvider.notifier).state = 0;
-              ref.read(learningStateProvider.notifier).state =
-                  LearningState.initial;
-              ref.read(isSequenceCompletedProvider.notifier).state = false;
-            }
-          });
+        if (userSequenceId != null && mounted) {
+          context
+              .pushNamed('sequenceResult', extra: (userSequenceId, sequenceId))
+              .then((_) {
+                // 결과 페이지에서 돌아왔을 때 초기 상태로 리셋
+                if (mounted) {
+                  ref.read(currentYogaIndexProvider.notifier).state = 0;
+                  ref.read(learningStateProvider.notifier).state =
+                      LearningState.initial;
+                  ref.read(isSequenceCompletedProvider.notifier).state = false;
+                }
+              });
         }
         ref.read(learningStateProvider.notifier).state = LearningState.initial;
       });

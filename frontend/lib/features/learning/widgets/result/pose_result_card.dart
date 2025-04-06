@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:frontend/constants/app_colors.dart';
 import 'package:frontend/features/learning/models/pose_result.dart';
+import 'package:frontend/features/learning/models/sequence_result_response.dart';
 
 final double centerX = 43.4;
 
@@ -21,24 +22,8 @@ class _PoseResultCardState extends State<PoseResultCard>
 
   final List<String> feedbackGroups = ['등', '코어', '팔', '다리'];
 
-  final List<Map<String, dynamic>> dummyFeedbacks = [
-    {'part': 'LEFT_SHOULDER', 'count': 1},
-    {'part': 'RIGHT_SHOULDER', 'count': 1},
-    {'part': 'ELBOW_LEFT', 'count': 1},
-    {'part': 'ELBOW_RIGHT', 'count': 1},
-    {'part': 'ARM_LEFT', 'count': 1},
-    {'part': 'ARM_RIGHT', 'count': 1},
-    {'part': 'HIP_LEFT', 'count': 1},
-    {'part': 'HIP_RIGHT', 'count': 1},
-    {'part': 'KNEE_LEFT', 'count': 1},
-    {'part': 'KNEE_RIGHT', 'count': 1},
-    {'part': 'LEG_LEFT', 'count': 1},
-    {'part': 'LEG_RIGHT', 'count': 1},
-  ];
-
   final Map<String, String> partNameMap = {
-    'LEFT_SHOULDER': '어깨',
-    'RIGHT_SHOULDER': '어깨',
+    'SHOULDER': '어깨',
     'ELBOW_LEFT': '왼쪽 팔꿈치',
     'ELBOW_RIGHT': '오른쪽 팔꿈치',
     'ARM_LEFT': '왼팔',
@@ -52,8 +37,7 @@ class _PoseResultCardState extends State<PoseResultCard>
   };
 
   final Map<String, String> feedbackMessageMap = {
-    'LEFT_SHOULDER': '자세가 불안정했습니다.',
-    'RIGHT_SHOULDER': '자세가 불안정했습니다.',
+    'SHOULDER': '자세가 불안정했습니다.',
     'ELBOW_LEFT': '팔의 위치가 흔들렸습니다.',
     'ELBOW_RIGHT': '팔의 위치가 흔들렸습니다.',
     'ARM_LEFT': '팔의 위치가 흔들렸습니다.',
@@ -82,8 +66,7 @@ class _PoseResultCardState extends State<PoseResultCard>
   };
 
   final Map<String, String> partGroupMap = {
-    'LEFT_SHOULDER': '등',
-    'RIGHT_SHOULDER': '등',
+    'SHOULDER': '등',
     'HIP_LEFT': '코어',
     'HIP_RIGHT': '코어',
     'ARM_LEFT': '팔',
@@ -96,14 +79,14 @@ class _PoseResultCardState extends State<PoseResultCard>
     'KNEE_RIGHT': '다리',
   };
 
-  late Map<String, List<Map<String, dynamic>>> groupedFeedbacks;
+  late Map<String, List<PoseFeedbackItem>> groupedFeedbacks;
 
   @override
   void initState() {
     super.initState();
     groupedFeedbacks = {'등': [], '코어': [], '팔': [], '다리': []};
-    for (final f in dummyFeedbacks) {
-      final group = partGroupMap[f['part']];
+    for (final f in widget.result.feedbacks) {
+      final group = partGroupMap[f.feedback];
       if (group != null) groupedFeedbacks[group]!.add(f);
     }
     _tabController = TabController(length: feedbackGroups.length, vsync: this);
@@ -188,30 +171,7 @@ class _PoseResultCardState extends State<PoseResultCard>
                             height: 200,
                             fit: BoxFit.cover,
                           ),
-                          ...dummyFeedbacks
-                              .where(
-                                (f) =>
-                                    partGroupMap[f['part']] ==
-                                    feedbackGroups[_currentTapIndex],
-                              )
-                              .map((f) {
-                                final offset = partOffsets[f['part']];
-                                if (offset == null) return SizedBox();
-                                return Positioned(
-                                  left: offset.dx - 8,
-                                  top: offset.dy - 8,
-                                  child: Container(
-                                    width: 16,
-                                    height: 16,
-                                    decoration: BoxDecoration(
-                                      color: AppColors.primary.withAlpha(
-                                        (0.3 * 255).toInt(),
-                                      ),
-                                      shape: BoxShape.circle,
-                                    ),
-                                  ),
-                                );
-                              }),
+                          ..._buildPositionedCircles(),
                         ],
                       ),
                       SizedBox(width: 16),
@@ -252,7 +212,7 @@ class _PoseResultCardState extends State<PoseResultCard>
                                               CrossAxisAlignment.start,
                                           children:
                                               groupItems.map((f) {
-                                                final partKey = f['part'];
+                                                final partKey = f.feedback;
                                                 final partName =
                                                     partNameMap[partKey] ??
                                                     partKey;
@@ -269,7 +229,7 @@ class _PoseResultCardState extends State<PoseResultCard>
                                                             .start,
                                                     children: [
                                                       Text(
-                                                        '$partName: ${f['count']}회',
+                                                        '$partName: ${f.feedbackCnt}회',
                                                         style: TextStyle(
                                                           fontWeight:
                                                               FontWeight.bold,
@@ -305,6 +265,40 @@ class _PoseResultCardState extends State<PoseResultCard>
             ),
           ],
         ],
+      ),
+    );
+  }
+
+  List<Widget> _buildPositionedCircles() {
+    final selectedGroup = feedbackGroups[_currentTapIndex];
+    final feedbacks = groupedFeedbacks[selectedGroup] ?? [];
+
+    return feedbacks.expand((f) {
+      if (f.feedback == 'SHOULDER') {
+        return ['LEFT_SHOULDER', 'RIGHT_SHOULDER'].map((side) {
+          final offset = partOffsets[side];
+          if (offset == null) return SizedBox();
+          return _buildDot(offset);
+        });
+      } else {
+        final offset = partOffsets[f.feedback];
+        if (offset == null) return [SizedBox()];
+        return [_buildDot(offset)];
+      }
+    }).toList();
+  }
+
+  Widget _buildDot(Offset offset) {
+    return Positioned(
+      left: offset.dx - 8,
+      top: offset.dy - 8,
+      child: Container(
+        width: 16,
+        height: 16,
+        decoration: BoxDecoration(
+          color: AppColors.primary.withAlpha((0.3 * 255).toInt()),
+          shape: BoxShape.circle,
+        ),
       ),
     );
   }

@@ -79,17 +79,33 @@ class RecommendedSequence {
   }
 }
 
+class PoseFeedbackItem {
+  final String feedback;
+  final int feedbackCnt;
+
+  PoseFeedbackItem({required this.feedback, required this.feedbackCnt});
+
+  factory PoseFeedbackItem.fromJson(Map<String, dynamic> json) {
+    return PoseFeedbackItem(
+      feedback: json['feedback'],
+      feedbackCnt: json['feedbackCnt'],
+    );
+  }
+}
+
 class PositionAccuracy {
   final int yogaId;
   final String yogaName;
   final String image;
   final int accuracy;
+  final List<PoseFeedbackItem> feedback;
 
   PositionAccuracy({
     required this.yogaId,
     required this.yogaName,
     required this.image,
     required this.accuracy,
+    required this.feedback,
   });
 
   factory PositionAccuracy.fromJson(Map<String, dynamic> json) {
@@ -98,6 +114,10 @@ class PositionAccuracy {
       yogaName: json['yogaName'],
       image: json['image'],
       accuracy: json['accuracy'],
+      feedback:
+          (json['feedback'] as List)
+              .map((e) => PoseFeedbackItem.fromJson(e))
+              .toList(),
     );
   }
 }
