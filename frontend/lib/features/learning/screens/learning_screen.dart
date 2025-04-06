@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:frontend/constants/app_colors.dart';
 import 'package:frontend/features/learning/providers/learning_providers.dart';
 import 'package:frontend/features/learning/providers/sequence_providers.dart';
 import 'package:frontend/features/learning/screens/learning/practice_view.dart';
+import 'package:frontend/features/learning/screens/learning/prepare_view.dart';
 import 'package:frontend/features/learning/screens/learning/skip_view.dart';
 import 'package:frontend/features/learning/screens/learning/tutorial_view.dart';
 import 'package:go_router/go_router.dart';
@@ -106,14 +108,27 @@ class _LearningScreenState extends ConsumerState<LearningScreen> {
               context: context,
               builder:
                   (context) => AlertDialog(
-                    title: const Text('세션 종료'),
-                    content: const Text('요가 세션을 종료하시겠습니까?'),
-                    actions: [
-                      TextButton(
-                        onPressed: () => Navigator.of(context).pop(false),
-                        child: const Text('아니오'),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                    backgroundColor: AppColors.boxWhite,
+                    title: Text(
+                      '확인',
+                      style: TextStyle(
+                        color: AppColors.blackText,
+                        fontWeight: FontWeight.bold,
+                        fontSize: 18,
                       ),
-                      TextButton(
+                      textAlign: TextAlign.center,
+                    ),
+                    content: Text(
+                      '지금 종료하시겠습니까?',
+                      style: TextStyle(color: AppColors.graytext, fontSize: 16),
+                      textAlign: TextAlign.center,
+                    ),
+                    actionsAlignment: MainAxisAlignment.center,
+                    actions: [
+                      ElevatedButton(
                         onPressed: () {
                           // 세션 상태 초기화
                           ref.read(currentYogaIndexProvider.notifier).state = 0;
@@ -127,7 +142,41 @@ class _LearningScreenState extends ConsumerState<LearningScreen> {
 
                           Navigator.of(context).pop(true);
                         },
-                        child: const Text('예'),
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: AppColors.primary,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(8),
+                          ),
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 20,
+                            vertical: 8,
+                          ),
+                        ),
+                        child: Text(
+                          '예',
+                          style: TextStyle(color: Colors.white, fontSize: 16),
+                        ),
+                      ),
+                      const SizedBox(width: 10),
+                      ElevatedButton(
+                        onPressed: () => Navigator.of(context).pop(false),
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: AppColors.lightGray,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(8),
+                          ),
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 20,
+                            vertical: 8,
+                          ),
+                        ),
+                        child: Text(
+                          '아니오',
+                          style: TextStyle(
+                            color: AppColors.blackText,
+                            fontSize: 16,
+                          ),
+                        ),
                       ),
                     ],
                   ),
