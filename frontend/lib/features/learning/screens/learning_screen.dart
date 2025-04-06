@@ -6,6 +6,7 @@ import 'package:frontend/features/learning/providers/sequence_providers.dart';
 import 'package:frontend/features/learning/screens/learning/practice_view.dart';
 import 'package:frontend/features/learning/screens/learning/skip_view.dart';
 import 'package:frontend/features/learning/screens/learning/tutorial_view.dart';
+import 'package:go_router/go_router.dart';
 
 class LearningScreen extends ConsumerStatefulWidget {
   final int sequenceId;
@@ -67,9 +68,33 @@ class _LearningScreenState extends ConsumerState<LearningScreen> {
   Widget build(BuildContext context) {
     final learningState = ref.watch(learningStateProvider);
 
+    // 모든 시퀀스 완료 시
     if (learningState == LearningState.completed) {
-      // 결과 리포트 화면 이동 추가해야됨
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        // 화면 방향을 세로로 변경
+        SystemChrome.setPreferredOrientations([
+          DeviceOrientation.portraitUp,
+          DeviceOrientation.portraitDown,
+        ]);
+
+        SystemChrome.setEnabledSystemUIMode(SystemUiMode.edgeToEdge);
+
+        // 결과 페이지로 이동
+        if (mounted) {
+          context.pushNamed('tempResult').then((_) {
+            // 결과 페이지에서 돌아왔을 때 초기 상태로 리셋
+            if (mounted) {
+              ref.read(currentYogaIndexProvider.notifier).state = 0;
+              ref.read(learningStateProvider.notifier).state =
+                  LearningState.initial;
+              ref.read(isSequenceCompletedProvider.notifier).state = false;
+            }
+          });
+        }
+        ref.read(learningStateProvider.notifier).state = LearningState.initial;
+      });
     }
+
     return PopScope(
       canPop: false,
       onPopInvokedWithResult: (didPop, result) async {

@@ -244,6 +244,7 @@ class CountdownNotifier extends StateNotifier<int> {
   void _completeSequence() {
     _timer?.cancel();
     _ref.read(isSequenceCompletedProvider.notifier).state = true;
+    _ref.read(learningStateProvider.notifier).state = LearningState.completed;
   }
 
   @override

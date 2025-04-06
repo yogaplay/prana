@@ -5,6 +5,7 @@ import 'package:frontend/core/providers/providers.dart';
 import 'package:frontend/features/auth/screens/onboarding_screen.dart';
 import 'package:frontend/features/auth/screens/signup_screen.dart';
 import 'package:frontend/features/home/screens/home_screen.dart';
+import 'package:frontend/features/learning/screens/learning/temp_result_page.dart';
 import 'package:frontend/features/learning/screens/sequence_result_screen.dart';
 import 'package:frontend/features/report/screens/report_screen.dart';
 import 'package:frontend/features/learning/screens/learning_screen.dart';
@@ -152,6 +153,11 @@ final routerProvider = Provider<GoRouter>((ref) {
           final sequenceId = int.parse(state.pathParameters['id'] ?? '1');
           return MaterialPage(child: LearningScreen(sequenceId: sequenceId));
         },
+      ),
+      GoRoute(
+        path: '/temp-result',
+        name: 'tempResult',
+        builder: (_, __) => const TempResultScreen(),
       ),
     ],
   );

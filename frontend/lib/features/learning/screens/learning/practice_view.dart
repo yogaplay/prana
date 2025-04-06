@@ -52,11 +52,6 @@ class _PracticeViewState extends ConsumerState<PracticeView>
     super.dispose();
   }
 
-  void _cancelTimers() {
-    _shortFeedbackTimer?.cancel();
-    _longFeedbackTimer?.cancel();
-  }
-
   @override
   void didChangeAppLifecycleState(AppLifecycleState state) {
     print('앱 생명주기 변경: $state');
@@ -223,7 +218,6 @@ class _PracticeViewState extends ConsumerState<PracticeView>
   Widget build(BuildContext context) {
     final sequence = ref.watch(selectedSequenceProvider);
     final currentIndex = ref.watch(currentYogaIndexProvider);
-    final isCompleted = ref.watch(isSequenceCompletedProvider);
 
     // 로딩 화면
     if (sequence == null) {
