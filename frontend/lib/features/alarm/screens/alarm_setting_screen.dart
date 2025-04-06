@@ -4,7 +4,6 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:frontend/constants/app_colors.dart';
 import 'package:frontend/core/providers/profile_providers.dart';
 import 'package:frontend/features/alarm/services/alarm_service.dart';
-import 'package:frontend/widgets/button.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class NotificationSettingsScreen extends ConsumerStatefulWidget {
@@ -401,6 +400,7 @@ class _NotificationSettingsScreenState
       onTap: () {
         setState(() {
           selectedDays[index] = !selectedDays[index];
+          _saveNotificationSettings(); // ✅ 설정 변경 후 저장
           _updateDailyNotifications(); // 요일 선택 변경 시 알림 갱신
         });
       },

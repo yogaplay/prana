@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:ui';
 
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:frontend/features/alarm/models/alarm_model.dart';
@@ -83,19 +84,33 @@ void callbackDispatcher() {
 
 Future<void> _saveNotificationAutomatically(Map<String, dynamic>? data) async {
   if (data == null) return;
+
   final notification = AlarmItem(
     title: data['title'] ?? '알림',
     message: data['message'] ?? '새 알림이 도착했습니다',
     date: DateTime.parse(data['date']),
+    isChecked: false,
   );
+
   final prefs = await SharedPreferences.getInstance();
-  List<AlarmItem> notifications = await loadNotifications();
+  final stored = prefs.getString('notifications');
+  List<AlarmItem> notifications =
+      stored != null
+          ? (jsonDecode(stored) as List)
+              .map((e) => AlarmItem.fromJson(e))
+              .toList()
+          : [];
 
   if (notifications.length >= 20) notifications.removeAt(0);
   notifications.add(notification);
 
-  // SharedPreferences에 저장
+  // 저장 후 즉시 reload() 호출
   await prefs.setString('notifications', jsonEncode(notifications));
+  // 포그라운드에 강제 업데이트 신호 전송
+  try {
+    final port = IsolateNameServer.lookupPortByName('alarm_port');
+    port?.send({'type': 'alarm_updated'});
+  } catch (_) {}
 }
 
 // 알림 보내기
@@ -199,16 +214,19 @@ void scheduleDailyNotification(
     await Workmanager().registerPeriodicTask(
       'daily_report_$day', // 고유한 태스크 ID
       'save_daily_notification_$day', // 태스크 이름
-      frequency: const Duration(hours: 24 * 7), // 1주 간격
-      flexInterval: const Duration(hours: 24 * 7), // 1주 간격
-      initialDelay: calculateInitialDelay, // 최초 실행 지연 시간
+      frequency: const Duration(hours: 24 * 7),
+      // 1주 간격
+      flexInterval: const Duration(hours: 24 * 7),
+      // 1주 간격
+      initialDelay: calculateInitialDelay,
+      // 최초 실행 지연 시간
       inputData: {
         // 저장할 데이터
         'title': '운동 알림',
         'message': '오늘의 운동을 시작해보세요.',
         'date': scheduleDate.toIso8601String(),
       },
-      existingWorkPolicy:  ExistingWorkPolicy.replace
+      existingWorkPolicy: ExistingWorkPolicy.replace,
     );
 
     await flutterLocalNotificationsPlugin.zonedSchedule(

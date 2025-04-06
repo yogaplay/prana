@@ -11,6 +11,20 @@ class AlarmItem {
     this.isChecked = false,
   });
 
+  AlarmItem copyWith({
+    String? title,
+    String? message,
+    DateTime? date,
+    bool? isChecked,
+  }) {
+    return AlarmItem(
+      title: title ?? this.title,
+      message: message ?? this.message,
+      date: date ?? this.date,
+      isChecked: isChecked ?? this.isChecked,
+    );
+  }
+
   // JSON 변환
   Map<String, dynamic> toJson() => {
     'title': title,

@@ -1,46 +1,16 @@
-import 'dart:convert';
-
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:frontend/features/alarm/models/alarm_model.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:frontend/features/alarm/providers/alarm_provider.dart'; // 새 provider import
 import 'package:frontend/features/alarm/screens/alarm_screen.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 
-class AlarmIconButton extends StatefulWidget {
+class AlarmIconButton extends ConsumerWidget {
   const AlarmIconButton({super.key});
 
   @override
-  State<AlarmIconButton> createState() => _AlarmIconButtonState();
-}
+  Widget build(BuildContext context, WidgetRef ref) {
+    final alarms = ref.watch(alarmProvider); // alarmProvider로 변경
+    final hasUnchecked = alarms.any((alarm) => !alarm.isChecked);
 
-class _AlarmIconButtonState extends State<AlarmIconButton> {
-  bool hasUncheckedAlarms = false;
-
-  @override
-  void initState() {
-    super.initState();
-    _checkUnreadAlarms();
-  }
-
-  Future<void> _checkUnreadAlarms() async {
-    final prefs = await SharedPreferences.getInstance();
-    await prefs.reload();
-    final storedNotifications = prefs.getString('notifications');
-
-    if (storedNotifications != null) {
-      List<dynamic> decodedList = jsonDecode(storedNotifications);
-      List<AlarmItem> notifications =
-          decodedList.map((item) => AlarmItem.fromJson(item)).toList();
-
-      // 하나라도 isChecked == false이면 빨간 점 표시
-      setState(() {
-        hasUncheckedAlarms = notifications.any((alarm) => !alarm.isChecked);
-      });
-    }
-  }
-
-  @override
-  Widget build(BuildContext context) {
     return Stack(
       children: [
         IconButton(
@@ -48,28 +18,36 @@ class _AlarmIconButtonState extends State<AlarmIconButton> {
             Icons.notifications_none_outlined,
             color: Colors.black,
           ),
-          onPressed: () async {
-            await Navigator.push(
-              context,
-              CupertinoPageRoute(builder: (context) => const AlarmScreen()),
-            );
-            _checkUnreadAlarms(); // 알람 화면에서 돌아왔을 때 다시 확인
-          },
+          onPressed: () => _navigateToAlarmScreen(context, ref),
         ),
-        if (hasUncheckedAlarms)
+        if (hasUnchecked)
           Positioned(
             right: 12,
             top: 12,
-            child: Container(
-              width: 5,
-              height: 5,
-              decoration: const BoxDecoration(
-                color: Colors.red,
-                shape: BoxShape.circle,
+            child: AnimatedScale(
+              scale: hasUnchecked ? 1.0 : 0.5,
+              duration: const Duration(milliseconds: 200),
+              child: Container(
+                width: 5,
+                height: 5,
+                decoration: const BoxDecoration(
+                  color: Colors.red,
+                  shape: BoxShape.circle,
+                ),
               ),
             ),
           ),
       ],
     );
+  }
+
+  void _navigateToAlarmScreen(BuildContext context, WidgetRef ref) async {
+    await Navigator.push(
+      context,
+      MaterialPageRoute(builder: (_) => const AlarmScreen()),
+    );
+
+    // 화면 복귀 시 알람 상태 강제 갱신
+    ref.read(alarmProvider.notifier).loadAlarms();
   }
 }
