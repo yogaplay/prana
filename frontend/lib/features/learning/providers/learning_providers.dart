@@ -34,6 +34,8 @@ final orientationProvider = StateProvider<List<DeviceOrientation>>((ref) {
   return [DeviceOrientation.portraitUp, DeviceOrientation.portraitDown];
 });
 
+final prepareCountdownProvider = StateProvider.autoDispose<int>((ref) => 5);
+
 // 현재 요가 인덱스 관리
 final currentYogaIndexProvider = StateProvider<int>((ref) => 0);
 
@@ -202,7 +204,9 @@ class CountdownNotifier extends StateNotifier<int> {
         _ref.read(learningStateProvider.notifier).state =
             LearningState.practice;
 
-        startCountdown(sequenceProvider.yogaSequence[nextIndex].yogaTime); // 바로 타이머 설정
+        startCountdown(
+          sequenceProvider.yogaSequence[nextIndex].yogaTime,
+        ); // 바로 타이머 설정
       } else {
         _ref.read(learningStateProvider.notifier).state =
             LearningState.tutorial;

@@ -12,19 +12,23 @@ class FeedbackWidget extends StatelessWidget {
       return const SizedBox.shrink();
     }
 
-    return Container(
-      padding: const EdgeInsets.all(12),
-      decoration: BoxDecoration(
-        color:
-            isSuccess!
-                ? AppColors.primary.withOpacity(0.8)
-                : Colors.red.withOpacity(0.8),
-        shape: BoxShape.circle,
-      ),
-      child: Icon(
-        isSuccess! ? Icons.check : Icons.priority_high,
-        color: Colors.white,
-        size: 30,
+    return Positioned(
+      top: 40,
+      left: 40,
+      child: Container(
+        padding: const EdgeInsets.all(12),
+        decoration: BoxDecoration(
+          color:
+              isSuccess!
+                  ? AppColors.primary.withAlpha(180)
+                  : Colors.red.withAlpha(180),
+          shape: BoxShape.circle,
+        ),
+        child: Icon(
+          isSuccess! ? Icons.check : Icons.priority_high,
+          color: Colors.white,
+          size: 30,
+        ),
       ),
     );
   }

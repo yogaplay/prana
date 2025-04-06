@@ -193,6 +193,8 @@ class _LearningScreenState extends ConsumerState<LearningScreen> {
             if (learningState == LearningState.initial) const SkipView(),
             if (learningState == LearningState.tutorial)
               TutorialView(sequenceId: widget.sequenceId),
+            if (learningState == LearningState.preparing)
+              PrepareView(sequenceId: widget.sequenceId),
             if (learningState == LearningState.practice)
               PracticeView(sequenceId: widget.sequenceId),
           ],

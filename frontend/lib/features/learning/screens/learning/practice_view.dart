@@ -178,13 +178,11 @@ class _PracticeViewState extends ConsumerState<PracticeView>
           // 요가 포즈 가이드 (오른쪽 상단)
           PoseGuideWidget(sequence: sequence, currentIndex: currentIndex),
 
+          // 오른쪽 하단 타이머
           const TimerWidget(),
 
-          Positioned(
-            top: 20,
-            left: 20,
-            child: FeedbackWidget(isSuccess: _isSuccessfulPose),
-          ),
+          // 왼쪽 상단 피드백
+          FeedbackWidget(isSuccess: _isSuccessfulPose),
         ],
       ),
     );

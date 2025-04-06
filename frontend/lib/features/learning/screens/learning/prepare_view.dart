@@ -1,19 +1,24 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:frontend/constants/app_colors.dart';
+import 'package:frontend/features/learning/providers/learning_providers.dart';
+import 'package:frontend/features/learning/providers/sequence_providers.dart';
+import 'package:frontend/features/learning/widgets/learning/camera_preview_widget.dart';
+import 'package:frontend/features/learning/widgets/learning/pose_guide_widget.dart';
 
 class PrepareView extends ConsumerStatefulWidget {
-  final VoidCallback onPrepareComplete;
+  final int sequenceId;
 
-  const PrepareView({Key? key, required this.onPrepareComplete})
-    : super(key: key);
+  const PrepareView({Key? key, required this.sequenceId}) : super(key: key);
 
   @override
   ConsumerState<PrepareView> createState() => _PrepareViewState();
 }
 
 class _PrepareViewState extends ConsumerState<PrepareView> {
-  int _countdown = 5;
+  Timer? _timer;
 
   @override
   void initState() {
@@ -23,72 +28,92 @@ class _PrepareViewState extends ConsumerState<PrepareView> {
 
   @override
   void dispose() {
+    _timer?.cancel();
     super.dispose();
   }
 
   void _startCountdown() {
-    Future.delayed(const Duration(seconds: 1), () {
-      if (!mounted) return;
+    // 카운트다운 초기화
+    ref.read(prepareCountdownProvider.notifier).state = 5;
 
-      setState(() {
-        _countdown--;
-      });
+    _timer = Timer.periodic(const Duration(seconds: 1), (timer) {
+      final currentCount = ref.read(prepareCountdownProvider);
 
+      if (currentCount <= 1) {
+        // 카운트다운 종료, 타이머 취소
+        timer.cancel();
 
-      if (_countdown > 0) {
-        // 아직 카운트다운 중이면 재귀 호출
-        _startCountdown();
+        // 학습 상태를 practice로 변경
+        ref.read(learningStateProvider.notifier).state = LearningState.practice;
       } else {
-        // 준비 시간 종료, 실습 모드로 전환
-        widget.onPrepareComplete();
+        // 카운트다운 감소
+        ref.read(prepareCountdownProvider.notifier).state = currentCount - 1;
       }
     });
   }
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      color: Colors.black.withOpacity(0.6), // 반투명 어두운 오버레이
-      child: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Text(
-              '준비하세요',
-              style: TextStyle(
-                color: Colors.white,
-                fontSize: 32,
-                fontWeight: FontWeight.bold,
-              ),
-            ),
-            const SizedBox(height: 30),
-            Container(
-              width: 150,
-              height: 150,
-              decoration: BoxDecoration(
-                color: AppColors.primary,
-                shape: BoxShape.circle,
-                boxShadow: [
-                  BoxShadow(
-                    color: Colors.black.withOpacity(0.3),
-                    blurRadius: 15,
-                    spreadRadius: 5,
+    final countdown = ref.watch(prepareCountdownProvider);
+    final sequence = ref.watch(selectedSequenceProvider);
+    final currentIndex = ref.watch(currentYogaIndexProvider);
+
+    return Scaffold(
+      body: Stack(
+        children: [
+          // 카메라 미리보기
+          const CameraPreviewWidget(),
+
+          // 요가 포즈 가이드 (오른쪽 상단)
+          if (sequence != null)
+            PoseGuideWidget(sequence: sequence, currentIndex: currentIndex),
+
+          // 준비 단계 오버레이
+          Container(
+            color: Colors.black.withOpacity(0.6), // 반투명 어두운 오버레이
+            child: Center(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  const Text(
+                    '자세를 준비하세요',
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontSize: 32,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                  const SizedBox(height: 30),
+                  Container(
+                    width: 150,
+                    height: 150,
+                    decoration: BoxDecoration(
+                      color: AppColors.primary,
+                      shape: BoxShape.circle,
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.black.withOpacity(0.3),
+                          blurRadius: 15,
+                          spreadRadius: 5,
+                        ),
+                      ],
+                    ),
+                    child: Center(
+                      child: Text(
+                        '$countdown',
+                        style: const TextStyle(
+                          color: Colors.white,
+                          fontSize: 80,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                    ),
                   ),
                 ],
               ),
-              child: Center(
-                child: Text(
-                  '$_countdown',
-                  style: TextStyle(
-                    color: Colors.white,
-                    fontSize: 80,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-              ),
             ),
-          ],
-        ),
+          ),
+        ],
       ),
     );
   }

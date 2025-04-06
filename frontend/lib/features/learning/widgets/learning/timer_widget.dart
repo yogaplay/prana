@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import 'package:frontend/features/learning/providers/learning_providers.dart';
 import 'package:frontend/features/learning/providers/sequence_providers.dart';
 
@@ -16,18 +17,40 @@ class TimerWidget extends ConsumerWidget {
     return Positioned(
       bottom: 40,
       left: 40,
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            _formatTime(seconds),
-            style: const TextStyle(
-              fontSize: 48,
-              fontWeight: FontWeight.bold,
-              color: Colors.white,
+      child: SizedBox(
+        width: 150,
+        height: 150,
+        child: Stack(
+          children: [
+            Positioned(
+              left: 0,
+              right: 0,
+              top: 0,
+              bottom: 0,
+              child: SvgPicture.asset(
+                'assets/images/timer_frame.svg',
+                width: 120,
+                height: 120,
+              ),
             ),
-          ),
-        ],
+
+            Positioned(
+              left: 0,
+              right: 0,
+              top: 50,
+              child: Center(
+                child: Text(
+                  _formatTime(seconds),
+                  style: const TextStyle(
+                    fontSize: 50,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.white,
+                  ),
+                ),
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }
