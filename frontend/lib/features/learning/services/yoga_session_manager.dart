@@ -1,4 +1,3 @@
-// lib/features/learning/services/yoga_session_manager.dart
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:frontend/features/learning/providers/learning_providers.dart';
 import 'package:frontend/features/learning/providers/sequence_providers.dart';

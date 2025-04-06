@@ -1,12 +1,13 @@
 import 'dart:async';
-import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:frontend/constants/app_colors.dart';
 import 'package:frontend/features/learning/providers/learning_providers.dart';
 import 'package:frontend/features/learning/providers/sequence_providers.dart';
+import 'package:frontend/features/learning/services/feedback_service.dart';
 import 'package:frontend/features/learning/widgets/learning/camera_preview_widget.dart';
+import 'package:frontend/features/learning/widgets/learning/feedback_widget.dart';
 import 'package:frontend/features/learning/widgets/learning/pose_guide_widget.dart';
 import 'package:frontend/features/learning/widgets/learning/timer_widget.dart';
 
@@ -20,14 +21,19 @@ class PracticeView extends ConsumerStatefulWidget {
 
 class _PracticeViewState extends ConsumerState<PracticeView>
     with WidgetsBindingObserver {
-  // 상태 변수
-  Timer? _shortFeedbackTimer;
-  Timer? _longFeedbackTimer;
+  late FeedbackManager _feedbackManager;
+  bool? _isSuccessfulPose;
 
   @override
   void initState() {
     super.initState();
     WidgetsBinding.instance.addObserver(this);
+
+    _feedbackManager = FeedbackManager(ref, (isSuccess) {
+      setState(() {
+        _isSuccessfulPose = isSuccess;
+      });
+    });
 
     final currentIndex = ref.read(currentYogaIndexProvider);
     print('연습 시작: 요가 동작 인덱스 $currentIndex');
@@ -37,8 +43,8 @@ class _PracticeViewState extends ConsumerState<PracticeView>
   @override
   void dispose() {
     print('PracticeView dispose 시작');
-    _shortFeedbackTimer?.cancel();
-    _longFeedbackTimer?.cancel();
+
+    _feedbackManager.dispose();
 
     // 카메라 관련 Provider 상태 초기화
     Future.microtask(() {
@@ -59,14 +65,13 @@ class _PracticeViewState extends ConsumerState<PracticeView>
     if (state == AppLifecycleState.inactive ||
         state == AppLifecycleState.paused) {
       // 앱이 백그라운드로 갈 때 타이머 및 카메라 정리
-      _shortFeedbackTimer?.cancel();
-      _longFeedbackTimer?.cancel();
+      _feedbackManager.pauseFeedback();
       ref.invalidate(cameraControllerProvider);
     } else if (state == AppLifecycleState.resumed) {
       // 앱이 다시 포그라운드로 왔을 때
       if (mounted) {
         Future.microtask(() {
-          _startFeedbackTimers();
+          _feedbackManager.resumeFeedback();
         });
       }
     }
@@ -115,7 +120,7 @@ class _PracticeViewState extends ConsumerState<PracticeView>
         }
 
         // 피드백 타이머 시작
-        _startFeedbackTimers();
+        _feedbackManager.startFeedback();
         print('피드백 타이머 시작 완료');
       } else {
         print('시퀀스 정보가 없거나 요가 시퀀스가 비어 있습니다.');
@@ -125,100 +130,22 @@ class _PracticeViewState extends ConsumerState<PracticeView>
     }
   }
 
-  // 피드백 타이머 시작
-  void _startFeedbackTimers() {
-    _shortFeedbackTimer = Timer.periodic(
-      const Duration(milliseconds: 500),
-      (_) => _getShortFeedback(),
-    );
-
-    _longFeedbackTimer = Timer.periodic(
-      const Duration(seconds: 3),
-      (_) => _getLongFeedback(),
-    );
-  }
-
-  // 짧은 피드백 가져오기
-  Future<void> _getShortFeedback() async {
-    if (!mounted) return;
-
-    try {
-      final feedbackData = _getFeedbackData();
-      if (feedbackData == null) return;
-
-      final imageFile = await _captureImage();
-      if (imageFile == null) return;
-
-      await feedbackData.learningService.sendShortFeedback(
-        yogaId: feedbackData.yogaId,
-        userSequenceId: feedbackData.userSequenceId,
-        imageFile: imageFile,
-      );
-    } catch (e) {
-      print('에러 발생!! Short Feedback ERROR: $e');
-    }
-  }
-
-  // 긴 피드백 가져오기
-  Future<void> _getLongFeedback() async {
-    try {
-      if (!mounted) return;
-
-      final feedbackData = _getFeedbackData();
-      if (feedbackData == null) return;
-
-      final imageFile = await _captureImage();
-      if (imageFile == null) return;
-
-      final feedback = await feedbackData.learningService.sendLongFeedback(
-        yogaId: feedbackData.yogaId,
-        userSequenceId: feedbackData.userSequenceId,
-        imageFile: imageFile,
-      );
-
-      if (feedback.isNotEmpty) {
-        print("피드백: $feedback");
-      }
-    } catch (e) {
-      print('에러 발생!! Long Feedback ERROR: $e');
-    }
-  }
-
-  // 피드백 데이터 가져오기 로직 분리
-  _FeedbackData? _getFeedbackData() {
-    final learningService = ref.read(learningServiceProvider);
-    final userSequenceId = ref.read(userSequenceIdProvider);
-    final sequence = ref.read(selectedSequenceProvider);
-    final currentIndex = ref.read(currentYogaIndexProvider);
-
-    if (userSequenceId == null || sequence == null) return null;
-    if (currentIndex >= sequence.yogaSequence.length) return null;
-
-    final yogaId = sequence.yogaSequence[currentIndex].yogaId;
-
-    return _FeedbackData(
-      learningService: learningService,
-      userSequenceId: userSequenceId,
-      yogaId: yogaId,
-    );
-  }
-
-  // 이미지 캡처
-  Future<File?> _captureImage() async {
-    try {
-      final captureFunction = ref.read(captureImageProvider);
-      return await captureFunction();
-    } catch (e) {
-      print('카메라 캡처 오류: $e');
-      return null;
-    }
+  void _cancelTimers() {
+    _feedbackManager.pauseFeedback();
   }
 
   @override
   Widget build(BuildContext context) {
     final sequence = ref.watch(selectedSequenceProvider);
     final currentIndex = ref.watch(currentYogaIndexProvider);
+    final isCompleted = ref.watch(isSequenceCompletedProvider);
 
+    // 시퀀스 완료
+    if (isCompleted) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        _cancelTimers();
+      });
+    }
     // 로딩 화면
     if (sequence == null) {
       return _buildLoadingScreen();
@@ -234,32 +161,34 @@ class _PracticeViewState extends ConsumerState<PracticeView>
       body: Center(
         child: CircularProgressIndicator(
           color: AppColors.primary,
-          backgroundColor: AppColors.blackText,
+          backgroundColor: Colors.black,
         ),
       ),
     );
   }
-}
 
-// 연습 화면
-Widget _buildPracticeScreen(dynamic sequence, int currentIndex) {
-  return Scaffold(
-    body: Stack(
-      children: [
-        // 카메라 미리보기
-        const CameraPreviewWidget(),
+  // 연습 화면
+  Widget _buildPracticeScreen(dynamic sequence, int currentIndex) {
+    return Scaffold(
+      body: Stack(
+        children: [
+          // 카메라 미리보기
+          const CameraPreviewWidget(),
 
-        // 요가 포즈 가이드 (오른쪽 상단)
-        PoseGuideWidget(
-          sequence: sequence,
-          currentIndex: currentIndex,
-          // UI 수정: 이미지 크기 축소 및 radius 줄임
-        ),
+          // 요가 포즈 가이드 (오른쪽 상단)
+          PoseGuideWidget(sequence: sequence, currentIndex: currentIndex),
 
-        const TimerWidget(),
-      ],
-    ),
-  );
+          const TimerWidget(),
+
+          Positioned(
+            top: 20,
+            left: 20,
+            child: FeedbackWidget(isSuccess: _isSuccessfulPose),
+          ),
+        ],
+      ),
+    );
+  }
 }
 
 // 피드백 데이터를 담는 클래스

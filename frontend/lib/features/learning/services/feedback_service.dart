@@ -1,4 +1,3 @@
-// lib/features/learning/services/feedback_service.dart
 import 'dart:async';
 import 'dart:io';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -24,7 +23,9 @@ class FeedbackManager {
   Timer? _shortFeedbackTimer;
   Timer? _longFeedbackTimer;
 
-  FeedbackManager(this._ref);
+  final Function(bool?)? onFeedbackStatusChanged;
+
+  FeedbackManager(this._ref, this.onFeedbackStatusChanged);
 
   /// 피드백 타이머 시작
   void startFeedback() {
@@ -67,11 +68,14 @@ class FeedbackManager {
       final imageFile = await _captureImage();
       if (imageFile == null) return;
 
-      await feedbackData.learningService.sendShortFeedback(
+      final response = await feedbackData.learningService.sendShortFeedback(
         yogaId: feedbackData.yogaId,
         userSequenceId: feedbackData.userSequenceId,
         imageFile: imageFile,
       );
+
+      final isSuccess = response == 'success';
+      onFeedbackStatusChanged?.call(isSuccess);
     } catch (e) {
       print('에러 발생!! Short Feedback ERROR: $e');
     }
