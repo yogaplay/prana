@@ -21,7 +21,7 @@ public interface UserSequenceRepository extends JpaRepository<UserSequence, Inte
 
 
     @Query("SELECT new com.prana.backend.user_sequence.repository.dto.DailySequenceRepositoryDTO("
-            + "us.id, s.name, CONCAT(us.resultStatus, ''), us.lastPoint, s.image, s.yogaCount) "
+            + "us.id, s.id, s.name, CONCAT(us.resultStatus, ''), us.lastPoint, s.image, s.yogaCount) "
             + "FROM UserSequence us "
             + "JOIN us.sequence s "
             + "WHERE us.user.id = :userId "

@@ -47,6 +47,7 @@ public class CalendarService {
             result.add(DailySequenceResponseDTO
                     .builder()
                     .userSequenceId(dto.getUserSequenceId())
+                    .sequenceId(dto.getSequenceId())
                     .sequenceName(dto.getSequenceName())
                     .resultStatus(dto.getResultStatus())
                     .percent(percent)

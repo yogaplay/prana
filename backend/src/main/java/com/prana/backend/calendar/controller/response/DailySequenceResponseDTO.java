@@ -7,6 +7,7 @@ import lombok.*;
 @AllArgsConstructor
 public class DailySequenceResponseDTO {
     private int userSequenceId;
+    private int sequenceId;
     private String sequenceName;
     private String resultStatus;
     private int percent;
