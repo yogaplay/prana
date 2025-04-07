@@ -149,93 +149,105 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
   }
 
   Widget _buildRecentActivity(List<RecentItem> list, BuildContext context) {
-    return Column(
-      children:
-          list.map((activity) {
-            return InkWell(
-              onTap: () {
-                context.push('/sequence/${activity.sequenceId}');
-              },
-              child: ListTile(
-                leading: ClipRRect(
-                  borderRadius: BorderRadius.circular(8),
-                  child: Image.network(
-                    activity.image,
-                    width: 50,
-                    height: 50,
-                    fit: BoxFit.cover,
-                  ),
-                ),
-                title: Text(
-                  activity.sequenceName,
+    return ListView.builder(
+      shrinkWrap: true,
+      physics: const NeverScrollableScrollPhysics(), // 외부 스크롤뷰와 충돌 방지
+      itemCount: list.length,
+      itemBuilder: (context, index) {
+        final activity = list[index];
+        return InkWell(
+          onTap: () {
+            context.push('/sequence/${activity.sequenceId}');
+          },
+          child: ListTile(
+            leading: ClipRRect(
+              borderRadius: BorderRadius.circular(8),
+              child: Image.network(
+                activity.image,
+                width: 50,
+                height: 50,
+                fit: BoxFit.cover,
+              ),
+            ),
+            title: Text(
+              activity.sequenceName,
+              style: const TextStyle(
+                fontFamily: 'Pretendard',
+                fontSize: 16,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+            subtitle: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  _formatTimeAgo(activity.updatedAt),
                   style: const TextStyle(
                     fontFamily: 'Pretendard',
-                    fontSize: 16,
-                    fontWeight: FontWeight.bold,
+                    fontSize: 14,
                   ),
                 ),
-                subtitle: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      _formatTimeAgo(activity.updatedAt),
-                      style: const TextStyle(
-                        fontFamily: 'Pretendard',
-                        fontSize: 14,
-                      ),
-                    ),
-                    const SizedBox(height: 4),
-                    LinearProgressIndicator(
-                      value: activity.percent / 100,
-                      color: const Color(0xff7ECECA),
-                      backgroundColor: const Color(0xffE8FAF1),
-                    ),
-                  ],
+                const SizedBox(height: 4),
+                LinearProgressIndicator(
+                  value: activity.percent / 100,
+                  color: const Color(0xff7ECECA),
+                  backgroundColor: const Color(0xffE8FAF1),
                 ),
-              ),
-            );
-          }).toList(),
+              ],
+            ),
+          ),
+        );
+      },
     );
   }
 
   Widget _buildFavoriteWorkout(List<StarItem> list, BuildContext context) {
-    return Column(
-      children:
-          list.map((item) {
-            return InkWell(
-              onTap: () {
-                context.push('/sequence/${item.sequenceId}');
-              },
-              child: ListTile(
-                leading: ClipRRect(
-                  borderRadius: BorderRadius.circular(8),
-                  child:
-                      item.image != null
-                          ? Image.network(
-                            item.image!,
-                            width: 50,
-                            height: 50,
-                            fit: BoxFit.cover,
-                          )
-                          : const Icon(Icons.image_not_supported),
+    return ListView.builder(
+      shrinkWrap: true,
+      physics: const NeverScrollableScrollPhysics(),
+      itemCount: list.length,
+      itemBuilder: (context, index) {
+        final item = list[index];
+        return InkWell(
+          onTap: () {
+            context.push('/sequence/${item.sequenceId}');
+          },
+          child: ListTile(
+            leading: ClipRRect(
+              borderRadius: BorderRadius.circular(8),
+              child: item.image != null
+                  ? Image.network(
+                      item.image!,
+                      width: 50,
+                      height: 50,
+                      fit: BoxFit.cover,
+                    )
+                  : const Icon(Icons.image_not_supported),
+            ),
+            title: SingleChildScrollView(
+              scrollDirection: Axis.horizontal,
+              child: Text(
+                item.sequenceName,
+                style: const TextStyle(
+                  fontFamily: 'Pretendard',
+                  fontSize: 16,
+                  fontWeight: FontWeight.bold,
                 ),
-                title: Text(
-                  item.sequenceName,
-                  style: const TextStyle(
-                    fontFamily: 'Pretendard',
-                    fontSize: 16,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-                subtitle: Wrap(
-                  children: item.tagList.map((tag) => _buildTag(tag)).toList(),
-                ),
-                trailing: const Icon(Icons.star, color: Color(0xff7ECECA)),
               ),
-            );
-          }).toList(),
+            ),
+            subtitle: SingleChildScrollView(
+              scrollDirection: Axis.horizontal,
+              child: Row(
+                children: item.tagList.map((tag) => _buildTag(tag)).toList(),
+              ),
+            ),
+            trailing: const Icon(Icons.star, color: Color(0xff7ECECA)),
+          ),
+        );
+      },
     );
   }
+
 
   Widget _buildSectionWithSeeAll(
     String title,
@@ -246,7 +258,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Padding(
-          padding: const EdgeInsets.only(top: 16, bottom: 8),
+          padding: const EdgeInsets.only(top: 32, bottom: 16),
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
@@ -437,11 +449,14 @@ class _DetailPageState extends ConsumerState<DetailPage> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(
-                    item.sequenceName,
-                    style: const TextStyle(
-                      fontSize: 16,
-                      fontWeight: FontWeight.bold,
+                  SingleChildScrollView(
+                    scrollDirection: Axis.horizontal,
+                    child: Text(
+                      item.sequenceName,
+                      style: const TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.bold,
+                      ),
                     ),
                   ),
                   const SizedBox(height: 4),
@@ -508,40 +523,40 @@ class _DetailPageState extends ConsumerState<DetailPage> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(
-                    item.sequenceName,
-                    style: const TextStyle(
-                      fontSize: 16,
-                      fontWeight: FontWeight.bold,
+                  SingleChildScrollView(
+                    scrollDirection: Axis.horizontal,
+                    child: Text(
+                      item.sequenceName,
+                      style: const TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.bold,
+                      ),
                     ),
                   ),
                   const SizedBox(height: 8),
-                  Wrap(
-                    spacing: 8,
-                    runSpacing: 4,
-                    children:
-                        item.tagList
-                            .map<Widget>(
-                              (tag) => Container(
-                                padding: const EdgeInsets.symmetric(
-                                  horizontal: 8,
-                                  vertical: 4,
-                                ),
-                                decoration: BoxDecoration(
-                                  color: const Color(0xffE8FAF1),
-                                  borderRadius: BorderRadius.circular(12),
-                                ),
-                                child: Text(
-                                  tag,
-                                  style: const TextStyle(fontSize: 12),
-                                ),
-                              ),
-                            )
-                            .toList(),
+                  SingleChildScrollView(
+                    scrollDirection: Axis.horizontal,
+                    child: Row(
+                      children: item.tagList.map<Widget>(
+                        (tag) => Container(
+                          margin: const EdgeInsets.only(right: 8),
+                          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                          decoration: BoxDecoration(
+                            color: const Color(0xffE8FAF1),
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                          child: Text(
+                            tag,
+                            style: const TextStyle(fontSize: 12),
+                          ),
+                        ),
+                      ).toList(),
+                    ),
                   ),
                 ],
               ),
             ),
+
             const SizedBox(width: 8),
             IconButton(
               icon: Icon(
