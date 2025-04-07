@@ -1,6 +1,5 @@
 import 'dart:async';
 import 'dart:io';
-import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:frontend/features/learning/providers/learning_providers.dart';
 import 'package:frontend/features/learning/providers/sequence_providers.dart';
@@ -25,7 +24,6 @@ class FeedbackManager {
   final WidgetRef _ref;
   Timer? _shortFeedbackTimer;
   Timer? _longFeedbackTimer;
-  bool _isDisposed = false;
 
   final Function(bool?)? onFeedbackStatusChanged;
 
@@ -33,8 +31,6 @@ class FeedbackManager {
 
   /// 피드백 타이머 시작
   void startFeedback() {
-    if (_isDisposed) return;
-
     _shortFeedbackTimer = Timer.periodic(
       const Duration(milliseconds: 500),
       (_) => _getShortFeedback(),
@@ -56,22 +52,17 @@ class FeedbackManager {
 
   /// 피드백 재개
   void resumeFeedback() {
-    if (_isDisposed) return;
     startFeedback();
   }
 
   /// 리소스 해제
   void dispose() {
-    _isDisposed = true;
     _shortFeedbackTimer?.cancel();
     _longFeedbackTimer?.cancel();
-    print('FeedbackManager 리소스 해제 완료');
   }
 
   /// 짧은 피드백 가져오기
   Future<void> _getShortFeedback() async {
-    if (_isDisposed) return;
-
     try {
       final feedbackData = _getFeedbackData();
       if (feedbackData == null) return;
@@ -86,15 +77,7 @@ class FeedbackManager {
       );
 
       final isSuccess = response == 'success';
-
-      if (!_isDisposed && onFeedbackStatusChanged != null) {
-        // 메인 스레드에서 콜백 실행
-        WidgetsBinding.instance.addPostFrameCallback((_) {
-          if (!_isDisposed) {
-            onFeedbackStatusChanged?.call(isSuccess);
-          }
-        });
-      }
+      onFeedbackStatusChanged?.call(isSuccess);
     } catch (e) {
       print('에러 발생!! Short Feedback ERROR: $e');
     }
@@ -102,8 +85,6 @@ class FeedbackManager {
 
   /// 긴 피드백 가져오기
   Future<void> _getLongFeedback() async {
-    if (_isDisposed) return;
-
     try {
       final feedbackData = _getFeedbackData();
       if (feedbackData == null) return;
@@ -117,25 +98,19 @@ class FeedbackManager {
         imageFile: imageFile,
       );
 
-      if (feedback.isNotEmpty && !_isDisposed) {
+      if (feedback.isNotEmpty) {
         print("피드백: $feedback");
 
-        final audioBytes = await feedbackData.learningService.getTtsAudio(
-          feedback,
-        );
+        final audioBytes = await feedbackData.learningService.getTtsAudio(feedback);
 
         // 임시 파일 저장 (just_audio용)
-        final tempFile = File(
-          '${(await getTemporaryDirectory()).path}/tts_audio.mp3',
-        );
+        final tempFile = File('${(await getTemporaryDirectory()).path}/tts_audio.mp3');
         await tempFile.writeAsBytes(audioBytes);
 
         // just_audio 재생
-        if (!_isDisposed) {
-          final audioPlayer = AudioPlayer();
-          await audioPlayer.setFilePath(tempFile.path);
-          await audioPlayer.play();
-        }
+        final _audioPlayer = AudioPlayer();
+        await _audioPlayer.setFilePath(tempFile.path);
+        await _audioPlayer.play();
       }
     } catch (e) {
       print('에러 발생!! Long Feedback ERROR: $e');
@@ -144,8 +119,6 @@ class FeedbackManager {
 
   /// 피드백 데이터 가져오기
   FeedbackData? _getFeedbackData() {
-    if (_isDisposed) return null;
-
     final learningService = _ref.read(learningServiceProvider);
     final userSequenceId = _ref.read(userSequenceIdProvider);
     final sequence = _ref.read(selectedSequenceProvider);
@@ -165,8 +138,6 @@ class FeedbackManager {
 
   /// 이미지 캡처
   Future<File?> _captureImage() async {
-    if (_isDisposed) return null;
-
     try {
       final captureFunction = _ref.read(captureImageProvider);
       return await captureFunction();

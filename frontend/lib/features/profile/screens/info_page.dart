@@ -2,7 +2,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:frontend/constants/app_colors.dart';
-import 'package:frontend/core/providers/auth_provider.dart';
+import 'package:frontend/core/providers/auth_providier.dart';
 import 'package:frontend/core/providers/profile_providers.dart';
 import 'package:frontend/core/providers/providers.dart';
 import 'package:frontend/features/alarm/screens/alarm_setting_screen.dart';

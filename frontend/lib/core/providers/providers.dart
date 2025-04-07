@@ -1,6 +1,6 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:frontend/core/api/api_client.dart';
-import 'package:frontend/core/providers/auth_provider.dart';
+import 'package:frontend/core/providers/auth_providier.dart';
 import 'package:frontend/features/auth/services/auth_service.dart';
 import 'package:frontend/features/auth/services/signup_service.dart';
 import 'package:frontend/features/home/models/home_model.dart';

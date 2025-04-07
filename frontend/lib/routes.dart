@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:frontend/all/screens/see_all_screen.dart';
-import 'package:frontend/core/providers/auth_provider.dart';
+import 'package:frontend/core/providers/auth_providier.dart';
 import 'package:frontend/core/providers/providers.dart';
 import 'package:frontend/features/auth/screens/onboarding_screen.dart';
 import 'package:frontend/features/auth/screens/signup_screen.dart';
