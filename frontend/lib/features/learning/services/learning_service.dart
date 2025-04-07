@@ -1,4 +1,5 @@
 import 'dart:io';
+import 'dart:typed_data';
 import 'package:frontend/core/api/api_client.dart';
 
 class LearningService {
@@ -64,6 +65,14 @@ class LearningService {
         'yogaId': yogaId,
         'sequenceId': sequenceId,
       },
+    );
+  }
+
+  // TTS 오디오 얻기
+  Future<Uint8List> getTtsAudio(String text) async {
+    return await _apiClient.postTtsAudio(
+      '/tts',
+      body: {'text': text},
     );
   }
 }

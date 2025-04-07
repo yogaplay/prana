@@ -1,4 +1,5 @@
 import 'dart:io';
+import 'dart:typed_data';
 
 import 'package:dio/dio.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
@@ -197,6 +198,32 @@ class ApiClient {
       final response = await _dio.post(path, data: formData);
 
       return _processResponse(response);
+    } on DioException catch (e) {
+      throw _handleError(e);
+    }
+  }
+
+  Future<Uint8List> postTtsAudio(
+      String path, {
+        required Map<String, dynamic> body,
+        Map<String, dynamic>? queryParameters,
+      }) async {
+    try {
+      final response = await _dio.post(
+        path,
+        data: body,
+        queryParameters: queryParameters,
+        options: Options(
+          responseType: ResponseType.bytes, // 바이너리 데이터 받기
+          contentType: 'application/json', // JSON 본문 명시
+        ),
+      );
+
+      // Uint8List로 변환
+      if (response.data is List<int>) {
+        return Uint8List.fromList(response.data.cast<int>());
+      }
+      throw Exception('Invalid audio response format');
     } on DioException catch (e) {
       throw _handleError(e);
     }
