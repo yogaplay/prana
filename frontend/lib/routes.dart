@@ -20,16 +20,21 @@ import 'package:frontend/features/learning/screens/sequence_detail_screen.dart';
 import 'package:go_router/go_router.dart';
 
 final routerProvider = Provider<GoRouter>((ref) {
+  final authState = ref.watch(authStateNotifierProvider);
+
   final notifier = GoRouterNotifier(ref);
+
+  ref.onDispose(() {
+    notifier.dispose();
+  });
 
   return GoRouter(
     initialLocation: "/",
     refreshListenable: notifier,
     redirect: (context, state) {
-      final authState = ref.watch(authStateNotifierProvider);
-      print("Auth 상태 : $authState");
+      final currentAuthState = authState;
 
-      if (authState.status == AuthStatus.unknown) {
+      if (currentAuthState.status == AuthStatus.unknown) {
         return null; // 로딩 화면을 추가하거나, null 반환하여 현재 페이지 유지
       }
 
@@ -38,10 +43,10 @@ final routerProvider = Provider<GoRouter>((ref) {
       final isGoingToSignup = state.fullPath == '/signup';
 
       // 인증 상태에 따른 리다이렉트
-      if (authState.status == AuthStatus.authenticated) {
+      if (currentAuthState.status == AuthStatus.authenticated) {
         // 로그인된 상태에서 온보딩 페이지에 있으면
         if (isGoingToOnboarding) {
-          if (authState.isFirstLogin) {
+          if (currentAuthState.isFirstLogin) {
             return '/signup'; // 첫 로그인이면 회원가입 페이지로
           } else {
             return '/home'; // 아니면 홈 페이지로
@@ -52,7 +57,7 @@ final routerProvider = Provider<GoRouter>((ref) {
         if (isGoingToSignup && !authState.isFirstLogin) {
           return '/home'; // 홈 페이지로 리다이렉트
         }
-      } else if (authState.status == AuthStatus.unauthenticated) {
+      } else if (currentAuthState.status == AuthStatus.unauthenticated) {
         // 인증되지 않은 상태에서 온보딩 페이지가 아닌 페이지로 가려고 하면
         if (!isGoingToOnboarding) {
           return '/onboarding'; // 온보딩 페이지로 리다이렉트
@@ -173,19 +178,29 @@ final routerProvider = Provider<GoRouter>((ref) {
   );
 });
 
-// GoRouter 상태 변화를 감지하기 위한 클래스 개선
 class GoRouterNotifier extends ChangeNotifier {
   final Ref _ref;
-  AuthState _previousState;
+  ProviderSubscription<AuthState>? _subscription;
 
-  GoRouterNotifier(this._ref) : _previousState = AuthState.unknown() {
-    _ref.listen<AuthState>(authStateNotifierProvider, (previous, next) {
-      if (previous?.status != next.status ||
-          previous?.isFirstLogin != next.isFirstLogin) {
-        print('인증 상태 변경: ${previous?.status} -> ${next.status}');
-        _previousState = next;
-        notifyListeners();
-      }
-    });
+  GoRouterNotifier(this._ref) {
+    _subscription = _ref.listen<AuthState>(
+      authStateNotifierProvider,
+      (previous, next) {
+        if (previous?.status != next.status ||
+            previous?.isFirstLogin != next.isFirstLogin) {
+          print('인증 상태 변경: ${previous?.status} -> ${next.status}');
+          notifyListeners();
+        }
+      },
+      onError: (error, stackTrace) {
+        print('인증 상태 감시 중 오류: $error');
+      },
+    );
+  }
+
+  @override
+  void dispose() {
+    _subscription?.close();
+    super.dispose();
   }
 }

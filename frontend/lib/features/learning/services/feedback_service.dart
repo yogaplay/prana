@@ -24,6 +24,7 @@ class FeedbackManager {
   final WidgetRef _ref;
   Timer? _shortFeedbackTimer;
   Timer? _longFeedbackTimer;
+  bool _isDisposed = false;
 
   final Function(bool?)? onFeedbackStatusChanged;
 
@@ -57,6 +58,7 @@ class FeedbackManager {
 
   /// 리소스 해제
   void dispose() {
+    _isDisposed = true;
     _shortFeedbackTimer?.cancel();
     _longFeedbackTimer?.cancel();
   }
@@ -85,12 +87,17 @@ class FeedbackManager {
 
   /// 긴 피드백 가져오기
   Future<void> _getLongFeedback() async {
+    if (_isDisposed) return;
+
+    AudioPlayer? audioPlayer;
+    File? tempFile;
+
     try {
       final feedbackData = _getFeedbackData();
-      if (feedbackData == null) return;
+      if (feedbackData == null || _isDisposed) return;
 
       final imageFile = await _captureImage();
-      if (imageFile == null) return;
+      if (imageFile == null || _isDisposed) return;
 
       final feedback = await feedbackData.learningService.sendLongFeedback(
         yogaId: feedbackData.yogaId,
@@ -98,22 +105,62 @@ class FeedbackManager {
         imageFile: imageFile,
       );
 
-      if (feedback.isNotEmpty) {
+      if (feedback.isNotEmpty && !_isDisposed) {
         print("피드백: $feedback");
 
-        final audioBytes = await feedbackData.learningService.getTtsAudio(feedback);
+        final audioBytes = await feedbackData.learningService.getTtsAudio(
+          feedback,
+        );
+        if (_isDisposed) return;
 
-        // 임시 파일 저장 (just_audio용)
-        final tempFile = File('${(await getTemporaryDirectory()).path}/tts_audio.mp3');
+        // 임시 파일 저장 (고유한 파일명 사용)
+        final timestamp = DateTime.now().millisecondsSinceEpoch;
+        tempFile = File(
+          '${(await getTemporaryDirectory()).path}/tts_audio_$timestamp.mp3',
+        );
         await tempFile.writeAsBytes(audioBytes);
+        if (_isDisposed) {
+          await tempFile.delete(); // 이미 dispose된 경우 파일 정리
+          return;
+        }
 
         // just_audio 재생
-        final _audioPlayer = AudioPlayer();
-        await _audioPlayer.setFilePath(tempFile.path);
-        await _audioPlayer.play();
+        audioPlayer = AudioPlayer();
+        await audioPlayer.setFilePath(tempFile.path);
+
+        // 재생 완료 이벤트 리스너 추가
+        audioPlayer.processingStateStream.listen((state) {
+          if (state == ProcessingState.completed && !_isDisposed) {
+            _cleanupAudioResources(audioPlayer, tempFile);
+          }
+        });
+
+        if (!_isDisposed) {
+          await audioPlayer.play();
+        } else {
+          _cleanupAudioResources(audioPlayer, tempFile);
+        }
       }
     } catch (e) {
       print('에러 발생!! Long Feedback ERROR: $e');
+      // 오류 발생 시 리소스 정리
+      _cleanupAudioResources(audioPlayer, tempFile);
+    }
+  }
+
+  // 오디오 리소스 정리 헬퍼 메서드
+  void _cleanupAudioResources(AudioPlayer? player, File? file) async {
+    try {
+      if (player != null) {
+        await player.stop();
+        await player.dispose();
+      }
+
+      if (file != null && await file.exists()) {
+        await file.delete();
+      }
+    } catch (e) {
+      print('오디오 리소스 정리 중 오류: $e');
     }
   }
 
