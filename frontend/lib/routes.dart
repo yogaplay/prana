@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:frontend/all/screens/see_all_screen.dart';
+import 'package:frontend/core/providers/auth_providier.dart';
 import 'package:frontend/core/providers/providers.dart';
 import 'package:frontend/features/auth/screens/onboarding_screen.dart';
 import 'package:frontend/features/auth/screens/signup_screen.dart';
@@ -19,41 +20,46 @@ import 'package:frontend/features/learning/screens/sequence_detail_screen.dart';
 import 'package:go_router/go_router.dart';
 
 final routerProvider = Provider<GoRouter>((ref) {
-  final authState = ref.watch(authStateProvider);
-  final isFirstLoginAsync = ref.watch(isFirstLoginProvider);
+  final notifier = GoRouterNotifier(ref);
 
   return GoRouter(
-    initialLocation: "/home",
+    initialLocation: "/",
+    refreshListenable: notifier,
     redirect: (context, state) {
-      // authState가 로딩 중이면 null 반환(현재 경로 유지)
-      if (authState.isLoading) return null;
+      final authState = ref.watch(authStateNotifierProvider);
+      print("Auth 상태 : $authState");
 
-      final isLoggedIn = authState.valueOrNull ?? false;
-
-      // 로그인되어 있지 않으면 온보딩 페이지로
-      if (!isLoggedIn && state.fullPath != '/onboarding') {
-        return '/onboarding';
+      if (authState.status == AuthStatus.unknown) {
+        return null; // 로딩 화면을 추가하거나, null 반환하여 현재 페이지 유지
       }
 
-      // 로그인된 상태에서 온보딩 페이지에 있으면
-      if (isLoggedIn && state.fullPath == '/onboarding') {
-        if (!isFirstLoginAsync.isLoading && !isFirstLoginAsync.hasError) {
-          final bool isFirstLogin = isFirstLoginAsync.value ?? false;
-          if (isFirstLogin) {
-            return '/signup';
+      // 이동하려는 경로 확인
+      final isGoingToOnboarding = state.fullPath == '/onboarding';
+      final isGoingToSignup = state.fullPath == '/signup';
+
+      // 인증 상태에 따른 리다이렉트
+      if (authState.status == AuthStatus.authenticated) {
+        // 로그인된 상태에서 온보딩 페이지에 있으면
+        if (isGoingToOnboarding) {
+          if (authState.isFirstLogin) {
+            return '/signup'; // 첫 로그인이면 회원가입 페이지로
           } else {
-            return '/home';
+            return '/home'; // 아니면 홈 페이지로
           }
         }
-        return null;
+
+        // 로그인된 상태에서 첫 로그인이 아닌데 회원가입 페이지로 가려고 하면
+        if (isGoingToSignup && !authState.isFirstLogin) {
+          return '/home'; // 홈 페이지로 리다이렉트
+        }
+      } else if (authState.status == AuthStatus.unauthenticated) {
+        // 인증되지 않은 상태에서 온보딩 페이지가 아닌 페이지로 가려고 하면
+        if (!isGoingToOnboarding) {
+          return '/onboarding'; // 온보딩 페이지로 리다이렉트
+        }
       }
 
-      // 로그인된 상태에서 회원가입 페이지는 그대로 유지
-      if (isLoggedIn && state.fullPath == '/signup') {
-        return null;
-      }
-
-      // 나머지 경우에는 요청된 페이지로 이동
+      // 리다이렉트 필요 없음
       return null;
     },
     routes: [
@@ -62,6 +68,10 @@ final routerProvider = Provider<GoRouter>((ref) {
           return MainShell(child: child);
         },
         routes: [
+          GoRoute(
+            path: "/",
+            redirect: (_, __) => "/home", // 루트 경로에 접근하면 홈으로 리다이렉트
+          ),
           GoRoute(
             path: "/home",
             name: "home",
@@ -162,3 +172,20 @@ final routerProvider = Provider<GoRouter>((ref) {
     ],
   );
 });
+
+// GoRouter 상태 변화를 감지하기 위한 클래스 개선
+class GoRouterNotifier extends ChangeNotifier {
+  final Ref _ref;
+  AuthState _previousState;
+
+  GoRouterNotifier(this._ref) : _previousState = AuthState.unknown() {
+    _ref.listen<AuthState>(authStateNotifierProvider, (previous, next) {
+      if (previous?.status != next.status ||
+          previous?.isFirstLogin != next.isFirstLogin) {
+        print('인증 상태 변경: ${previous?.status} -> ${next.status}');
+        _previousState = next;
+        notifyListeners();
+      }
+    });
+  }
+}
