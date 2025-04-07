@@ -3,6 +3,8 @@ import 'dart:io';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:frontend/features/learning/providers/learning_providers.dart';
 import 'package:frontend/features/learning/providers/sequence_providers.dart';
+import 'package:just_audio/just_audio.dart';
+import 'package:path_provider/path_provider.dart';
 
 /// 피드백 데이터를 담는 클래스
 class FeedbackData {
@@ -35,7 +37,7 @@ class FeedbackManager {
     );
 
     _longFeedbackTimer = Timer.periodic(
-      const Duration(seconds: 3),
+      const Duration(seconds: 5),
       (_) => _getLongFeedback(),
     );
 
@@ -98,6 +100,17 @@ class FeedbackManager {
 
       if (feedback.isNotEmpty) {
         print("피드백: $feedback");
+
+        final audioBytes = await feedbackData.learningService.getTtsAudio(feedback);
+
+        // 임시 파일 저장 (just_audio용)
+        final tempFile = File('${(await getTemporaryDirectory()).path}/tts_audio.mp3');
+        await tempFile.writeAsBytes(audioBytes);
+
+        // just_audio 재생
+        final _audioPlayer = AudioPlayer();
+        await _audioPlayer.setFilePath(tempFile.path);
+        await _audioPlayer.play();
       }
     } catch (e) {
       print('에러 발생!! Long Feedback ERROR: $e');
