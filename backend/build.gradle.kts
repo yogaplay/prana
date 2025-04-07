@@ -41,6 +41,11 @@ dependencies {
     implementation("com.querydsl:querydsl-jpa:${querydslVersion}:jakarta")
     annotationProcessor("com.querydsl:querydsl-apt:${querydslVersion}:jakarta")
     annotationProcessor("jakarta.persistence:jakarta.persistence-api")
+
+    val springCloudAwsVersion = "3.3.0"
+    implementation(platform("io.awspring.cloud:spring-cloud-aws-dependencies:${springCloudAwsVersion}"))
+    implementation("io.awspring.cloud:spring-cloud-aws-starter")
+    implementation("io.awspring.cloud:spring-cloud-aws-starter-s3")
 }
 
 tasks.withType<Test> {
