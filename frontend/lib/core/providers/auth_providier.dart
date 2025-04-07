@@ -1,5 +1,4 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:frontend/core/providers/providers.dart';
 import 'package:frontend/features/auth/services/auth_service.dart';
 
 // AuthStatus enum 정의

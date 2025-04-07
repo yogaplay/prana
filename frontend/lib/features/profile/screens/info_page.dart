@@ -142,52 +142,84 @@ class InfoPage extends ConsumerWidget {
   void _showLogoutConfirmDialog(BuildContext context, WidgetRef ref) {
     showDialog(
       context: context,
-      builder: (BuildContext context) {
-        return AlertDialog(
-          title: Text('로그아웃'),
-          content: Text('정말 로그아웃 하시겠습니까?'),
-          actions: [
-            TextButton(
-              onPressed: () => Navigator.of(context).pop(),
-              child: Text('취소'),
+      builder:
+          (dialogContext) => AlertDialog(
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(8),
             ),
-            TextButton(
-              onPressed: () async {
-                Navigator.of(context).pop(); // 다이얼로그 닫기
-
-                try {
+            backgroundColor: AppColors.boxWhite,
+            title: Text(
+              '확인',
+              style: TextStyle(
+                color: AppColors.blackText,
+                fontWeight: FontWeight.bold,
+                fontSize: 18,
+              ),
+              textAlign: TextAlign.center,
+            ),
+            content: Text(
+              '로그아웃 하시겠습니까?',
+              style: TextStyle(color: AppColors.graytext, fontSize: 16),
+              textAlign: TextAlign.center,
+            ),
+            actionsAlignment: MainAxisAlignment.center,
+            actions: [
+              ElevatedButton(
+                onPressed: () async {
                   // 로그아웃 처리
                   final authService = ref.read(authServiceProvider);
-                  await authService.logout(); // 직접 AuthService의 로그아웃 메소드 호출
+                  await authService.logout();
 
-                  // 상태 변경을 시도하기 전에 context가 유효한지 확인
+                  Navigator.of(dialogContext).pop();
+
                   if (context.mounted) {
-                    // 새로운 참조 얻기
+                    // 상태 변경
                     final authNotifier = ref.read(
                       authStateNotifierProvider.notifier,
                     );
-                    if (authNotifier is AuthStateNotifier) {
-                      // 타입 확인
-                      authNotifier.state = AuthState.unauthenticated();
-                    }
+                    authNotifier.state = AuthState.unauthenticated();
 
-                    // 직접 라우팅 처리
+                    // 온보딩 페이지로 이동
                     context.go('/onboarding');
                   }
-                } catch (e) {
-                  print('로그아웃 과정에서 오류 발생: $e');
-
-                  // 오류가 발생해도 온보딩 페이지로 이동
-                  if (context.mounted) {
-                    context.go('/onboarding');
-                  }
-                }
-              },
-              child: Text('확인'),
-            ),
-          ],
-        );
-      },
+                },
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: AppColors.primary,
+                  elevation: 0,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 20,
+                    vertical: 8,
+                  ),
+                ),
+                child: Text(
+                  '예',
+                  style: TextStyle(color: Colors.white, fontSize: 16),
+                ),
+              ),
+              const SizedBox(width: 10),
+              ElevatedButton(
+                onPressed: () => Navigator.of(dialogContext).pop(),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: AppColors.lightGray,
+                  elevation: 0,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 20,
+                    vertical: 8,
+                  ),
+                ),
+                child: Text(
+                  '아니오',
+                  style: TextStyle(color: AppColors.blackText, fontSize: 16),
+                ),
+              ),
+            ],
+          ),
     );
   }
 
