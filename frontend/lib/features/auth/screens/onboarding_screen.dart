@@ -58,13 +58,25 @@ class OnboardingScreen extends ConsumerWidget {
         kakaoToken.accessToken,
       );
 
+      // AuthStateNotifier 업데이트
+      final authNotifier = ref.read(authStateNotifierProvider.notifier);
+      await authNotifier.login(
+        accessToken: authResponse.pranaAccessToken,
+        refreshToken: authResponse.pranaRefreshToken,
+        isFirstLogin: authResponse.isFirst,
+      );
+
+      // 기존 Provider도 무효화
+      ref.invalidate(authStateProvider);
+      ref.invalidate(isFirstLoginProvider);
+
+      // 로깅 추가
+      print('로그인 성공, 인증 상태: ${ref.read(authStateNotifierProvider)}');
+
+      // 직접 라우팅
       if (authResponse.isFirst) {
-        ref.invalidate(authStateProvider);
-        ref.invalidate(isFirstLoginProvider);
         if (context.mounted) context.goNamed("signup");
       } else {
-        ref.invalidate(authStateProvider);
-        ref.invalidate(isFirstLoginProvider);
         if (context.mounted) context.goNamed("home");
       }
     } catch (error) {

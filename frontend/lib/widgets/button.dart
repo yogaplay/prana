@@ -20,6 +20,7 @@ class Button extends StatelessWidget {
       style: ElevatedButton.styleFrom(
         backgroundColor: AppColors.primary,
         foregroundColor: Colors.white,
+        elevation: 0,
         disabledBackgroundColor: AppColors.lightGray,
         disabledForegroundColor: Colors.white,
         padding: EdgeInsets.symmetric(horizontal: 32, vertical: 12),
