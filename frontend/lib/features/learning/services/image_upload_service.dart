@@ -2,7 +2,7 @@ import 'package:dio/dio.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:frontend/core/api/api_client.dart';
-import 'package:frontend/features/report/providers/weekly_report_provider.dart';
+import 'package:frontend/core/providers/providers.dart';
 import 'package:http_parser/http_parser.dart';
 
 final imageUploadServiceProvider = Provider<ImageUploadService>((ref) {

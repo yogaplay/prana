@@ -1,16 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:frontend/constants/app_colors.dart';
-import 'package:kakao_flutter_sdk_share/kakao_flutter_sdk_share.dart';
 
 class CompletedSequenceBanner extends StatelessWidget {
   final String sequenceName;
-  final String? imageUrlForKakao;
   final VoidCallback onSharePressed;
 
   const CompletedSequenceBanner({
     super.key,
     required this.sequenceName,
-    this.imageUrlForKakao,
     required this.onSharePressed,
   });
 
@@ -25,20 +22,6 @@ class CompletedSequenceBanner extends StatelessWidget {
     }
 
     return '를';
-  }
-
-  FeedTemplate get defaultFeed {
-    final fallbackUrl =
-        'https://mud-kage.kakao.com/dn/Q2iNx/btqgeRgV54P/VLdBs9cvyn8BJXB3o7N8UK/kakaolink40_original.png';
-    final img = imageUrlForKakao ?? fallbackUrl;
-    return FeedTemplate(
-      content: Content(
-        title: '$sequenceName 완료!',
-        description: '방금 $sequenceName을(를) 완료했어요. 함께 해보세요!',
-        imageUrl: Uri.parse(img),
-        link: Link(webUrl: Uri.parse(img), mobileWebUrl: Uri.parse(img)),
-      ),
-    );
   }
 
   @override
@@ -78,7 +61,7 @@ class CompletedSequenceBanner extends StatelessWidget {
             ),
           ),
           InkWell(
-            onTap: _shareKakao,
+            onTap: onSharePressed,
             borderRadius: BorderRadius.circular(24),
             child: Container(
               padding: EdgeInsets.all(8),
@@ -93,39 +76,5 @@ class CompletedSequenceBanner extends StatelessWidget {
         ],
       ),
     );
-  }
-
-  Future<void> _shareKakao() async {
-    if (imageUrlForKakao == null) {
-      onSharePressed();
-      return;
-    }
-    try {
-      bool isKakaoTalkSharingAvailable =
-          await ShareClient.instance.isKakaoTalkSharingAvailable();
-
-      if (isKakaoTalkSharingAvailable) {
-        try {
-          Uri uri = await ShareClient.instance.shareDefault(
-            template: defaultFeed,
-          );
-          await ShareClient.instance.launchKakaoTalk(uri);
-          print('카카오톡 공유 완료');
-        } catch (error) {
-          print('카카오톡 공유 실패 $error');
-        }
-      } else {
-        try {
-          Uri sharUrl = await WebSharerClient.instance.makeDefaultUrl(
-            template: defaultFeed,
-          );
-          await launchBrowserTab(sharUrl, popupOpen: true);
-        } catch (error) {
-          print('카카오톡 공유 실패 $error');
-        }
-      }
-    } catch (error) {
-      print('카카오톡 공유 실패: $error');
-    }
   }
 }
