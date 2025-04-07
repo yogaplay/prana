@@ -61,7 +61,8 @@ class AuthService {
     // refreshToken이 null이거나 비어있는 경우 체크
     if (refreshToken == null || refreshToken.isEmpty) {
       print('리프레시 토큰이 없습니다.');
-      throw Exception('리프레시 토큰이 없습니다.');
+      await logout();
+      throw Exception('리프레시 토큰이 없습니다');
     }
 
     try {
@@ -80,6 +81,7 @@ class AuthService {
       return refreshResponse;
     } catch (e) {
       print('토큰 재발급 실패: ${e.toString()}');
+      await logout();
       throw Exception('토큰 재발급 실패');
     }
   }
@@ -92,7 +94,17 @@ class AuthService {
 
     if (ref != null) {
       ref?.invalidate(authStateProvider);
+      ref?.invalidate(authStateNotifierProvider);
     }
+  }
+
+  Future<void> saveAccessToken(String token) async {
+    await _storage.write(key: _accessToken, value: token);
+    _apiClient.setAuthToken(token);
+  }
+
+  Future<void> saveRefreshToken(String token) async {
+    await _storage.write(key: _refreshToken, value: token);
   }
 
   Future<void> saveAuthData(AuthResponse authResponse) async {
@@ -123,7 +135,8 @@ class AuthService {
   }
 
   Future<bool> isFirstLogin() async {
-    return _isFirst == 'true';
+    final isFirst = await _storage.read(key: _isFirst);
+    return isFirst == 'true';
   }
 
   Future<bool> isLoggedIn() async {
