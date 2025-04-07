@@ -38,8 +38,10 @@ dependencies:
   shared_preferences: 2.5.3
   permission_handler: 11.4.0
   intl: 0.20.2
-
   confetti: ^0.8.0
+  http_parser: ^4.1.2
+
+  screenshot: ^3.0.0
 
   workmanager:
     git:

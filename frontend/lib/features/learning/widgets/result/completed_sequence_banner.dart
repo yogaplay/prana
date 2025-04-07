@@ -4,8 +4,15 @@ import 'package:kakao_flutter_sdk_share/kakao_flutter_sdk_share.dart';
 
 class CompletedSequenceBanner extends StatelessWidget {
   final String sequenceName;
+  final String? imageUrlForKakao;
+  final VoidCallback onSharePressed;
 
-  const CompletedSequenceBanner({super.key, required this.sequenceName});
+  const CompletedSequenceBanner({
+    super.key,
+    required this.sequenceName,
+    this.imageUrlForKakao,
+    required this.onSharePressed,
+  });
 
   String _getParticle(String text) {
     final lastChar = text.characters.last;
@@ -21,34 +28,16 @@ class CompletedSequenceBanner extends StatelessWidget {
   }
 
   FeedTemplate get defaultFeed {
+    final fallbackUrl =
+        'https://mud-kage.kakao.com/dn/Q2iNx/btqgeRgV54P/VLdBs9cvyn8BJXB3o7N8UK/kakaolink40_original.png';
+    final img = imageUrlForKakao ?? fallbackUrl;
     return FeedTemplate(
       content: Content(
         title: '$sequenceName 완료!',
         description: '방금 $sequenceName을(를) 완료했어요. 함께 해보세요!',
-        imageUrl: Uri.parse(
-          'https://mud-kage.kakao.com/dn/Q2iNx/btqgeRgV54P/VLdBs9cvyn8BJXB3o7N8UK/kakaolink40_original.png',
-        ),
-        link: Link(
-          webUrl: Uri.parse('https://developers.kakao.com'),
-          mobileWebUrl: Uri.parse('https://developers.kakao.com'),
-        ),
+        imageUrl: Uri.parse(img),
+        link: Link(webUrl: Uri.parse(img), mobileWebUrl: Uri.parse(img)),
       ),
-      buttons: [
-        Button(
-          title: '웹으로 보기',
-          link: Link(
-            webUrl: Uri.parse('https: //developers.kakao.com'),
-            mobileWebUrl: Uri.parse('https: //developers.kakao.com'),
-          ),
-        ),
-        Button(
-          title: '앱으로 보기',
-          link: Link(
-            webUrl: Uri.parse('https: //developers.kakao.com'),
-            mobileWebUrl: Uri.parse('https: //developers.kakao.com'),
-          ),
-        ),
-      ],
     );
   }
 
@@ -107,6 +96,10 @@ class CompletedSequenceBanner extends StatelessWidget {
   }
 
   Future<void> _shareKakao() async {
+    if (imageUrlForKakao == null) {
+      onSharePressed();
+      return;
+    }
     try {
       bool isKakaoTalkSharingAvailable =
           await ShareClient.instance.isKakaoTalkSharingAvailable();
