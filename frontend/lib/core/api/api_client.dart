@@ -21,8 +21,8 @@ class ApiClient {
     _dio = Dio(
       BaseOptions(
         baseUrl: baseUrl,
-        connectTimeout: const Duration(seconds: 5),
-        receiveTimeout: const Duration(seconds: 3),
+        connectTimeout: const Duration(seconds: 10),
+        receiveTimeout: const Duration(seconds: 6),
         headers: {
           'Content-Type': 'application/json',
           'Accept': 'application/json',
@@ -204,10 +204,10 @@ class ApiClient {
   }
 
   Future<Uint8List> postTtsAudio(
-      String path, {
-        required Map<String, dynamic> body,
-        Map<String, dynamic>? queryParameters,
-      }) async {
+    String path, {
+    required Map<String, dynamic> body,
+    Map<String, dynamic>? queryParameters,
+  }) async {
     try {
       final response = await _dio.post(
         path,
