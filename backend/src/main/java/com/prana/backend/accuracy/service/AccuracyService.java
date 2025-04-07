@@ -58,11 +58,16 @@ public class AccuracyService {
                     .build();
             accuracyRepository.save(accuracy);
 
+            int accuracyScore = 0;
+            if(feedback.getSuccessCount() != 0 || feedback.getFailureCount() != 0) {
+                accuracyScore = (feedback.getSuccessCount() * 100 / (feedback.getFailureCount() + feedback.getSuccessCount()));
+            }
+
             SequenceYoga sequenceYoga = SequenceYoga.builder()
                     .userSequence(userSequence)
                     .yogaName(yoga.getYogaName())
                     .yogaImage(yoga.getImage())
-                    .accuracy((feedback.getSuccessCount() * 100 / (feedback.getFailureCount() + feedback.getSuccessCount())))
+                    .accuracy(accuracyScore)
                     .build();
             sequenceYogaRepository.save(sequenceYoga);
 
