@@ -71,7 +71,7 @@ public class AccuracyService {
                 feedbackTotals = new ArrayList<>();
             }
 
-            for(AiFeedback.FeedbackTotal feed : feedback.getFeedbackTotal()) {
+            for(AiFeedback.FeedbackTotal feed : feedbackTotals) {
                 if(!StringUtils.hasText(feed.getPosition())) continue;
                 Feedback nextFeedback = Feedback.builder()
                         .user(user)
