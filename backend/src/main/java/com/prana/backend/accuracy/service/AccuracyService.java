@@ -18,6 +18,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
 
 @Service
@@ -63,6 +65,11 @@ public class AccuracyService {
                     .accuracy((feedback.getSuccessCount() * 100 / (feedback.getFailureCount() + feedback.getSuccessCount())))
                     .build();
             sequenceYogaRepository.save(sequenceYoga);
+
+            List<AiFeedback.FeedbackTotal> feedbackTotals = feedback.getFeedbackTotal();
+            if (feedbackTotals == null) {
+                feedbackTotals = new ArrayList<>();
+            }
 
             for(AiFeedback.FeedbackTotal feed : feedback.getFeedbackTotal()) {
                 if(!StringUtils.hasText(feed.getPosition())) continue;
