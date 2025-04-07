@@ -16,7 +16,19 @@ spring:
       jakarta.persistence.schema-generation.database.action: none
       jakarta.persistence.schema-generation.scripts.action: none
       jakarta.persistence.create-database-schemas: false
-
+  servlet:
+    multipart:
+      max-file-size: 10MB
+      max-request-size: 10MB
+  cloud:
+    aws:
+      region:
+        static: ap-northeast-2
+      credentials:
+        access-key: ${AWS_ACCESS_KEY}
+        secret-key: ${AWS_SECRET_KEY}
+      s3:
+        bucket: prana-yoplay
 
   data:
     redis:
