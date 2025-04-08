@@ -21,9 +21,9 @@ public interface SequenceRepository extends JpaRepository<Sequence, Integer> {
 
     @Query(value = "SELECT s.* " +
             "FROM sequence s " +
-            "JOIN sequence_tag st ON s.id = st.sequence_id " +
-            "JOIN tag t ON st.tag_id = t.id " +
-            "WHERE t.name = :tagName " +
+            "JOIN sequence_tag st ON s.sequence_id = st.sequence_id " +
+            "JOIN tag t ON st.tag_id = t.tag_id " +
+            "WHERE t.tag_name = :tagName " +
             "LIMIT 3", nativeQuery = true)
     List<Sequence> findTop3SequencesByTagName(@Param("tagName") String tagName);
 
