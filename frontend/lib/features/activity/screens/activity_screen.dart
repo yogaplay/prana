@@ -76,6 +76,7 @@ class _ActivityPageState extends ConsumerState<ActivityPage> {
     return Scaffold(
       appBar: AppBar(
         backgroundColor: Colors.white,
+        elevation: 0,
         title: const Text(
           '활동',
           style: TextStyle(
