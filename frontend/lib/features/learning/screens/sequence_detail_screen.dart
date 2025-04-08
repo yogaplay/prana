@@ -7,6 +7,7 @@ import 'package:frontend/features/learning/screens/skeleton_sequence_detail_scre
 import 'package:frontend/features/learning/widgets/pose_item.dart';
 import 'package:frontend/features/learning/widgets/sequence_header.dart';
 import 'package:frontend/features/learning/widgets/sequence_info.dart';
+import 'package:frontend/features/music/models/music_controller.dart';
 import 'package:frontend/screens/error_screen.dart';
 import 'package:frontend/widgets/button.dart';
 import 'package:go_router/go_router.dart';
@@ -163,8 +164,10 @@ class SequenceDetailScreen extends ConsumerWidget {
                 Button(
                   text: '시작하기',
                   onPressed: () {
-                    ref.read(selectedSequenceProvider.notifier).state =
-                        sequence;
+                    ref.read(selectedSequenceProvider.notifier).state = sequence;
+                    if(sequence.music.isNotEmpty) {
+                      MusicController().playFromFile(sequence.music);
+                    }
                     context.push('/sequence/${sequence.sequenceId}/learning');
                   },
                 ),

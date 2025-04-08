@@ -34,6 +34,7 @@ class _TutorialViewState extends ConsumerState<TutorialView> {
     if (currentYoga != null) {
       _controller = VideoPlayerController.networkUrl(
         Uri.parse(currentYoga.video),
+        videoPlayerOptions: VideoPlayerOptions(mixWithOthers: true),
       );
 
       await _controller.initialize();
@@ -43,6 +44,8 @@ class _TutorialViewState extends ConsumerState<TutorialView> {
           _isInitialized = true;
         });
 
+        // 영상의 오디오는 음소거
+        _controller.setVolume(0.0);
         // 자동 재생 시작
         _controller.play();
 
