@@ -8,6 +8,7 @@ import 'package:frontend/features/learning/screens/learning/practice_view.dart';
 import 'package:frontend/features/learning/screens/learning/prepare_view.dart';
 import 'package:frontend/features/learning/screens/learning/skip_view.dart';
 import 'package:frontend/features/learning/screens/learning/tutorial_view.dart';
+import 'package:frontend/features/music/models/music_controller.dart';
 import 'package:go_router/go_router.dart';
 
 class LearningScreen extends ConsumerStatefulWidget {
@@ -151,6 +152,7 @@ class _LearningScreenState extends ConsumerState<LearningScreen> {
 
                           // 타이머 취소 - 메소드 호출
                           ref.read(countdownProvider.notifier).cancelSession();
+                          MusicController().stop();
 
                           Navigator.of(context).pop(true);
                         },

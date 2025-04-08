@@ -6,6 +6,7 @@ class SequenceDetailModel {
   final int time;
   final int yogaCnt;
   final bool star;
+  final String music;
   final List<YogaModel> yogaSequence;
 
   SequenceDetailModel({
@@ -16,6 +17,7 @@ class SequenceDetailModel {
     required this.time,
     required this.yogaCnt,
     required this.star,
+    required this.music,
     required this.yogaSequence,
   });
 
@@ -28,6 +30,7 @@ class SequenceDetailModel {
       time: json['time'] as int,
       yogaCnt: json['yogaCnt'] as int,
       star: json['star'] as bool,
+      music: json['music'] as String,
       yogaSequence:
           (json['yogaSequence'] as List<dynamic>)
               .map((e) => YogaModel.fromJson(e as Map<String, dynamic>))
@@ -44,6 +47,7 @@ class SequenceDetailModel {
       'time': time,
       'yogaCnt': yogaCnt,
       'star': star,
+      'music': music,
       'yogaSequence': yogaSequence.map((e) => e.toJson()).toList(),
     };
   }
