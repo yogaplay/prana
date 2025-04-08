@@ -11,9 +11,9 @@ class ActivityService {
 
     // 응답이 List일 경우 처리 (Map 형태로 래핑되어 올 수도 있음)
     final List<dynamic> data = response['data'] ?? [];
-
     return data.map((item) => {
       'sequence_id': item['sequenceId'],
+      'user_sequence_id' : item['userSequenceId'],
       'sequence_name': item['sequenceName'],
       'result_status': item['resultStatus'],
       'percent': item['percent'].toString(),
