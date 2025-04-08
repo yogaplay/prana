@@ -8,6 +8,7 @@ import 'package:frontend/core/providers/providers.dart';
 import 'package:frontend/features/learning/models/sequence_detail_model.dart';
 import 'package:frontend/features/learning/providers/sequence_providers.dart';
 import 'package:frontend/features/learning/services/learning_service.dart';
+import 'package:frontend/features/music/models/music_controller.dart';
 
 final learningServiceProvider = Provider<LearningService>((ref) {
   final apiClient = ref.watch(apiClientProvider);
@@ -255,6 +256,7 @@ class CountdownNotifier extends StateNotifier<int> {
   // 시퀀스 완료
   void _completeSequence() {
     _timer?.cancel();
+    MusicController().stop();
     _ref.read(isSequenceCompletedProvider.notifier).state = true;
     _ref.read(learningStateProvider.notifier).state = LearningState.completed;
   }
