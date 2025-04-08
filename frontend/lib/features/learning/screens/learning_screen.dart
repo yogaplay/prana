@@ -81,9 +81,21 @@ class _LearningScreenState extends ConsumerState<LearningScreen> {
 
         SystemChrome.setEnabledSystemUIMode(SystemUiMode.edgeToEdge);
 
+        final sequenceId = widget.sequenceId;
+        final userSequenceId = ref.read(userSequenceIdProvider);
+
+        if (userSequenceId == null) {
+          print('[ERROR] userSequenceId가 아직 null입니다.');
+          return;
+        }
+
         // 결과 페이지로 이동
         if (mounted) {
-          context.pushNamed('tempResult').then((_) {
+          print('결과 페이지 이동: $userSequenceId, $sequenceId');
+          context.push('/sequence/$sequenceId/result/$userSequenceId').then((
+            _,
+          ) {
+            print('결과 페이지에서 돌아옴');
             // 결과 페이지에서 돌아왔을 때 초기 상태로 리셋
             if (mounted) {
               ref.read(currentYogaIndexProvider.notifier).state = 0;
