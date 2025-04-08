@@ -8,6 +8,12 @@ class InstabilitySummarySection extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final Map<String, String> positionLabels = {
+      'core': '코어',
+      'back': '등',
+      'arm': '팔',
+      'leg': '다리',
+    };
     return Container(
       padding: EdgeInsets.all(16),
       width: double.infinity,
@@ -72,7 +78,7 @@ class InstabilitySummarySection extends StatelessWidget {
                 style: TextStyle(fontSize: 16, color: AppColors.blackText),
                 children: [
                   TextSpan(
-                    text: entry.key,
+                    text: positionLabels[entry.key] ?? entry.key,
                     style: TextStyle(fontWeight: FontWeight.bold),
                   ),
                   TextSpan(text: '에서 '),

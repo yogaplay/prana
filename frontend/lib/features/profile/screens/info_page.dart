@@ -128,7 +128,7 @@ class InfoPage extends ConsumerWidget {
 
               TextButton(
                 onPressed: () {
-                  context.push('/sequence-result');
+                  context.push('/sequence/16/result/338');
                 },
                 child: Text('결과 페이지'),
               ),

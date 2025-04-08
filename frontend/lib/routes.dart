@@ -20,21 +20,16 @@ import 'package:frontend/features/learning/screens/sequence_detail_screen.dart';
 import 'package:go_router/go_router.dart';
 
 final routerProvider = Provider<GoRouter>((ref) {
-  final authState = ref.watch(authStateNotifierProvider);
-
   final notifier = GoRouterNotifier(ref);
-
-  ref.onDispose(() {
-    notifier.dispose();
-  });
 
   return GoRouter(
     initialLocation: "/",
     refreshListenable: notifier,
     redirect: (context, state) {
-      final currentAuthState = authState;
+      final authState = ref.watch(authStateNotifierProvider);
+      print("Auth 상태 : $authState");
 
-      if (currentAuthState.status == AuthStatus.unknown) {
+      if (authState.status == AuthStatus.unknown) {
         return null; // 로딩 화면을 추가하거나, null 반환하여 현재 페이지 유지
       }
 
@@ -43,10 +38,10 @@ final routerProvider = Provider<GoRouter>((ref) {
       final isGoingToSignup = state.fullPath == '/signup';
 
       // 인증 상태에 따른 리다이렉트
-      if (currentAuthState.status == AuthStatus.authenticated) {
+      if (authState.status == AuthStatus.authenticated) {
         // 로그인된 상태에서 온보딩 페이지에 있으면
         if (isGoingToOnboarding) {
-          if (currentAuthState.isFirstLogin) {
+          if (authState.isFirstLogin) {
             return '/signup'; // 첫 로그인이면 회원가입 페이지로
           } else {
             return '/home'; // 아니면 홈 페이지로
@@ -57,7 +52,7 @@ final routerProvider = Provider<GoRouter>((ref) {
         if (isGoingToSignup && !authState.isFirstLogin) {
           return '/home'; // 홈 페이지로 리다이렉트
         }
-      } else if (currentAuthState.status == AuthStatus.unauthenticated) {
+      } else if (authState.status == AuthStatus.unauthenticated) {
         // 인증되지 않은 상태에서 온보딩 페이지가 아닌 페이지로 가려고 하면
         if (!isGoingToOnboarding) {
           return '/onboarding'; // 온보딩 페이지로 리다이렉트
@@ -70,7 +65,7 @@ final routerProvider = Provider<GoRouter>((ref) {
     routes: [
       ShellRoute(
         builder: (context, state, child) {
-          return MainShell(child: child);
+          return MainShell(currentPath: state.uri.path, child: child);
         },
         routes: [
           GoRoute(
@@ -158,9 +153,19 @@ final routerProvider = Provider<GoRouter>((ref) {
         },
       ),
       GoRoute(
-        path: '/sequence-result',
+        path: '/sequence/:sequenceId/result/:userSequenceId',
         name: 'sequenceResult',
-        builder: (_, __) => const SequenceResultScreen(),
+        builder: (context, state) {
+          final sequenceId =
+              int.tryParse(state.pathParameters['sequenceId'] ?? '0') ?? 0;
+          final userSequenceId =
+              int.tryParse(state.pathParameters['userSequenceId'] ?? '0') ?? 0;
+
+          return SequenceResultScreen(
+            sequenceId: sequenceId,
+            userSequenceId: userSequenceId,
+          );
+        },
       ),
       GoRoute(
         path: '/sequence/:id/learning',
@@ -169,38 +174,23 @@ final routerProvider = Provider<GoRouter>((ref) {
           return MaterialPage(child: LearningScreen(sequenceId: sequenceId));
         },
       ),
-      GoRoute(
-        path: '/temp-result',
-        name: 'tempResult',
-        builder: (_, __) => const TempResultScreen(),
-      ),
     ],
   );
 });
 
+// GoRouter 상태 변화를 감지하기 위한 클래스 개선
 class GoRouterNotifier extends ChangeNotifier {
   final Ref _ref;
-  ProviderSubscription<AuthState>? _subscription;
+  AuthState _previousState;
 
-  GoRouterNotifier(this._ref) {
-    _subscription = _ref.listen<AuthState>(
-      authStateNotifierProvider,
-      (previous, next) {
-        if (previous?.status != next.status ||
-            previous?.isFirstLogin != next.isFirstLogin) {
-          print('인증 상태 변경: ${previous?.status} -> ${next.status}');
-          notifyListeners();
-        }
-      },
-      onError: (error, stackTrace) {
-        print('인증 상태 감시 중 오류: $error');
-      },
-    );
-  }
-
-  @override
-  void dispose() {
-    _subscription?.close();
-    super.dispose();
+  GoRouterNotifier(this._ref) : _previousState = AuthState.unknown() {
+    _ref.listen<AuthState>(authStateNotifierProvider, (previous, next) {
+      if (previous?.status != next.status ||
+          previous?.isFirstLogin != next.isFirstLogin) {
+        print('인증 상태 변경: ${previous?.status} -> ${next.status}');
+        _previousState = next;
+        notifyListeners();
+      }
+    });
   }
 }
