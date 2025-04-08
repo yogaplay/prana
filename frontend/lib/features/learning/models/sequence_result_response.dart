@@ -21,21 +21,21 @@ class SequenceResultResponse {
 
   factory SequenceResultResponse.fromJson(Map<String, dynamic> json) {
     return SequenceResultResponse(
-      sequenceId: json['sequenceId'],
-      sequenceName: json['sequenceName'],
-      yogaTime: json['yogaTime'],
-      sequenceCnt: json['sequenceCnt'],
-      totalAccuracy: json['totalAccuracy'],
+      sequenceId: json['sequenceId'] ?? 0,
+      sequenceName: json['sequenceName'] ?? '',
+      yogaTime: json['yogaTime'] ?? 0,
+      sequenceCnt: json['sequenceCnt'] ?? 0,
+      totalAccuracy: json['totalAccuracy'] ?? 0,
       totalFeedback:
-          (json['totalFeedback'] as List)
+          ((json['totalFeedback'] as List?) ?? [])
               .map((e) => FeedbackItem.fromJson(e))
               .toList(),
       recommendSequence:
-          (json['recommendSequence'] as List)
+          ((json['recommendSequence'] as List?) ?? [])
               .map((e) => RecommendedSequence.fromJson(e))
               .toList(),
       positionAccuracy:
-          (json['positionAccuracy'] as List)
+          ((json['positionAccuracy'] as List?) ?? [])
               .map((e) => PositionAccuracy.fromJson(e))
               .toList(),
     );
@@ -50,8 +50,8 @@ class FeedbackItem {
 
   factory FeedbackItem.fromJson(Map<String, dynamic> json) {
     return FeedbackItem(
-      position: json['position'],
-      feedbackCnt: json['feedbackCnt'],
+      position: json['position'] ?? '',
+      feedbackCnt: json['feedbackCnt'] ?? 0,
     );
   }
 }
@@ -71,10 +71,10 @@ class RecommendedSequence {
 
   factory RecommendedSequence.fromJson(Map<String, dynamic> json) {
     return RecommendedSequence(
-      sequenceId: json['sequenceId'],
-      sequenceName: json['sequenceName'],
-      sequenceTime: json['sequenceTime'],
-      sequenceImage: json['sequenceImage'],
+      sequenceId: json['sequenceId'] ?? 0,
+      sequenceName: json['sequenceName'] ?? '',
+      sequenceTime: json['sequenceTime'] ?? 0,
+      sequenceImage: json['sequenceImage'] ?? 'https://picsum.photos/100/150',
     );
   }
 }
@@ -87,8 +87,8 @@ class PoseFeedbackItem {
 
   factory PoseFeedbackItem.fromJson(Map<String, dynamic> json) {
     return PoseFeedbackItem(
-      feedback: json['feedback'],
-      feedbackCnt: json['feedbackCnt'],
+      feedback: json['feedback'] ?? '',
+      feedbackCnt: json['feedbackCnt'] ?? 0,
     );
   }
 }
@@ -110,12 +110,12 @@ class PositionAccuracy {
 
   factory PositionAccuracy.fromJson(Map<String, dynamic> json) {
     return PositionAccuracy(
-      yogaId: json['yogaId'],
-      yogaName: json['yogaName'],
-      image: json['image'],
-      accuracy: json['accuracy'],
+      yogaId: json['yogaId'] ?? 0,
+      yogaName: json['yogaName'] ?? '',
+      image: json['image'] ?? 'https://picsum.photos/100',
+      accuracy: json['accuracy'] ?? 0,
       feedback:
-          (json['feedback'] as List)
+          ((json['feedback'] as List?) ?? [])
               .map((e) => PoseFeedbackItem.fromJson(e))
               .toList(),
     );

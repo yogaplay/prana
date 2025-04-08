@@ -12,6 +12,7 @@ import 'package:frontend/features/learning/widgets/result/recommended_sequences_
 import 'package:frontend/features/learning/widgets/result/stat_card.dart';
 import 'package:frontend/features/search/models/yoga_item.dart';
 import 'package:frontend/widgets/button.dart';
+import 'package:go_router/go_router.dart';
 
 class SequenceResultScreen extends ConsumerWidget {
   final int userSequenceId;
@@ -43,7 +44,7 @@ class SequenceResultScreen extends ConsumerWidget {
       child: Stack(
         children: [
           ListView(
-            padding: EdgeInsets.fromLTRB(16, 16, 16, 140),
+            padding: EdgeInsets.fromLTRB(16, 16, 16, 100),
             children: [
               CongratulationsMessage(),
               CompletedSequenceBanner(
@@ -153,7 +154,17 @@ class SequenceResultScreen extends ConsumerWidget {
             width: double.infinity,
             color: const Color.fromARGB(255, 255, 255, 255),
             padding: const EdgeInsets.only(bottom: 24),
-            child: Column(children: [Button(text: '종료', onPressed: () {})]),
+            child: Column(
+              children: [
+                Button(
+                  text: '종료',
+                  onPressed: () {
+                    Navigator.of(context).popUntil((route) => route.isFirst);
+                    GoRouter.of(context).go('/activity');
+                  },
+                ),
+              ],
+            ),
           ),
         ],
       ),

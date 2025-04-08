@@ -10,6 +10,9 @@ class SequenceResultService {
     required int userSequenceId,
     required int sequenceId,
   }) async {
+    print('API 요청 시작!');
+    print('userSequenceId: $userSequenceId');
+    print('sequenceId: $sequenceId');
     final response = await _apiClient.get(
       '/yoga/end',
       queryParameters: {
@@ -17,6 +20,8 @@ class SequenceResultService {
         'sequenceId': sequenceId.toString(),
       },
     );
+
+    print('응답: $response');
 
     return SequenceResultResponse.fromJson(response);
   }
