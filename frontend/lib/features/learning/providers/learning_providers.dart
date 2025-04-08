@@ -202,7 +202,7 @@ class CountdownNotifier extends StateNotifier<int> {
 
       if (skipAllTutorials) {
         _ref.read(learningStateProvider.notifier).state =
-            LearningState.practice;
+            LearningState.preparing;
 
         startCountdown(
           sequenceProvider.yogaSequence[nextIndex].yogaTime,
