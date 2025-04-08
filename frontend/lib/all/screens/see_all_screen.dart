@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:frontend/all/providers/see_all_provider.dart';
+import 'package:frontend/constants/app_colors.dart';
 import 'package:frontend/widgets/yoga_tile.dart';
 
 class SeeAllScreen extends ConsumerWidget {
@@ -73,7 +74,12 @@ class SeeAllScreen extends ConsumerWidget {
                     );
                   },
                   error: (error, _) => Center(child: Text('오류 발생: $error')),
-                  loading: () => Center(child: CircularProgressIndicator()),
+                  loading:
+                      () => Center(
+                        child: CircularProgressIndicator(
+                          color: AppColors.primary,
+                        ),
+                      ),
                 ),
               ),
             ],

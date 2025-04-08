@@ -23,6 +23,7 @@ class SequenceHeader extends StatelessWidget {
                 color: AppColors.lightGray,
                 child: Center(
                   child: CircularProgressIndicator(
+                    color: AppColors.primary,
                     value:
                         loadingProgress.expectedTotalBytes != null
                             ? loadingProgress.cumulativeBytesLoaded /
