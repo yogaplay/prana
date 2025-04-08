@@ -113,7 +113,7 @@ public class YogaSequenceService {
             String tagKorFirst = TagUtil.ENG_TO_KOR.get(groupNameFirst);
             if (tagKorFirst != null) {
                 bodyF = tagKorFirst;
-                List<Sequence> sequences = sequenceRepository.findTop3BySequenceTag_Tag_Name(tagKorFirst);
+                List<Sequence> sequences = sequenceRepository.findTop3SequencesByTagName(tagKorFirst);
                 recommendSequenceF = sequences.stream()
                         .map(seq -> RecommendSequence.builder()
                                 .sequenceId(seq.getId())
@@ -130,7 +130,7 @@ public class YogaSequenceService {
                 String tagKorSecond = TagUtil.ENG_TO_KOR.get(groupNameSecond);
                 if (tagKorSecond != null) {
                     bodyS = tagKorSecond;
-                    List<Sequence> sequences = sequenceRepository.findTop3BySequenceTag_Tag_Name(tagKorSecond);
+                    List<Sequence> sequences = sequenceRepository.findTop3SequencesByTagName(tagKorSecond);
                     recommendSequenceS = sequences.stream()
                             .map(seq -> RecommendSequence.builder()
                                     .sequenceId(seq.getId())
