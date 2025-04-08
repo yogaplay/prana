@@ -26,14 +26,15 @@ class PoseItem extends StatelessWidget {
             borderRadius: BorderRadius.circular(8),
           ),
           child: Image.network(
-            imageUrl, 
-            fit: BoxFit.cover, 
-            width: 90, 
+            imageUrl,
+            fit: BoxFit.cover,
+            width: 90,
             height: 90,
             loadingBuilder: (context, child, loadingProgress) {
               if (loadingProgress == null) return child;
               return Center(
                 child: CircularProgressIndicator(
+                  color: AppColors.primary,
                   value:
                       loadingProgress.expectedTotalBytes != null
                           ? loadingProgress.cumulativeBytesLoaded /

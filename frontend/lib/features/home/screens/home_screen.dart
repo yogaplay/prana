@@ -30,8 +30,11 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
     return homeDataAsync.when(
       data: (data) => _buildHomeUI(data, context),
       loading:
-          () =>
-              const Scaffold(body: Center(child: CircularProgressIndicator())),
+          () => const Scaffold(
+            body: Center(
+              child: CircularProgressIndicator(color: AppColors.primary),
+            ),
+          ),
       error:
           (error, stackTrace) => Scaffold(
             body: Center(
@@ -215,14 +218,15 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
           child: ListTile(
             leading: ClipRRect(
               borderRadius: BorderRadius.circular(8),
-              child: item.image != null
-                  ? Image.network(
-                      item.image!,
-                      width: 50,
-                      height: 50,
-                      fit: BoxFit.cover,
-                    )
-                  : const Icon(Icons.image_not_supported),
+              child:
+                  item.image != null
+                      ? Image.network(
+                        item.image!,
+                        width: 50,
+                        height: 50,
+                        fit: BoxFit.cover,
+                      )
+                      : const Icon(Icons.image_not_supported),
             ),
             title: SingleChildScrollView(
               scrollDirection: Axis.horizontal,
@@ -247,7 +251,6 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
       },
     );
   }
-
 
   Widget _buildSectionWithSeeAll(
     String title,
@@ -374,7 +377,10 @@ class _DetailPageState extends ConsumerState<DetailPage> {
         centerTitle: false,
       ),
       body: detailAsync.when(
-        loading: () => const Center(child: CircularProgressIndicator()),
+        loading:
+            () => const Center(
+              child: CircularProgressIndicator(color: AppColors.primary),
+            ),
         error:
             (error, stackTrace) =>
                 Center(child: Text('에러 발생: ${error.toString()}')),
@@ -537,20 +543,26 @@ class _DetailPageState extends ConsumerState<DetailPage> {
                   SingleChildScrollView(
                     scrollDirection: Axis.horizontal,
                     child: Row(
-                      children: item.tagList.map<Widget>(
-                        (tag) => Container(
-                          margin: const EdgeInsets.only(right: 8),
-                          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                          decoration: BoxDecoration(
-                            color: const Color(0xffE8FAF1),
-                            borderRadius: BorderRadius.circular(12),
-                          ),
-                          child: Text(
-                            tag,
-                            style: const TextStyle(fontSize: 12),
-                          ),
-                        ),
-                      ).toList(),
+                      children:
+                          item.tagList
+                              .map<Widget>(
+                                (tag) => Container(
+                                  margin: const EdgeInsets.only(right: 8),
+                                  padding: const EdgeInsets.symmetric(
+                                    horizontal: 8,
+                                    vertical: 4,
+                                  ),
+                                  decoration: BoxDecoration(
+                                    color: const Color(0xffE8FAF1),
+                                    borderRadius: BorderRadius.circular(12),
+                                  ),
+                                  child: Text(
+                                    tag,
+                                    style: const TextStyle(fontSize: 12),
+                                  ),
+                                ),
+                              )
+                              .toList(),
                     ),
                   ),
                 ],

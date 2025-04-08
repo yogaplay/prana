@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:frontend/constants/app_colors.dart';
 import 'package:frontend/features/report/models/weekly_yoga_data.dart';
 import 'package:frontend/features/report/providers/weekly_report_provider.dart';
 import 'package:frontend/features/report/widgets/feedback_summary_text.dart';
@@ -86,7 +87,10 @@ class ReportScreen extends ConsumerWidget {
             );
           },
           error: (err, stack) => Center(child: Text('에러 발생: $err')),
-          loading: () => Center(child: CircularProgressIndicator()),
+          loading:
+              () => Center(
+                child: CircularProgressIndicator(color: AppColors.primary),
+              ),
         ),
       ),
     );
