@@ -75,6 +75,14 @@ class _AppState extends ConsumerState<App> {
       theme: ThemeData(
         fontFamily: 'Pretendard',
         scaffoldBackgroundColor: AppColors.background,
+        useMaterial3: true, // ✅ 추가
+        appBarTheme: const AppBarTheme(
+          backgroundColor: Colors.white,
+          elevation: 0,
+          surfaceTintColor: Colors.transparent, // ✅ 중요: 배경색 변화 방지
+          scrolledUnderElevation: 0, // ✅ 스크롤 시 그림자 제거
+          foregroundColor: Colors.black,
+        ),
       ),
       routerConfig: ref.watch(routerProvider),
     );
