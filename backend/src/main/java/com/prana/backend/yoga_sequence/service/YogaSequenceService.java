@@ -4,7 +4,6 @@ import com.prana.backend.calendar.service.TagUtil;
 import com.prana.backend.common.exception.sequence.SequenceNotFoundException;
 import com.prana.backend.common.exception.user.UserNotFoundException;
 import com.prana.backend.entity.*;
-import com.prana.backend.entity.YogaFeedback;
 import com.prana.backend.home.repository.StarRepository;
 import com.prana.backend.user_music.repository.JpaUserMusicRepository;
 import com.prana.backend.sequence.repository.SequenceRepository;
@@ -98,9 +97,52 @@ public class YogaSequenceService {
                     .build());
         }
 
-
         List<FeedbackResponse> feedbackResponses = sequenceBodyRepository.findFeedbackByUserSequenceId(userSequenceId);
-        List<RecommendSequence> recommendSequences = getRecommendedSequences(userSequenceId);
+
+        // 피드백 그룹 집계 결과 조회
+        List<Object[]> aggregates = sequenceBodyRepository.aggregateFeedbackByGroup(userSequenceId);
+        String bodyF = "";
+        String bodyS = "";
+        List<RecommendSequence> recommendSequenceF = Collections.emptyList();
+        List<RecommendSequence> recommendSequenceS = Collections.emptyList();
+
+        if (!aggregates.isEmpty()) {
+            // 첫 번째 추천 그룹 (bodyF)
+            Object[] topAggregate = aggregates.get(0);
+            String groupNameFirst = (String) topAggregate[0];
+            String tagKorFirst = TagUtil.ENG_TO_KOR.get(groupNameFirst);
+            if (tagKorFirst != null) {
+                bodyF = tagKorFirst;
+                List<Sequence> sequences = sequenceRepository.findTop3BySequenceTag_Tag_Name(tagKorFirst);
+                recommendSequenceF = sequences.stream()
+                        .map(seq -> RecommendSequence.builder()
+                                .sequenceId(seq.getId())
+                                .sequenceName(seq.getName())
+                                .sequenceTime(seq.getTime())
+                                .sequenceImage(seq.getImage())
+                                .build())
+                        .collect(Collectors.toList());
+            }
+            // 두 번째 추천 그룹 (bodyS) 존재 여부 확인
+            if (aggregates.size() > 1) {
+                Object[] secondAggregate = aggregates.get(1);
+                String groupNameSecond = (String) secondAggregate[0];
+                String tagKorSecond = TagUtil.ENG_TO_KOR.get(groupNameSecond);
+                if (tagKorSecond != null) {
+                    bodyS = tagKorSecond;
+                    List<Sequence> sequences = sequenceRepository.findTop3BySequenceTag_Tag_Name(tagKorSecond);
+                    recommendSequenceS = sequences.stream()
+                            .map(seq -> RecommendSequence.builder()
+                                    .sequenceId(seq.getId())
+                                    .sequenceName(seq.getName())
+                                    .sequenceTime(seq.getTime())
+                                    .sequenceImage(seq.getImage())
+                                    .build())
+                            .collect(Collectors.toList());
+                }
+            }
+        }
+
         int averageAccuracy = (int) Math.round(accuracyResponses.stream()
                 .mapToInt(AccuracyResponse::getAccuracy)
                 .average()
@@ -110,44 +152,15 @@ public class YogaSequenceService {
         return FinishResponse.builder()
                 .sequenceId(sequence.getId())
                 .sequenceName(sequence.getName())
-                .yogaTime(sequence.getTime() / 60)
+                .yogaTime(sequence.getTime() / 30)
                 .sequenceCnt(sequence.getYogaCount())
                 .totalAccuracy(averageAccuracy)
                 .totalFeedback(feedbackResponses)
-                .recommendSequence(recommendSequences)
+                .recommendSequenceF(recommendSequenceF)
+                .recommendSequenceS(recommendSequenceS)
                 .positionAccuracy(accuracyResponses)
+                .bodyF(bodyF)
+                .bodyS(bodyS)
                 .build();
     }
-
-
-    public List<RecommendSequence> getRecommendedSequences(Integer userSequenceId) {
-        // 1. 피드백 집계: 그룹별 총 피드백 수를 내림차순 정렬하여 조회
-        List<Object[]> aggregates = sequenceBodyRepository.aggregateFeedbackByGroup(userSequenceId);
-        if (aggregates.isEmpty()) {
-            return Collections.emptyList();
-        }
-
-        // 2. 가장 피드백이 많은 그룹 선택 (첫 번째 결과)
-        Object[] topAggregate = aggregates.get(0);
-        String groupName = (String) topAggregate[0]; // 예: "back", "arm", "leg", "core"
-
-        // 3. 영문 그룹명을 한글 태그명으로 변환 (Tag 테이블의 tag_name과 일치)
-        String tagKor = TagUtil.ENG_TO_KOR.get(groupName);
-        if(tagKor == null) {
-            return Collections.emptyList();
-        }
-
-        // 4. 해당 태그에 맞는 시퀀스들을 조회하여 반환
-        List<Sequence> sequences = sequenceRepository.findSequencesByTagName(tagKor);
-
-        return sequences.stream()
-                .map(seq -> RecommendSequence.builder()
-                        .sequenceId(seq.getId())
-                        .sequenceName(seq.getName())
-                        .sequenceTime(seq.getTime())
-                        .sequenceImage(seq.getImage())
-                        .build())
-                .collect(Collectors.toList());
-    }
-
 }
