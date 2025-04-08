@@ -6,7 +6,6 @@ import 'package:frontend/core/providers/providers.dart';
 import 'package:frontend/features/auth/screens/onboarding_screen.dart';
 import 'package:frontend/features/auth/screens/signup_screen.dart';
 import 'package:frontend/features/home/screens/home_screen.dart';
-import 'package:frontend/features/learning/screens/learning/temp_result_page.dart';
 import 'package:frontend/features/learning/screens/sequence_result_screen.dart';
 import 'package:frontend/features/report/screens/report_screen.dart';
 import 'package:frontend/features/learning/screens/learning_screen.dart';
@@ -75,19 +74,23 @@ final routerProvider = Provider<GoRouter>((ref) {
           GoRoute(
             path: "/home",
             name: "home",
-            builder: (_, __) => const HomeScreen(),
+            pageBuilder: (_, __) => NoTransitionPage(child: HomeScreen()),
           ),
           GoRoute(
             path: "/search",
             name: "search",
-            builder: (_, __) => SearchMainScreen(),
+            pageBuilder: (_, __) => NoTransitionPage(child: SearchMainScreen()),
           ),
           GoRoute(
             path: "/activity",
             name: "activity",
-            builder: (_, __) => ActivityPage(),
+            pageBuilder: (_, __) => NoTransitionPage(child: ActivityPage()),
           ),
-          GoRoute(path: "/info", name: "info", builder: (_, __) => InfoPage()),
+          GoRoute(
+            path: "/info",
+            name: "info",
+            pageBuilder: (_, __) => NoTransitionPage(child: InfoPage()),
+          ),
         ],
       ),
       GoRoute(
@@ -178,17 +181,15 @@ final routerProvider = Provider<GoRouter>((ref) {
   );
 });
 
-// GoRouter 상태 변화를 감지하기 위한 클래스 개선
+// GoRouter 상태 변화를 감지하기 위한 클래스
 class GoRouterNotifier extends ChangeNotifier {
   final Ref _ref;
-  AuthState _previousState;
 
-  GoRouterNotifier(this._ref) : _previousState = AuthState.unknown() {
+  GoRouterNotifier(this._ref) {
     _ref.listen<AuthState>(authStateNotifierProvider, (previous, next) {
       if (previous?.status != next.status ||
           previous?.isFirstLogin != next.isFirstLogin) {
         print('인증 상태 변경: ${previous?.status} -> ${next.status}');
-        _previousState = next;
         notifyListeners();
       }
     });
