@@ -91,8 +91,19 @@ class SequenceResultScreen extends ConsumerWidget {
               ),
               SizedBox(height: 16),
               RecommendedSequencesAccordion(
-                recommendedSequences:
-                    result.recommendSequence.map((r) {
+                bodyF: result.bodyF,
+                bodyS: result.bodyS,
+                sequencesF:
+                    result.recommendSequenceF.map((r) {
+                      return YogaItem(
+                        id: r.sequenceId,
+                        title: r.sequenceName,
+                        duration: '${(r.sequenceTime / 60).round()}분',
+                        imageUrl: r.sequenceImage,
+                      );
+                    }).toList(),
+                sequencesS:
+                    result.recommendSequenceS.map((r) {
                       return YogaItem(
                         id: r.sequenceId,
                         title: r.sequenceName,

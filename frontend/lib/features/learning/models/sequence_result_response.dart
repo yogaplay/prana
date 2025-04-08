@@ -4,8 +4,11 @@ class SequenceResultResponse {
   final int yogaTime;
   final int sequenceCnt;
   final int totalAccuracy;
+  final String bodyF;
+  final String bodyS;
   final List<FeedbackItem> totalFeedback;
-  final List<RecommendedSequence> recommendSequence;
+  final List<RecommendedSequence> recommendSequenceF;
+  final List<RecommendedSequence> recommendSequenceS;
   final List<PositionAccuracy> positionAccuracy;
 
   SequenceResultResponse({
@@ -14,8 +17,11 @@ class SequenceResultResponse {
     required this.yogaTime,
     required this.sequenceCnt,
     required this.totalAccuracy,
+    required this.bodyF,
+    required this.bodyS,
     required this.totalFeedback,
-    required this.recommendSequence,
+    required this.recommendSequenceF,
+    required this.recommendSequenceS,
     required this.positionAccuracy,
   });
 
@@ -26,14 +32,20 @@ class SequenceResultResponse {
       yogaTime: json['yogaTime'] ?? 0,
       sequenceCnt: json['sequenceCnt'] ?? 0,
       totalAccuracy: json['totalAccuracy'] ?? 0,
+      bodyF: json['bodyF'] ?? '',
+      bodyS: json['bodyS'] ?? '',
       totalFeedback:
           ((json['totalFeedback'] as List?) ?? [])
               .map((e) => FeedbackItem.fromJson(e))
               .toList(),
-      recommendSequence:
-          ((json['recommendSequence'] as List?) ?? [])
-              .map((e) => RecommendedSequence.fromJson(e))
-              .toList(),
+      recommendSequenceF:
+          ((json['recommendSequenceF'] as List).map(
+            (e) => RecommendedSequence.fromJson(e),
+          )).toList(),
+      recommendSequenceS:
+          ((json['recommendSequenceS'] as List).map(
+            (e) => RecommendedSequence.fromJson(e),
+          )).toList(),
       positionAccuracy:
           ((json['positionAccuracy'] as List?) ?? [])
               .map((e) => PositionAccuracy.fromJson(e))
