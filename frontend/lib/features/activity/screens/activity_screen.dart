@@ -75,6 +75,7 @@ class _ActivityPageState extends ConsumerState<ActivityPage> {
 
     return Scaffold(
       appBar: AppBar(
+        backgroundColor: Colors.white,
         title: const Text(
           '활동',
           style: TextStyle(
@@ -123,84 +124,115 @@ class _ActivityPageState extends ConsumerState<ActivityPage> {
             ),
           ),
           Expanded(
-            child: ListView(
+            child: _getEventsForDay(displayDay).isEmpty
+              ? const Center(
+                  child: Text(
+                    '해당 날짜의 운동 기록이 없습니다.',
+                  ) 
+              ) 
+            :ListView(
               padding: const EdgeInsets.symmetric(horizontal: 16),
               children:
                   _getEventsForDay(displayDay).map((event) {
                     final title = event['sequence_name'] ?? '제목 없음';
-                    final percentText = '${event['percent'] ?? '0'}%';
-                    final parsedValue =
-                        double.tryParse(event['percent'] ?? '0') ?? 0.0;
+                    final percentRaw = event['percent'];
+                    final parsedValue = double.tryParse(
+                      (percentRaw == null || percentRaw == 'null') ? '0' : percentRaw
+                    ) ?? 0.0;
+
+                    final percentText = '${parsedValue.toInt()}%';
                     final imageUrl = event['image'] ?? '';
                     final isDone = event['result_status'] == 'Y';
 
-                    return Container(
-                      margin: const EdgeInsets.only(bottom: 12),
-                      padding: const EdgeInsets.all(12),
-                      decoration: BoxDecoration(
-                        color: Colors.grey.shade100,
-                        borderRadius: BorderRadius.circular(12),
-                      ),
-                      child: Row(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          ClipRRect(
-                            borderRadius: BorderRadius.circular(8),
-                            child: Image.network(
-                              imageUrl,
-                              width: 75,
-                              height: 75,
-                              fit: BoxFit.cover,
-                              errorBuilder:
-                                  (_, __, ___) => Image.asset(
-                                    'assets/images/Uttana_Shishosana.png',
-                                    width: 75,
-                                    height: 75,
-                                    fit: BoxFit.cover,
-                                  ),
-                            ),
-                          ),
-                          const SizedBox(width: 12),
-                          Icon(
-                            isDone ? Icons.check_circle : Icons.more_horiz,
-                            size: 16,
-                            color:
-                                isDone
-                                    ? const Color(0xFF7ECECA)
-                                    : Colors.black54,
-                          ),
-                          const SizedBox(width: 12),
-                          Expanded(
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
+                    return InkWell(
+                      onTap: () {
+                        // if (percentText == '100%') {
+                        //   context.push('/sequence/${event['sequeunce_id']}/result/${event['user_sequence_id']}');
+                        // } else {
+                        //   context.push('/sequence/${event['sequence_id']}');
+                        // }
+                        context.push('/sequence/${event['sequence_id']}');
+                        
+                      },
+                      child: Container(
+                        margin: const EdgeInsets.only(bottom: 16),
+                        child: Row(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Stack(
+                              alignment: Alignment.topRight,
                               children: [
-                                Text(
-                                  title,
-                                  style: const TextStyle(
-                                    fontFamily: 'Pretendard',
-                                    fontWeight: FontWeight.bold,
+                                ClipRRect(
+                                  borderRadius: BorderRadius.circular(12),
+                                  child: Image.network(
+                                    imageUrl,
+                                    width: 60,
+                                    height: 60,
+                                    fit: BoxFit.cover,
+                                    errorBuilder: (_, __, ___) => Image.asset(
+                                      'assets/images/Uttana_Shishosana.png',
+                                      width: 60,
+                                      height: 60,
+                                      fit: BoxFit.cover,
+                                    ),
                                   ),
                                 ),
-                                const SizedBox(height: 4),
-                                LinearProgressIndicator(
-                                  value: parsedValue / 100,
-                                  backgroundColor: const Color(0xffE8FAF1),
-                                  color: const Color(0xff7ECECA),
-                                ),
-                                Align(
-                                  alignment: Alignment.centerRight,
-                                  child: Text(
-                                    percentText,
-                                    style: const TextStyle(
-                                      fontFamily: 'Pretendard',
-                                      fontSize: 12,
+                                Positioned(
+                                  top: 4,
+                                  right: 4,
+                                  child: CircleAvatar(
+                                    radius: 10,
+                                    backgroundColor: Colors.white,
+                                    child: Icon(
+                                      isDone ? Icons.check_circle : Icons.more_horiz,
+                                      size: 16,
+                                      color: isDone ? const Color(0xff7ECECA) : Colors.grey,
                                     ),
                                   ),
                                 ),
                               ],
                             ),
-                          ),
-                        ],
+                            const SizedBox(width: 12),
+                            Expanded(
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  // 제목
+                                  SingleChildScrollView(
+                                    scrollDirection: Axis.horizontal,
+                                    child: Text(
+                                      title,
+                                      style: const TextStyle(
+                                        fontSize: 16,
+                                        fontWeight: FontWeight.bold,
+                                        fontFamily: 'Pretendard',
+                                      ),
+                                    ),
+                                  ),
+                                  const SizedBox(height: 4),
+                                  // 진행률 바 + 퍼센트
+                                  Row(
+                                    children: [
+                                      Text(
+                                        percentText,
+                                        style: const TextStyle(fontSize: 12),
+                                      ),
+                                      const SizedBox(width: 8),
+                                      Expanded(
+                                        child: LinearProgressIndicator(
+                                          value: parsedValue / 100,
+                                          backgroundColor: const Color(0xffE8FAF1),
+                                          color: const Color(0xff7ECECA),
+                                          minHeight: 4,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ],
+                        ),
                       ),
                     );
                   }).toList(),
