@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'dart:io';
+import 'dart:typed_data';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:frontend/features/learning/providers/learning_providers.dart';
 import 'package:frontend/features/learning/providers/sequence_providers.dart';
@@ -34,12 +35,12 @@ class FeedbackManager {
   void startFeedback() {
     _shortFeedbackTimer = Timer.periodic(
       const Duration(milliseconds: 500),
-      (_) => _getShortFeedback(),
+          (_) => _getShortFeedback(),
     );
 
     _longFeedbackTimer = Timer.periodic(
       const Duration(seconds: 5),
-      (_) => _getLongFeedback(),
+          (_) => _getLongFeedback(),
     );
 
     print('피드백 타이머 시작 완료');
@@ -89,9 +90,6 @@ class FeedbackManager {
   Future<void> _getLongFeedback() async {
     if (_isDisposed) return;
 
-    AudioPlayer? audioPlayer;
-    File? tempFile;
-
     try {
       final feedbackData = _getFeedbackData();
       if (feedbackData == null || _isDisposed) return;
@@ -108,43 +106,64 @@ class FeedbackManager {
       if (feedback.isNotEmpty && !_isDisposed) {
         print("피드백: $feedback");
 
-        final audioBytes = await feedbackData.learningService.getTtsAudio(
-          feedback,
-        );
+        final audioBytes = await feedbackData.learningService.getTtsAudio(feedback);
         if (_isDisposed) return;
-
-        // 임시 파일 저장 (고유한 파일명 사용)
-        final timestamp = DateTime.now().millisecondsSinceEpoch;
-        tempFile = File(
-          '${(await getTemporaryDirectory()).path}/tts_audio_$timestamp.mp3',
-        );
-        await tempFile.writeAsBytes(audioBytes);
-        if (_isDisposed) {
-          await tempFile.delete(); // 이미 dispose된 경우 파일 정리
-          return;
-        }
-
-        // just_audio 재생
-        audioPlayer = AudioPlayer();
-        await audioPlayer.setFilePath(tempFile.path);
-
-        // 재생 완료 이벤트 리스너 추가
-        audioPlayer.processingStateStream.listen((state) {
-          if (state == ProcessingState.completed && !_isDisposed) {
-            _cleanupAudioResources(audioPlayer, tempFile);
-          }
-        });
-
-        if (!_isDisposed) {
-          await audioPlayer.play();
-        } else {
-          _cleanupAudioResources(audioPlayer, tempFile);
-        }
+        await _handleTtsFeedbackFromBytes(audioBytes);
       }
     } catch (e) {
       print('에러 발생!! Long Feedback ERROR: $e');
-      // 오류 발생 시 리소스 정리
+    }
+  }
+
+  /// TTS 오디오 바이트를 받아 처리하는 함수
+  Future<void> _handleTtsFeedbackFromBytes(Uint8List audioBytes) async {
+    AudioPlayer? audioPlayer;
+    File? tempFile;
+    try {
+      if (_isDisposed) return;
+
+      // 임시 파일 저장 (고유한 파일명 사용)
+      final timestamp = DateTime.now().millisecondsSinceEpoch;
+      final tempDir = await getTemporaryDirectory();
+      tempFile = File('${tempDir.path}/tts_audio_$timestamp.mp3');
+      await tempFile.writeAsBytes(audioBytes);
+      if (_isDisposed) {
+        await tempFile.delete();
+        return;
+      }
+
+      // just_audio를 이용해 파일 재생
+      audioPlayer = AudioPlayer();
+      await audioPlayer.setFilePath(tempFile.path);
+
+      // 재생 완료 이벤트 리스너 추가
+      audioPlayer.processingStateStream.listen((state) {
+        if (state == ProcessingState.completed && !_isDisposed) {
+          _cleanupAudioResources(audioPlayer!, tempFile!);
+        }
+      });
+
+      if (!_isDisposed) {
+        await audioPlayer.play();
+      } else {
+        _cleanupAudioResources(audioPlayer, tempFile);
+      }
+    } catch (e) {
+      print('에러 발생!! TTS 처리 중 에러: $e');
       _cleanupAudioResources(audioPlayer, tempFile);
+    }
+  }
+
+  /// 요가 자세 정보를 TTS로 재생하는 함수
+  Future<void> speakYogaPose(String poseName) async {
+    final textToSpeak = "$poseName 자세입니다.";
+
+    final learningService = _ref.read(learningServiceProvider);
+    try {
+      final audioBytes = await learningService.getTtsAudio(textToSpeak);
+      await _handleTtsFeedbackFromBytes(audioBytes);
+    } catch (e) {
+      print('TTS 처리 중 오류 (요가 자세): $e');
     }
   }
 
