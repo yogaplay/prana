@@ -54,6 +54,7 @@ class _RecommendedYogaSectionState extends State<RecommendedYogaSection> {
               title: entry.key,
               items: entry.value,
               tagType: '운동 부위',
+              padding: EdgeInsets.zero,
             );
           }),
       ],

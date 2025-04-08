@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:frontend/constants/app_colors.dart';
 import 'package:frontend/core/providers/providers.dart';
 import 'package:frontend/features/alarm/widgets/alarm_icon_button.dart';
+import 'package:frontend/widgets/tag.dart';
 import 'package:go_router/go_router.dart';
 
 import '../models/home_model.dart';
@@ -55,39 +56,51 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
   }
 
   Widget _buildHomeUI(ReportResponse data, BuildContext context) {
-    return Scaffold(
-      backgroundColor: Colors.white,
-      appBar: AppBar(
+    return SafeArea(
+      child: Scaffold(
         backgroundColor: Colors.white,
-        elevation: 0,
-        title: Text(
-          '오늘도 화이팅, ${data.report.nickname}님! 🔥',
-          style: const TextStyle(
-            fontFamily: 'Pretendard',
-            fontSize: 24,
-            fontWeight: FontWeight.bold,
-            color: Colors.black,
-          ),
-        ),
-        actions: [AlarmIconButton()],
-      ),
-      body: SingleChildScrollView(
-        padding: const EdgeInsets.symmetric(horizontal: 20),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            _buildReportCard(data.report, context),
-            _buildSectionWithSeeAll(
-              '최근',
-              context,
-              _buildRecentActivity(data.recentList, context),
+        appBar: AppBar(
+          titleSpacing: 0,
+          backgroundColor: Colors.transparent,
+          toolbarHeight: 80,
+          elevation: 0,
+          title: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 25),
+            child: Text(
+              '오늘도 화이팅, ${data.report.nickname}님! 🔥',
+              style: const TextStyle(
+                fontFamily: 'Pretendard',
+                fontSize: 24,
+                fontWeight: FontWeight.bold,
+                color: Colors.black,
+              ),
             ),
-            _buildSectionWithSeeAll(
-              '즐겨찾기',
-              context,
-              _buildFavoriteWorkout(data.starList, context),
+          ),
+          actions: [
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 25),
+              child: AlarmIconButton(),
             ),
           ],
+        ),
+        body: SingleChildScrollView(
+          padding: const EdgeInsets.symmetric(horizontal: 25),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              _buildReportCard(data.report, context),
+              _buildSectionWithSeeAll(
+                '최근',
+                context,
+                _buildRecentActivity(data.recentList, context),
+              ),
+              _buildSectionWithSeeAll(
+                '즐겨찾기',
+                context,
+                _buildFavoriteWorkout(data.starList, context),
+              ),
+            ],
+          ),
         ),
       ),
     );
@@ -163,6 +176,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
             context.push('/sequence/${activity.sequenceId}');
           },
           child: ListTile(
+            contentPadding: EdgeInsets.symmetric(horizontal: 0),
             leading: ClipRRect(
               borderRadius: BorderRadius.circular(8),
               child: Image.network(
@@ -216,6 +230,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
             context.push('/sequence/${item.sequenceId}');
           },
           child: ListTile(
+            contentPadding: EdgeInsets.symmetric(horizontal: 0),
             leading: ClipRRect(
               borderRadius: BorderRadius.circular(8),
               child:
@@ -241,11 +256,25 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
             ),
             subtitle: SingleChildScrollView(
               scrollDirection: Axis.horizontal,
-              child: Row(
-                children: item.tagList.map((tag) => _buildTag(tag)).toList(),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  SizedBox(height: 8),
+                  Row(
+                    children:
+                        item.tagList
+                            .map(
+                              (tag) => Padding(
+                                padding: EdgeInsets.only(right: 8),
+                                child: Tag(label: tag),
+                              ),
+                            )
+                            .toList(),
+                  ),
+                ],
               ),
             ),
-            trailing: const Icon(Icons.star, color: Color(0xff7ECECA)),
+            trailing: const Icon(Icons.star_rounded, color: Color(0xff7ECECA)),
           ),
         );
       },
@@ -307,24 +336,6 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
     );
   }
 
-  Widget _buildTag(String text) {
-    return Container(
-      margin: const EdgeInsets.only(right: 8, bottom: 4),
-      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-      constraints: const BoxConstraints(maxWidth: 100), // 태그 너무 길어지는 것 방지
-      decoration: BoxDecoration(
-        color: const Color(0xffE8FAF1),
-        borderRadius: BorderRadius.circular(16),
-      ),
-      child: Text(
-        text,
-        overflow: TextOverflow.ellipsis,
-        maxLines: 1,
-        style: const TextStyle(fontFamily: 'Pretendard', fontSize: 14),
-      ),
-    );
-  }
-
   String _formatTimeAgo(DateTime dateTime) {
     final Duration diff = DateTime.now().difference(dateTime);
 
@@ -359,54 +370,57 @@ class _DetailPageState extends ConsumerState<DetailPage> {
   Widget build(BuildContext context) {
     final detailAsync = ref.watch(detailDataProvider(widget.title));
 
-    return Scaffold(
-      appBar: AppBar(
-        backgroundColor: Colors.white,
-        surfaceTintColor: Colors.transparent,
-        elevation: 0,
-        shadowColor: Colors.transparent,
-        scrolledUnderElevation: 0,
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back_ios_new, color: Colors.black),
-          onPressed: () => context.pop(),
-        ),
-        title: Text(
-          widget.title,
-          style: const TextStyle(
-            fontWeight: FontWeight.bold,
-            color: Colors.black,
-          ),
-        ),
-        centerTitle: false,
-      ),
-      body: detailAsync.when(
-        loading:
-            () => const Center(
-              child: CircularProgressIndicator(color: AppColors.primary),
+    return SafeArea(
+      child: Scaffold(
+        appBar: AppBar(
+          titleSpacing: 0,
+          toolbarHeight: 80,
+          backgroundColor: Colors.white,
+          elevation: 0,
+          leading: Padding(
+            padding: const EdgeInsets.only(left: 25),
+            child: IconButton(
+              padding: EdgeInsets.zero,
+              icon: const Icon(Icons.arrow_back_ios_new, color: Colors.black),
+              onPressed: () => context.pop(),
             ),
-        error:
-            (error, stackTrace) =>
-                Center(child: Text('에러 발생: ${error.toString()}')),
-        data:
-            (data) =>
-                data.content.isEmpty
-                    ? const Center(child: Text('데이터가 없습니다.'))
-                    : ListView.builder(
-                      itemCount: data.content.length,
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 16,
-                        vertical: 8,
-                      ),
-                      itemBuilder: (context, index) {
-                        final item = data.content[index];
+          ),
+          title: Padding(
+            padding: const EdgeInsets.only(left: 10),
+            child: Text(
+              widget.title,
+              style: const TextStyle(
+                fontWeight: FontWeight.bold,
+                color: Colors.black,
+                fontSize: 24,
+              ),
+            ),
+          ),
+          centerTitle: false,
+        ),
+        body: detailAsync.when(
+          loading: () => const Center(child: CircularProgressIndicator()),
+          error:
+              (error, stackTrace) =>
+                  Center(child: Text('에러 발생: ${error.toString()}')),
+          data:
+              (data) =>
+                  data.content.isEmpty
+                      ? const Center(child: Text('데이터가 없습니다.'))
+                      : ListView.builder(
+                        itemCount: data.content.length,
+                        padding: const EdgeInsets.symmetric(vertical: 8),
+                        itemBuilder: (context, index) {
+                          final item = data.content[index];
 
-                        if (widget.title == '최근') {
-                          return _buildRecentItem(context, item);
-                        } else {
-                          return _buildStarItem(context, item);
-                        }
-                      },
-                    ),
+                          if (widget.title == '최근') {
+                            return _buildRecentItem(context, item);
+                          } else {
+                            return _buildStarItem(context, item);
+                          }
+                        },
+                      ),
+        ),
       ),
     );
   }
@@ -417,7 +431,7 @@ class _DetailPageState extends ConsumerState<DetailPage> {
         context.push('/sequence/${item.sequenceId}');
       },
       child: Container(
-        margin: const EdgeInsets.only(bottom: 24),
+        margin: const EdgeInsets.only(bottom: 25, left: 25, right: 25),
         child: Row(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -506,7 +520,7 @@ class _DetailPageState extends ConsumerState<DetailPage> {
         context.push('/sequence/${item.sequenceId}');
       },
       child: Container(
-        margin: const EdgeInsets.only(bottom: 16),
+        margin: const EdgeInsets.only(bottom: 25, left: 25, right: 25),
         child: Row(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -575,7 +589,7 @@ class _DetailPageState extends ConsumerState<DetailPage> {
             const SizedBox(width: 8),
             IconButton(
               icon: Icon(
-                item.star ? Icons.star : Icons.star_border,
+                item.star ? Icons.star_rounded : Icons.star_border_rounded,
                 color: item.star ? const Color(0xff7ECECA) : Colors.grey,
               ),
               onPressed: () async {

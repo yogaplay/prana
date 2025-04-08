@@ -12,10 +12,10 @@ class SearchInputScreen extends StatelessWidget {
     final FocusNode searchFocusNode = FocusNode();
     final controller = TextEditingController();
 
-    return Scaffold(
-      body: SafeArea(
-        child: Padding(
-          padding: const EdgeInsets.all(16),
+    return SafeArea(
+      child: Scaffold(
+        body: Padding(
+          padding: const EdgeInsets.all(25),
           child: SearchBarWithFilter(
             focusNode: searchFocusNode,
             readOnly: false,

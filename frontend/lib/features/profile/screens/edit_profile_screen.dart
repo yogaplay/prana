@@ -28,200 +28,211 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
   Widget build(BuildContext context) {
     final profileState = ref.watch(profileNotifierProvider);
 
-    return Scaffold(
-      backgroundColor: AppColors.background,
-      appBar: AppBar(
+    return SafeArea(
+      child: Scaffold(
         backgroundColor: AppColors.background,
-        elevation: 0,
-        leading: IconButton(
-          icon: const Icon(
-            Icons.arrow_back_ios,
-            color: AppColors.blackText,
-            size: 20,
+        appBar: AppBar(
+          titleSpacing: 0,
+          toolbarHeight: 80,
+          backgroundColor: AppColors.background,
+          elevation: 0,
+          leading: Padding(
+            padding: const EdgeInsets.only(left: 25),
+            child: IconButton(
+              padding: EdgeInsets.zero,
+              icon: const Icon(
+                Icons.arrow_back_ios,
+                color: AppColors.blackText,
+                size: 24,
+              ),
+              onPressed: () => Navigator.of(context).pop(),
+            ),
           ),
-          onPressed: () => Navigator.of(context).pop(),
-        ),
-        title: const Text(
-          '내 정보 수정',
-          style: TextStyle(
-            color: AppColors.blackText,
-            fontSize: 24,
-            fontWeight: FontWeight.bold,
+          title: Padding(
+            padding: const EdgeInsets.only(left: 10),
+            child: const Text(
+              '내 정보 수정',
+              style: TextStyle(
+                color: AppColors.blackText,
+                fontSize: 24,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
           ),
         ),
-      ),
-      body: profileState.when(
-        loading:
-            () => const Center(
-              child: CircularProgressIndicator(color: AppColors.primary),
-            ),
-        error:
-            (error, stack) => Center(
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  const Text(
-                    '프로필을 불러올 수 없습니다.',
-                    style: TextStyle(fontSize: 16, color: AppColors.graytext),
-                  ),
-                  const SizedBox(height: 16),
-                  ElevatedButton(
-                    onPressed: () {
-                      ref.read(profileNotifierProvider.notifier).loadProfile();
-                    },
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: AppColors.primary,
-                    ),
-                    child: const Text('다시 시도'),
-                  ),
-                ],
+        body: profileState.when(
+          loading:
+              () => const Center(
+                child: CircularProgressIndicator(color: AppColors.primary),
               ),
-            ),
-        data: (profile) {
-          if (profile == null) {
-            return const Center(child: Text('프로필 정보가 없습니다.'));
-          }
-
-          return SingleChildScrollView(
-            child: Padding(
-              padding: const EdgeInsets.symmetric(
-                horizontal: 16.0,
-                vertical: 24.0,
-              ),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  const Text(
-                    '닉네임 변경',
-                    style: TextStyle(
-                      fontSize: 20,
-                      fontWeight: FontWeight.bold,
-                      color: AppColors.blackText,
+          error:
+              (error, stack) => Center(
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    const Text(
+                      '프로필을 불러올 수 없습니다.',
+                      style: TextStyle(fontSize: 16, color: AppColors.graytext),
                     ),
-                  ),
-                  const SizedBox(height: 12),
-                  _buildInfoField(
-                    title: profile.nickname ?? '닉네임을 설정해주세요',
-                    onTap: () async {
-                      final result = await Navigator.push(
-                        context,
-                        CupertinoPageRoute(
-                          builder:
-                              (context) => EditNicknameScreen(
-                                initialNickname: profile.nickname ?? '',
-                              ),
-                        ),
-                      );
-                      if (result != null) {
-                        await ref
+                    const SizedBox(height: 16),
+                    ElevatedButton(
+                      onPressed: () {
+                        ref
                             .read(profileNotifierProvider.notifier)
-                            .updateNickname(result);
-                        if (mounted) {
-                          ref
-                              .read(profileNotifierProvider.notifier)
-                              .loadProfile();
-                          _showUpdateSuccess(context);
-                        }
-                      }
-                    },
-                  ),
-
-                  const SizedBox(height: 32),
-
-                  const Text(
-                    '정보 변경',
-                    style: TextStyle(
-                      fontSize: 20,
-                      fontWeight: FontWeight.bold,
-                      color: AppColors.blackText,
+                            .loadProfile();
+                      },
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: AppColors.primary,
+                      ),
+                      child: const Text('다시 시도'),
                     ),
-                  ),
-                  const SizedBox(height: 12),
-                  _buildInfoField(
-                    title: '나이',
-                    value: profile.age,
-                    suffix: '세',
-                    onTap: () async {
-                      final result = await Navigator.push(
-                        context,
-                        CupertinoPageRoute(
-                          builder:
-                              (context) =>
-                                  EditAgeScreen(initialAge: profile.age ?? 25),
-                        ),
-                      );
-                      if (result != null) {
-                        await ref
-                            .read(profileNotifierProvider.notifier)
-                            .updateAge(result);
-                        if (mounted) {
-                          ref
-                              .read(profileNotifierProvider.notifier)
-                              .loadProfile();
-                          _showUpdateSuccess(context);
-                        }
-                      }
-                    },
-                  ),
-                  _buildInfoField(
-                    title: '신장',
-                    value: profile.height,
-                    suffix: 'cm',
-                    onTap: () async {
-                      final result = await Navigator.push(
-                        context,
-                        CupertinoPageRoute(
-                          builder:
-                              (context) => EditHeightScreen(
-                                initialHeight: profile.height ?? 170,
-                              ),
-                        ),
-                      );
-                      if (result != null) {
-                        await ref
-                            .read(profileNotifierProvider.notifier)
-                            .updateHeight(result);
-                        if (mounted) {
-                          ref
-                              .read(profileNotifierProvider.notifier)
-                              .loadProfile();
-                          _showUpdateSuccess(context);
-                        }
-                      }
-                    },
-                  ),
-                  _buildInfoField(
-                    title: '체중',
-                    value: profile.weight,
-                    suffix: 'kg',
-                    onTap: () async {
-                      final result = await Navigator.push(
-                        context,
-                        CupertinoPageRoute(
-                          builder:
-                              (context) => EditWeightScreen(
-                                initialWeight: profile.weight ?? 60,
-                              ),
-                        ),
-                      );
-                      if (result != null) {
-                        await ref
-                            .read(profileNotifierProvider.notifier)
-                            .updateWeight(result);
-                        if (mounted) {
-                          ref
-                              .read(profileNotifierProvider.notifier)
-                              .loadProfile();
-                          _showUpdateSuccess(context);
-                        }
-                      }
-                    },
-                  ),
-                ],
+                  ],
+                ),
               ),
-            ),
-          );
-        },
+          data: (profile) {
+            if (profile == null) {
+              return const Center(child: Text('프로필 정보가 없습니다.'));
+            }
+
+            return SingleChildScrollView(
+              child: Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 25),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    const Text(
+                      '닉네임 변경',
+                      style: TextStyle(
+                        fontSize: 20,
+                        fontWeight: FontWeight.bold,
+                        color: AppColors.blackText,
+                      ),
+                    ),
+                    const SizedBox(height: 12),
+                    _buildInfoField(
+                      title: profile.nickname ?? '닉네임을 설정해주세요',
+                      onTap: () async {
+                        final result = await Navigator.push(
+                          context,
+                          CupertinoPageRoute(
+                            builder:
+                                (context) => EditNicknameScreen(
+                                  initialNickname: profile.nickname ?? '',
+                                ),
+                          ),
+                        );
+                        if (result != null) {
+                          await ref
+                              .read(profileNotifierProvider.notifier)
+                              .updateNickname(result);
+                          if (mounted) {
+                            ref
+                                .read(profileNotifierProvider.notifier)
+                                .loadProfile();
+                            _showUpdateSuccess(context);
+                          }
+                        }
+                      },
+                    ),
+
+                    const SizedBox(height: 32),
+
+                    const Text(
+                      '정보 변경',
+                      style: TextStyle(
+                        fontSize: 20,
+                        fontWeight: FontWeight.bold,
+                        color: AppColors.blackText,
+                      ),
+                    ),
+                    const SizedBox(height: 12),
+                    _buildInfoField(
+                      title: '나이',
+                      value: profile.age,
+                      suffix: '세',
+                      onTap: () async {
+                        final result = await Navigator.push(
+                          context,
+                          CupertinoPageRoute(
+                            builder:
+                                (context) => EditAgeScreen(
+                                  initialAge: profile.age ?? 25,
+                                ),
+                          ),
+                        );
+                        if (result != null) {
+                          await ref
+                              .read(profileNotifierProvider.notifier)
+                              .updateAge(result);
+                          if (mounted) {
+                            ref
+                                .read(profileNotifierProvider.notifier)
+                                .loadProfile();
+                            _showUpdateSuccess(context);
+                          }
+                        }
+                      },
+                    ),
+                    _buildInfoField(
+                      title: '신장',
+                      value: profile.height,
+                      suffix: 'cm',
+                      onTap: () async {
+                        final result = await Navigator.push(
+                          context,
+                          CupertinoPageRoute(
+                            builder:
+                                (context) => EditHeightScreen(
+                                  initialHeight: profile.height ?? 170,
+                                ),
+                          ),
+                        );
+                        if (result != null) {
+                          await ref
+                              .read(profileNotifierProvider.notifier)
+                              .updateHeight(result);
+                          if (mounted) {
+                            ref
+                                .read(profileNotifierProvider.notifier)
+                                .loadProfile();
+                            _showUpdateSuccess(context);
+                          }
+                        }
+                      },
+                    ),
+                    _buildInfoField(
+                      title: '체중',
+                      value: profile.weight,
+                      suffix: 'kg',
+                      onTap: () async {
+                        final result = await Navigator.push(
+                          context,
+                          CupertinoPageRoute(
+                            builder:
+                                (context) => EditWeightScreen(
+                                  initialWeight: profile.weight ?? 60,
+                                ),
+                          ),
+                        );
+                        if (result != null) {
+                          await ref
+                              .read(profileNotifierProvider.notifier)
+                              .updateWeight(result);
+                          if (mounted) {
+                            ref
+                                .read(profileNotifierProvider.notifier)
+                                .loadProfile();
+                            _showUpdateSuccess(context);
+                          }
+                        }
+                      },
+                    ),
+                  ],
+                ),
+              ),
+            );
+          },
+        ),
       ),
     );
   }

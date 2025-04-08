@@ -17,122 +17,123 @@ class InfoPage extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final profileAsync = ref.watch(profileNotifierProvider);
 
-    return Scaffold(
-      backgroundColor: AppColors.background,
-      appBar: AppBar(
+    return SafeArea(
+      child: Scaffold(
         backgroundColor: AppColors.background,
-        elevation: 0,
-        title: profileAsync.when(
-          data:
-              (profile) => Text(
-                '반가워요, ${profile?.nickname}님 😊',
-                style: TextStyle(
-                  color: AppColors.blackText,
-                  fontSize: 24,
-                  fontWeight: FontWeight.bold,
+        appBar: AppBar(
+          titleSpacing: 0,
+          toolbarHeight: 80,
+          backgroundColor: AppColors.background,
+          elevation: 0,
+          title: profileAsync.when(
+            data:
+                (profile) => Padding(
+                  padding: EdgeInsets.symmetric(horizontal: 25),
+                  child: Text(
+                    '반가워요, ${profile?.nickname}님 😊',
+                    style: TextStyle(
+                      color: AppColors.blackText,
+                      fontSize: 24,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
                 ),
-              ),
-          loading:
-              () => const Text(
-                '반가워요 😊',
-                style: TextStyle(
-                  color: AppColors.blackText,
-                  fontSize: 24,
-                  fontWeight: FontWeight.bold,
+            loading:
+                () => const Text(
+                  '반가워요 😊',
+                  style: TextStyle(
+                    color: AppColors.blackText,
+                    fontSize: 24,
+                    fontWeight: FontWeight.bold,
+                  ),
                 ),
-              ),
-          error:
-              (_, __) => const Text(
-                '반가워요 😊',
-                style: TextStyle(
-                  color: AppColors.blackText,
-                  fontSize: 24,
-                  fontWeight: FontWeight.bold,
+            error:
+                (_, __) => const Text(
+                  '반가워요 😊',
+                  style: TextStyle(
+                    color: AppColors.blackText,
+                    fontSize: 24,
+                    fontWeight: FontWeight.bold,
+                  ),
                 ),
-              ),
+          ),
         ),
-      ),
-      body: SafeArea(
-        child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 24.0),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              // 설정 섹션 제목
-              Text(
-                '설정',
-                style: TextStyle(
-                  fontSize: 20,
-                  fontWeight: FontWeight.bold,
-                  color: AppColors.blackText,
+        body: SafeArea(
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 25),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                // 설정 섹션 제목
+                Text(
+                  '설정',
+                  style: TextStyle(
+                    fontSize: 20,
+                    fontWeight: FontWeight.bold,
+                    color: AppColors.blackText,
+                  ),
                 ),
-              ),
-              const SizedBox(height: 16),
+                const SizedBox(height: 16),
 
-              // 설정 메뉴 아이템들
-              _buildSettingItem(
-                icon: Icons.person_outline,
-                iconColor: AppColors.primary,
-                title: '내 정보 수정',
-                onTap: () {
-                  // 내 정보 수정 페이지로 이동
-                  Navigator.push(
-                    context,
-                    CupertinoPageRoute(
-                      builder: (context) => const EditProfileScreen(),
-                    ),
-                  );
-                },
-              ),
+                // 설정 메뉴 아이템들
+                _buildSettingItem(
+                  icon: Icons.person_outline,
+                  iconColor: AppColors.primary,
+                  title: '내 정보 수정',
+                  onTap: () {
+                    // 내 정보 수정 페이지로 이동
+                    Navigator.push(
+                      context,
+                      CupertinoPageRoute(
+                        builder: (context) => const EditProfileScreen(),
+                      ),
+                    );
+                  },
+                ),
 
-              _buildSettingItem(
-                icon: Icons.notifications_none_outlined,
-                iconColor: AppColors.primary,
-                title: '알림 설정',
-                onTap: () {
-                  // 알림 설정 페이지로 이동
-                  Navigator.push(
-                    context,
-                    CupertinoPageRoute(
-                      builder: (context) => const NotificationSettingsScreen(),
-                    ),
-                  );
-                },
-              ),
+                _buildSettingItem(
+                  icon: Icons.notifications_none_outlined,
+                  iconColor: AppColors.primary,
+                  title: '알림 설정',
+                  onTap: () {
+                    // 알림 설정 페이지로 이동
+                    Navigator.push(
+                      context,
+                      CupertinoPageRoute(
+                        builder:
+                            (context) => const NotificationSettingsScreen(),
+                      ),
+                    );
+                  },
+                ),
 
-              _buildSettingItem(
-                icon: Icons.play_circle_outline,
-                iconColor: AppColors.primary,
-                title: '배경음악 선택',
-                onTap: () {
-                  // 배경음악 선택 페이지로 이동
-                  Navigator.push(
-                    context,
-                    CupertinoPageRoute(
-                      builder: (context) => const MusicSelectionScreen(),
-                    ),
-                  );
-                },
-              ),
+                _buildSettingItem(
+                  icon: Icons.play_circle_outline,
+                  iconColor: AppColors.primary,
+                  title: '배경음악 선택',
+                  onTap: () {
+                    // 배경음악 선택 페이지로 이동
+                    Navigator.push(
+                      context,
+                      CupertinoPageRoute(
+                        builder: (context) => const MusicSelectionScreen(),
+                      ),
+                    );
+                  },
+                ),
 
-              // 로그아웃 아이템 추가
-              _buildSettingItem(
-                icon: Icons.exit_to_app,
-                iconColor: AppColors.primary,
-                title: '로그아웃',
-                onTap: () {
-                  // 로그아웃 확인 다이얼로그 표시
-                  _showLogoutConfirmDialog(context, ref);
-                },
-              ),
-
-              TextButton(
-                onPressed: () {
-                  context.push('/sequence/16/result/338');
-                },
-                child: Text('결과 페이지'),
-              ),
-            ],
+                // 로그아웃 아이템 추가
+                _buildSettingItem(
+                  icon: Icons.exit_to_app,
+                  iconColor: AppColors.primary,
+                  title: '로그아웃',
+                  onTap: () {
+                    // 로그아웃 확인 다이얼로그 표시
+                    _showLogoutConfirmDialog(context, ref);
+                  },
+                ),
+              ],
+            ),
           ),
         ),
       ),

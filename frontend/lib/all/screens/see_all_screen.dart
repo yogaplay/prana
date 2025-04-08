@@ -43,16 +43,25 @@ class SeeAllScreen extends ConsumerWidget {
     final title = _getTitleWithTagType(tagName, tagType);
     final asyncItem = ref.watch(seeAllItemsProvider(tagName));
 
-    return Scaffold(
-      body: SafeArea(
-        child: Padding(
-          padding: const EdgeInsets.all(16),
+    return SafeArea(
+      child: Scaffold(
+        body: Padding(
+          padding: const EdgeInsets.only(top: 25, right: 25, left: 25),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text(
-                title,
-                style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+              Row(
+                children: [
+                  GestureDetector(
+                    onTap: () => Navigator.of(context).pop(),
+                    child: Icon(Icons.arrow_back_ios_new, size: 24),
+                  ),
+                  SizedBox(width: 10),
+                  Text(
+                    title,
+                    style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+                  ),
+                ],
               ),
               SizedBox(height: 16),
               Expanded(
@@ -65,10 +74,14 @@ class SeeAllScreen extends ConsumerWidget {
                       itemCount: items.length,
                       itemBuilder: (context, index) {
                         final item = items[index];
-                        return YogaTile(
-                          imageUrl: item.image,
-                          title: item.sequenceName,
-                          tags: item.tags,
+                        return Padding(
+                          padding: const EdgeInsets.symmetric(vertical: 4),
+                          child: YogaTile(
+                            sequenceId: item.sequenceId,
+                            imageUrl: item.image,
+                            title: item.sequenceName,
+                            tags: item.tags,
+                          ),
                         );
                       },
                     );
