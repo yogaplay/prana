@@ -30,8 +30,10 @@ public interface SequenceBodyRepository extends JpaRepository<SequenceBody, Inte
             "  WHEN sb.bodyPart IN ('KNEE_LEFT', 'KNEE_RIGHT', 'LEG_LEFT', 'LEG_RIGHT') THEN 'leg' " +
             "  WHEN sb.bodyPart IN ('HIP_LEFT', 'HIP_RIGHT') THEN 'core' " +
             "  ELSE sb.bodyPart " +
-            "END")
+            "END " +
+            "ORDER BY SUM(sb.feedbackCnt) DESC")
     List<FeedbackResponse> findFeedbackByUserSequenceId(@Param("userSequenceId") Integer userSequenceId);
+
 
 
 
