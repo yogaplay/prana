@@ -124,7 +124,13 @@ class _ActivityPageState extends ConsumerState<ActivityPage> {
             ),
           ),
           Expanded(
-            child: ListView(
+            child: _getEventsForDay(displayDay).isEmpty
+              ? const Center(
+                  child: Text(
+                    '해당 날짜의 운동 기록이 없습니다.',
+                  ) 
+              ) 
+            :ListView(
               padding: const EdgeInsets.symmetric(horizontal: 16),
               children:
                   _getEventsForDay(displayDay).map((event) {
@@ -140,7 +146,13 @@ class _ActivityPageState extends ConsumerState<ActivityPage> {
 
                     return InkWell(
                       onTap: () {
+                        // if (percentText == '100%') {
+                        //   context.push('/sequence/${event['sequeunce_id']}/result/${event['user_sequence_id']}');
+                        // } else {
+                        //   context.push('/sequence/${event['sequence_id']}');
+                        // }
                         context.push('/sequence/${event['sequence_id']}');
+                        
                       },
                       child: Container(
                         margin: const EdgeInsets.only(bottom: 16),
