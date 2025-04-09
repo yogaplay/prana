@@ -39,8 +39,8 @@ public class WeeklyDataService {
     public void insertWeeklyData(LocalDateTime today) {
         log.debug("today: {}", today);
 
-        // 월요일 자정으로 시간 고정
-        LocalDateTime start = today.minusWeeks(1).with(DayOfWeek.MONDAY).with(LocalTime.MIDNIGHT);
+        // 일요일 자정으로 시간 고정
+        LocalDateTime start = today.minusWeeks(2).with(DayOfWeek.SUNDAY).with(LocalTime.MIDNIGHT);
         LocalDateTime end = start.plusWeeks(1);
         log.debug("start: {}", start);
         log.debug("end: {}", end);
@@ -63,32 +63,27 @@ public class WeeklyDataService {
             feedbackMap.put(key, dto.getCount());
         }
 
-        // 2. accuracy
-        // 모든 user별로 수행한 모든 sequence에 대해 success, fail 조회
+        // 2. score
         List<CountAccuracyByWeekDTO> weekAccuracys = accuracyRepository.countAccuracyByWeek(start, end);
         log.debug("weekAccuracys: {}", weekAccuracys.toString());
 
-        // userId : [accuracy 총 개수, 합]
-        Map<Integer, double[]> accuracyMapTemp = new HashMap<>();
+        // userId : [sequence1 점수합, sequence2 점수합...]
+        Map<Integer, double[]> scoreMapTemp = new HashMap<>();
         for(CountAccuracyByWeekDTO dto : weekAccuracys) {
             int userId = dto.getUserId();
-            int success = dto.getSuccess().intValue();
-            int fail = dto.getFail().intValue();
-            double accuracy = 0.0;
+            int scoreSum = dto.getScore().intValue();
+            int count = dto.getCount().intValue();
+            double score = scoreSum / (double) count;
 
-            if((success + fail) != 0){
-                accuracy = (double) success / (success + fail) * 100;
-            }
+            scoreMapTemp.computeIfAbsent(userId, k -> new double[2]);
 
-            accuracyMapTemp.computeIfAbsent(userId, k -> new double[2]);
-
-            accuracyMapTemp.get(userId)[0]+=1.0;
-            accuracyMapTemp.get(userId)[1]+=accuracy;
+            scoreMapTemp.get(userId)[0]+=1.0;
+            scoreMapTemp.get(userId)[1]+=score;
         }
 
-        Map<Integer, Double> accuracyMap = new HashMap<>();
-        for(int userId : accuracyMapTemp.keySet()) {
-            accuracyMap.put(userId, accuracyMapTemp.get(userId)[1] / accuracyMapTemp.get(userId)[0]);
+        Map<Integer, Double> scoreMap = new HashMap<>();
+        for(Integer userId : scoreMapTemp.keySet()) {
+            scoreMap.put(userId, scoreMapTemp.get(userId)[1] / scoreMapTemp.get(userId)[0]);
         }
 
         // 3. yogatime
@@ -131,6 +126,7 @@ public class WeeklyDataService {
         int PrevYear = Prevday.getYear();
         int PrevMonth = Prevday.getMonthValue();
         int PrevWeek = calendarService.getWeekOfDate(Prevday);
+        log.debug("PrevDay: {}년 {}월 {}주", PrevYear, PrevMonth, PrevWeek);
 
         List<WeeklyData> prevWeeklyData = weeklyDataRepository
                 .findAllByYearMonthWeekAndUserIdIn(PrevYear, PrevMonth, PrevWeek, allUserIds);
@@ -155,31 +151,31 @@ public class WeeklyDataService {
             int legLeftCount      = feedbackMap.getOrDefault(userId + ":LEG_LEFT", 0L).intValue();
             int legRightCount     = feedbackMap.getOrDefault(userId + ":LEG_RIGHT", 0L).intValue();
 
-            double week1YogaAccuracy = accuracyMap.getOrDefault(userId, 0.0);
+            double week1YogaScore = scoreMap.getOrDefault(userId, 0.0);
             int week1YogaTime = yogatimeMap.getOrDefault(userId, 0);
             double week1Bmi = bmiMap.getOrDefault(userId, 0.0);
 
             if(prevWeeklyDataMap.containsKey(userId)) {
                 WeeklyData wd = prevWeeklyDataMap.get(userId);
-                data.add(new WeeklyData().builder()
+                data.add(WeeklyData.builder()
                         .user(userRepository.getReferenceById(userId))
                         .year(year)
                         .month(month)
                         .week(week)
                         .week1YogaTime(week1YogaTime)
-                        .week1Accuracy(week1YogaAccuracy)
+                        .week1Score(week1YogaScore)
                         .week1Bmi(week1Bmi)
                         .week2YogaTime(wd.getWeek1YogaTime())
-                        .week2Accuracy(wd.getWeek1Accuracy())
+                        .week2Score(wd.getWeek1Score())
                         .week2Bmi(wd.getWeek1Bmi())
                         .week3YogaTime(wd.getWeek2YogaTime())
-                        .week3Accuracy(wd.getWeek2Accuracy())
+                        .week3Score(wd.getWeek2Score())
                         .week3Bmi(wd.getWeek2Bmi())
                         .week4YogaTime(wd.getWeek3YogaTime())
-                        .week4Accuracy(wd.getWeek3Accuracy())
+                        .week4Score(wd.getWeek3Score())
                         .week4Bmi(wd.getWeek3Bmi())
                         .week5YogaTime(wd.getWeek4YogaTime())
-                        .week5Accuracy(wd.getWeek4Accuracy())
+                        .week5Score(wd.getWeek4Score())
                         .week5Bmi(wd.getWeek4Bmi())
                         .feedbackShoulder(shoulderCount)
                         .feedbackElbowLeft(elbowLeftCount)
@@ -195,25 +191,25 @@ public class WeeklyDataService {
                         .build());
             } else {
                 // 전주 데이터가 없는 경우(첫 회원)
-                data.add(new WeeklyData().builder()
+                data.add(WeeklyData.builder()
                         .user(userRepository.getReferenceById(userId))
                         .year(year)
                         .month(month)
                         .week(week)
                         .week1YogaTime(week1YogaTime)
-                        .week1Accuracy(week1YogaAccuracy)
+                        .week1Score(week1YogaScore)
                         .week1Bmi(week1Bmi)
                         .week2YogaTime(0)
-                        .week2Accuracy(0.0)
+                        .week2Score(0.0)
                         .week2Bmi(0.0)
                         .week3YogaTime(0)
-                        .week3Accuracy(0.0)
+                        .week3Score(0.0)
                         .week3Bmi(0.0)
                         .week4YogaTime(0)
-                        .week4Accuracy(0.0)
+                        .week4Score(0.0)
                         .week4Bmi(0.0)
                         .week5YogaTime(0)
-                        .week5Accuracy(0.0)
+                        .week5Score(0.0)
                         .week5Bmi(0.0)
                         .feedbackShoulder(shoulderCount)
                         .feedbackElbowLeft(elbowLeftCount)
@@ -230,6 +226,57 @@ public class WeeklyDataService {
             }
         }
 
-        weeklyDataRepository.saveAll(data);
+        // 저번달 마지막주, 이번달 첫주가 겹치는 경우 둘다 저장해줘야 db검색이 가능.
+        // end기준으로도 저장
+
+        if(start.getMonthValue() != end.getMonthValue()) {
+            List<WeeklyData> copyDate = new ArrayList<>();
+            int endYear = end.getYear();
+            int endMonth = end.getMonthValue();
+            int endWeek = 1;
+
+            for(WeeklyData wd : data) {
+                // 날짜만 바꾸고 데이터 2배로 복사
+                copyDate.add(wd);
+                copyDate.add(
+                        WeeklyData.builder()
+                                .user(wd.getUser())
+                                .year(endYear)
+                                .month(endMonth)
+                                .week(endWeek)
+                                .week1YogaTime(wd.getWeek1YogaTime())
+                                .week1Score(wd.getWeek1Score())
+                                .week1Bmi(wd.getWeek1Bmi())
+                                .week2YogaTime(wd.getWeek2YogaTime())
+                                .week2Score(wd.getWeek2Score())
+                                .week2Bmi(wd.getWeek2Bmi())
+                                .week3YogaTime(wd.getWeek3YogaTime())
+                                .week3Score(wd.getWeek3Score())
+                                .week3Bmi(wd.getWeek3Bmi())
+                                .week4YogaTime(wd.getWeek4YogaTime())
+                                .week4Score(wd.getWeek4Score())
+                                .week4Bmi(wd.getWeek4Bmi())
+                                .week5YogaTime(wd.getWeek5YogaTime())
+                                .week5Score(wd.getWeek5Score())
+                                .week5Bmi(wd.getWeek5Bmi())
+                                .feedbackShoulder(wd.getFeedbackShoulder())
+                                .feedbackElbowLeft(wd.getFeedbackElbowLeft())
+                                .feedbackElbowRight(wd.getFeedbackElbowRight())
+                                .feedbackArmLeft(wd.getFeedbackArmLeft())
+                                .feedbackArmRight(wd.getFeedbackArmRight())
+                                .feedbackHipLeft(wd.getFeedbackHipLeft())
+                                .feedbackHipRight(wd.getFeedbackHipRight())
+                                .feedbackKneeLeft(wd.getFeedbackKneeLeft())
+                                .feedbackKneeRight(wd.getFeedbackKneeRight())
+                                .feedbackLegLeft(wd.getFeedbackLegLeft())
+                                .feedbackLegRight(wd.getFeedbackLegRight())
+                                .build());
+            }
+            weeklyDataRepository.saveAll(copyDate);
+        } else {
+            weeklyDataRepository.saveAll(data);
+        }
+
+
     }
 }

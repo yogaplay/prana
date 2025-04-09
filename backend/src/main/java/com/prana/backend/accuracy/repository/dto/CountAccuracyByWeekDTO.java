@@ -12,6 +12,6 @@ import lombok.ToString;
 public class CountAccuracyByWeekDTO {
     private Integer userId;
     private Integer sequenceId;
-    private Long success;
-    private Long fail;
+    private Long score;
+    private Long count;
 }

@@ -16,7 +16,7 @@ public interface AccuracyRepository extends JpaRepository<Accuracy, Integer> {
 
     @Query("""
             SELECT new com.prana.backend.accuracy.repository.dto.CountAccuracyByWeekDTO(
-                a.userId, a.sequenceId, SUM(a.success), SUM(a.fail))
+                a.userId, a.sequenceId, SUM(a.score), COUNT(a.yogaId))
             FROM Accuracy a
             WHERE a.createdAt >= :start AND a.createdAt < :end
             GROUP BY a.userId, a.sequenceId
