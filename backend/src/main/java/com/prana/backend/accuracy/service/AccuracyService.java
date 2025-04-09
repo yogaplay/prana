@@ -48,20 +48,21 @@ public class AccuracyService {
         UserSequence userSequence = userSequenceRepository.findById(userSequenceId).orElse(null);
 
         return aiFeedbackRepository.findById(userSequenceId).map(feedback -> {
+            int accuracyScore = 0;
+            if(feedback.getSuccessCount() != 0 || feedback.getFailureCount() != 0) {
+                accuracyScore = (feedback.getFeedbackSum() / (feedback.getFailureCount() + feedback.getSuccessCount()));
+            }
+
             Accuracy accuracy = Accuracy.builder()
                     .userId(userId)
                     .yogaId(yogaId)
                     .sequenceId(sequenceId)
                     .success(feedback.getSuccessCount())
                     .fail(feedback.getFailureCount())
-                    .score(feedback.getFeedbackSum())
+                    .score(accuracyScore)
                     .build();
             accuracyRepository.save(accuracy);
 
-            int accuracyScore = 0;
-            if(feedback.getSuccessCount() != 0 || feedback.getFailureCount() != 0) {
-                accuracyScore = (feedback.getSuccessCount() * 100 / (feedback.getFailureCount() + feedback.getSuccessCount()));
-            }
 
             SequenceYoga sequenceYoga = SequenceYoga.builder()
                     .userSequence(userSequence)
