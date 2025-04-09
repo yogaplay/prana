@@ -13,12 +13,12 @@ CREATE TABLE weekly_data
     week4_yoga_time         INT NOT NULL DEFAULT 0,
     week5_yoga_time         INT NOT NULL DEFAULT 0,
 
-    -- 주별 정확도 (5주)
-    week1_accuracy          DECIMAL(4,1) NOT NULL DEFAULT 0.0,
-    week2_accuracy          DECIMAL(4,1) NOT NULL DEFAULT 0.0,
-    week3_accuracy          DECIMAL(4,1) NOT NULL DEFAULT 0.0,
-    week4_accuracy          DECIMAL(4,1) NOT NULL DEFAULT 0.0,
-    week5_accuracy          DECIMAL(4,1) NOT NULL DEFAULT 0.0,
+    -- 주별 점수 (5주)
+    week1_score          DECIMAL(4,1) NOT NULL DEFAULT 0.0,
+    week2_score          DECIMAL(4,1) NOT NULL DEFAULT 0.0,
+    week3_score          DECIMAL(4,1) NOT NULL DEFAULT 0.0,
+    week4_score          DECIMAL(4,1) NOT NULL DEFAULT 0.0,
+    week5_score          DECIMAL(4,1) NOT NULL DEFAULT 0.0,
 
     -- 피드백(부위별 횟수 or 점수)
     feedback_shoulder       INT NOT NULL DEFAULT 0,

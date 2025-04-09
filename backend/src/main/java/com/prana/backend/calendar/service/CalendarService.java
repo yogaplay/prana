@@ -200,7 +200,7 @@ public class CalendarService {
                 .month(month)
                 .week(week)
                 .time(weeklyData.getWeek1YogaTime())
-                .accuracy(weeklyData.getWeek1Accuracy())
+                .score(weeklyData.getWeek1Score())
                 .bmi(weeklyData.getWeek1Bmi())
                 .build();
 
@@ -212,7 +212,7 @@ public class CalendarService {
                 .month(previous4Weeks.get(0)[1])
                 .week(previous4Weeks.get(0)[2])
                 .time(weeklyData.getWeek2YogaTime())
-                .accuracy(weeklyData.getWeek2Accuracy())
+                .score(weeklyData.getWeek2Score())
                 .bmi(weeklyData.getWeek2Bmi())
                 .build();
 
@@ -222,7 +222,7 @@ public class CalendarService {
                 .month(previous4Weeks.get(1)[1])
                 .week(previous4Weeks.get(1)[2])
                 .time(weeklyData.getWeek3YogaTime())
-                .accuracy(weeklyData.getWeek3Accuracy())
+                .score(weeklyData.getWeek3Score())
                 .bmi(weeklyData.getWeek3Bmi())
                 .build();
 
@@ -232,7 +232,7 @@ public class CalendarService {
                 .month(previous4Weeks.get(2)[1])
                 .week(previous4Weeks.get(2)[2])
                 .time(weeklyData.getWeek4YogaTime())
-                .accuracy(weeklyData.getWeek4Accuracy())
+                .score(weeklyData.getWeek4Score())
                 .bmi(weeklyData.getWeek4Bmi())
                 .build();
 
@@ -242,7 +242,7 @@ public class CalendarService {
                 .month(previous4Weeks.get(3)[1])
                 .week(previous4Weeks.get(3)[2])
                 .time(weeklyData.getWeek5YogaTime())
-                .accuracy(weeklyData.getWeek5Accuracy())
+                .score(weeklyData.getWeek5Score())
                 .bmi(weeklyData.getWeek5Bmi())
                 .build();
 
