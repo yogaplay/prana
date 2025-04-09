@@ -203,6 +203,30 @@ class ApiClient {
     }
   }
 
+  Future<Map<String, dynamic>> postFormData(
+    String path,
+    FormData formData, {
+    Map<String, dynamic>? queryParameters,
+  }) async {
+    try {
+      final response = await _dio.post(
+        path,
+        data: formData,
+        queryParameters: queryParameters,
+        options: Options(
+          contentType: 'multipart/form-data',
+          headers: {
+            'Authorization': _dio.options.headers['Authorization'] ?? '',
+          },
+        ),
+      );
+
+      return _processResponse(response);
+    } on DioException catch (e) {
+      throw _handleError(e);
+    }
+  }
+
   Future<Uint8List> postTtsAudio(
     String path, {
     required Map<String, dynamic> body,

@@ -191,17 +191,20 @@ class _ActivityPageState extends ConsumerState<ActivityPage> {
                                 final percentText = '${parsedValue.toInt()}%';
                                 final imageUrl = event['image'] ?? '';
                                 final isDone = event['result_status'] == 'Y';
+                                print(event['sequence_id']);
+                                print(event['user_sequence_id']);
 
                                 return InkWell(
                                   onTap: () {
-                                    // if (percentText == '100%') {
-                                    //   context.push('/sequence/${event['sequeunce_id']}/result/${event['user_sequence_id']}');
-                                    // } else {
-                                    //   context.push('/sequence/${event['sequence_id']}');
-                                    // }
-                                    context.push(
-                                      '/sequence/${event['sequence_id']}',
-                                    );
+                                    if (percentText == '100%') {
+                                      context.push(
+                                        '/sequence/${event['sequence_id']}/result/${event['user_sequence_id']}',
+                                      );
+                                    } else {
+                                      context.push(
+                                        '/sequence/${event['sequence_id']}',
+                                      );
+                                    }
                                   },
                                   child: Container(
                                     margin: const EdgeInsets.only(bottom: 16),
