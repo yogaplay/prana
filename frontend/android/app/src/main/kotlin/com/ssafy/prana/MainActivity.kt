@@ -1,4 +1,4 @@
-package com.example.frontend
+package com.ssafy.prana
 
 import io.flutter.embedding.android.FlutterActivity
 
