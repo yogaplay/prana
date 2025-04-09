@@ -60,17 +60,23 @@ class CompletedSequenceBanner extends StatelessWidget {
               ),
             ),
           ),
-          InkWell(
-            onTap: onSharePressed,
-            borderRadius: BorderRadius.circular(24),
-            child: Container(
-              padding: EdgeInsets.all(8),
-              decoration: BoxDecoration(
-                color: AppColors.boxWhite,
-                shape: BoxShape.circle,
-                border: Border.all(color: AppColors.lightGray),
+          Material(
+            color: Colors.transparent,
+            child: InkWell(
+              onTap: () {
+                print('공유 버튼 누름');
+                onSharePressed();
+              },
+              borderRadius: BorderRadius.circular(24),
+              child: Container(
+                padding: EdgeInsets.all(8),
+                decoration: BoxDecoration(
+                  color: AppColors.boxWhite,
+                  shape: BoxShape.circle,
+                  border: Border.all(color: AppColors.lightGray),
+                ),
+                child: Icon(Icons.share, size: 20, color: AppColors.graytext),
               ),
-              child: Icon(Icons.share, size: 20, color: AppColors.graytext),
             ),
           ),
         ],
