@@ -88,8 +88,7 @@ class InfoPage extends ConsumerWidget {
                   title: '내 정보 수정',
                   onTap: () {
                     // 내 정보 수정 페이지로 이동
-                    Navigator.push(
-                      context,
+                    Navigator.of(context, rootNavigator: true).push(
                       CupertinoPageRoute(
                         builder: (context) => const EditProfileScreen(),
                       ),
@@ -103,8 +102,7 @@ class InfoPage extends ConsumerWidget {
                   title: '알림 설정',
                   onTap: () {
                     // 알림 설정 페이지로 이동
-                    Navigator.push(
-                      context,
+                    Navigator.of(context, rootNavigator: true).push(
                       CupertinoPageRoute(
                         builder:
                             (context) => const NotificationSettingsScreen(),
@@ -119,8 +117,7 @@ class InfoPage extends ConsumerWidget {
                   title: '배경음악 선택',
                   onTap: () {
                     // 배경음악 선택 페이지로 이동
-                    Navigator.push(
-                      context,
+                    Navigator.of(context, rootNavigator: true).push(
                       CupertinoPageRoute(
                         builder: (context) => const MusicSelectionScreen(),
                       ),

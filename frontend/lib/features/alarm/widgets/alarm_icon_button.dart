@@ -1,3 +1,4 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:frontend/features/alarm/providers/alarm_provider.dart'; // 새 provider import
@@ -42,10 +43,10 @@ class AlarmIconButton extends ConsumerWidget {
   }
 
   void _navigateToAlarmScreen(BuildContext context, WidgetRef ref) async {
-    await Navigator.push(
+    await Navigator.of(
       context,
-      MaterialPageRoute(builder: (_) => const AlarmScreen()),
-    );
+      rootNavigator: true,
+    ).push(CupertinoPageRoute(builder: (_) => const AlarmScreen()));
 
     // 화면 복귀 시 알람 상태 강제 갱신
     ref.read(alarmProvider.notifier).loadAlarms();
