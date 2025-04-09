@@ -34,7 +34,7 @@ class WeeklyYogaStat {
       month: json['month'],
       week: json['week'],
       time: json['time'],
-      accuracy: (json['accuracy'] as num).toDouble(),
+      accuracy: (json['score'] as num).toDouble(),
       bmi: (json['bmi'] as num).toDouble(),
     );
   }
