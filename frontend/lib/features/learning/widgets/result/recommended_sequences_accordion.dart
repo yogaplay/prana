@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:frontend/constants/app_colors.dart';
+import 'package:frontend/core/providers/profile_providers.dart';
 import 'package:frontend/features/search/models/yoga_item.dart';
 import 'package:frontend/features/search/widgets/yoga_carousel.dart';
 
-class RecommendedSequencesAccordion extends StatefulWidget {
+class RecommendedSequencesAccordion extends ConsumerStatefulWidget {
   final String bodyF;
   final String bodyS;
   final List<YogaItem> sequencesF;
@@ -18,12 +20,12 @@ class RecommendedSequencesAccordion extends StatefulWidget {
   });
 
   @override
-  State<RecommendedSequencesAccordion> createState() =>
+  ConsumerState<RecommendedSequencesAccordion> createState() =>
       _RecommendedSequencesAccordionState();
 }
 
 class _RecommendedSequencesAccordionState
-    extends State<RecommendedSequencesAccordion> {
+    extends ConsumerState<RecommendedSequencesAccordion> {
   bool _isExpanded = false;
   void _toggle() {
     setState(() {
@@ -35,6 +37,7 @@ class _RecommendedSequencesAccordionState
   Widget build(BuildContext context) {
     final bodyF = widget.bodyF;
     final bodyS = widget.bodyS;
+    final profileAsync = ref.watch(profileProvider);
 
     return Container(
       padding: EdgeInsets.symmetric(vertical: 12),
@@ -45,9 +48,15 @@ class _RecommendedSequencesAccordionState
       child: Column(
         children: [
           ListTile(
-            title: Text(
-              '이런 요가 어떠세요?',
-              style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+            title: profileAsync.when(
+              data:
+                  (profile) => Text(
+                    '${profile.nickname}님을 위한 요가',
+                    style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                  ),
+              loading:
+                  () => Text('추천 요가 로딩 중...', style: TextStyle(fontSize: 16)),
+              error: (_, __) => Text('추천 요가', style: TextStyle(fontSize: 16)),
             ),
             trailing: Icon(
               _isExpanded

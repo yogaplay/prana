@@ -21,9 +21,9 @@ class ReportScreen extends ConsumerWidget {
     print(date);
     final reportAsync = ref.watch(weeklyReportProvider(date));
 
-    return Scaffold(
-      body: SafeArea(
-        child: reportAsync.when(
+    return SafeArea(
+      child: Scaffold(
+        body: reportAsync.when(
           data: (report) {
             final feedbackParts =
                 report.feedbacks
@@ -58,7 +58,7 @@ class ReportScreen extends ConsumerWidget {
                     .toList();
 
             return SingleChildScrollView(
-              padding: EdgeInsets.all(16),
+              padding: EdgeInsets.all(25),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 mainAxisSize: MainAxisSize.min,
@@ -74,7 +74,6 @@ class ReportScreen extends ConsumerWidget {
                   FeedbackSummaryText(parts: feedbackParts),
                   SizedBox(height: 16),
                   PoseFeedbackDiagram(isMale: true, feedbacks: feedbackWidgets),
-                  SizedBox(height: 16),
                   RecommendedYogaSection(recommendedItems: recommendedMap),
                   SizedBox(height: 16),
                   YogaTimeChart(data: chartData),

@@ -40,6 +40,7 @@ class _FilterBottomSheetState extends State<FilterBottomSheet> {
                 label: label,
                 isSelected: isSelected,
                 hasBorder: !isSelected,
+                isUsedInFilter: true,
               ),
             );
           }).toList(),
@@ -72,7 +73,7 @@ class _FilterBottomSheetState extends State<FilterBottomSheet> {
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   Text(
-                    'FILTER',
+                    '검색 조건 설정',
                     style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
                   ),
                   IconButton(

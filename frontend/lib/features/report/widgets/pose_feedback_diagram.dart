@@ -16,6 +16,7 @@ class BodyFeedbackLayout {
   final Offset bend;
   final Offset end;
   final Offset textPosition;
+  final bool alignRight;
 
   BodyFeedbackLayout({
     required this.center,
@@ -23,6 +24,7 @@ class BodyFeedbackLayout {
     required this.bend,
     required this.end,
     required this.textPosition,
+    required this.alignRight,
   });
 }
 
@@ -40,32 +42,36 @@ class PoseFeedbackDiagram extends StatelessWidget {
 
   late final Map<BodyPart, BodyFeedbackLayout> layoutMap = {
     BodyPart.back: BodyFeedbackLayout(
-      center: Offset(centerX - 40, 100),
+      center: Offset(centerX - 50, 100),
       size: Size(28, 28),
       bend: Offset(centerX - 70, 30),
-      end: Offset(centerX - 130, 30),
-      textPosition: Offset(centerX - 160, 19),
+      end: Offset(centerX - 120, 30),
+      textPosition: Offset(centerX + 107, 19),
+      alignRight: true,
     ),
     BodyPart.arm: BodyFeedbackLayout(
-      center: Offset(centerX + 47, 160),
+      center: Offset(centerX + 39, 160),
       size: Size(24, 24),
       bend: Offset(centerX + 70, 100),
-      end: Offset(centerX + 130, 100),
-      textPosition: Offset(centerX + 135, 89),
+      end: Offset(centerX + 100, 100),
+      textPosition: Offset(centerX + 105, 89),
+      alignRight: false,
     ),
     BodyPart.core: BodyFeedbackLayout(
-      center: Offset(centerX - 17, 220),
+      center: Offset(centerX - 25, 220),
       size: Size(33, 33),
       bend: Offset(centerX - 70, 280),
-      end: Offset(centerX - 135, 280),
-      textPosition: Offset(centerX - 165, 269),
+      end: Offset(centerX - 120, 280),
+      textPosition: Offset(centerX + 107, 269),
+      alignRight: true,
     ),
     BodyPart.leg: BodyFeedbackLayout(
-      center: Offset(centerX + 21, 290),
+      center: Offset(centerX + 12, 290),
       size: Size(24, 24),
       bend: Offset(centerX + 70, 346),
-      end: Offset(centerX + 130, 346),
-      textPosition: Offset(centerX + 135, 335),
+      end: Offset(centerX + 100, 346),
+      textPosition: Offset(centerX + 105, 335),
+      alignRight: false,
     ),
   };
 
@@ -122,7 +128,8 @@ class PoseFeedbackDiagram extends StatelessWidget {
                     ),
                   ),
                   Positioned(
-                    left: layout.textPosition.dx,
+                    left: layout.alignRight ? null : layout.textPosition.dx,
+                    right: layout.alignRight ? layout.textPosition.dx : null,
                     top: layout.textPosition.dy,
                     child: Text(
                       '${f.count}회',

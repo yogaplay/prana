@@ -40,7 +40,7 @@ class SearchBarWithFilter extends StatelessWidget {
               contentPadding: EdgeInsets.symmetric(vertical: 0),
               enabledBorder: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(12),
-                borderSide: BorderSide(color: AppColors.graytext),
+                borderSide: BorderSide(color: AppColors.lightGray),
               ),
               focusedBorder: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(12),
@@ -49,8 +49,8 @@ class SearchBarWithFilter extends StatelessWidget {
             ),
           ),
         ),
-        SizedBox(width: 12),
         IconButton(
+          padding: EdgeInsets.zero,
           onPressed: () {
             showModalBottomSheet(
               context: context,
@@ -72,7 +72,7 @@ class SearchBarWithFilter extends StatelessWidget {
           },
           icon: Stack(
             children: [
-              Icon(Icons.filter_alt_outlined),
+              Icon(Icons.filter_alt_outlined, color: AppColors.graytext),
               if (selectedFilters.isNotEmpty)
                 Positioned(
                   right: 0,

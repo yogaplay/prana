@@ -50,20 +50,14 @@ class _NavItem extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final color = isSelected ? AppColors.primary : AppColors.blackText;
+
     return Column(
       mainAxisSize: MainAxisSize.min,
       children: [
-        Container(
-          padding: EdgeInsets.symmetric(horizontal: 20, vertical: 8),
-          decoration: BoxDecoration(
-            color: isSelected ? AppColors.secondary : Colors.transparent,
-            shape: BoxShape.rectangle,
-            borderRadius: BorderRadius.circular(20),
-          ),
-          child: Icon(icon, color: AppColors.blackText),
-        ),
+        Icon(icon, color: color),
         SizedBox(height: 4),
-        Text(label, style: TextStyle(color: AppColors.blackText, fontSize: 14)),
+        Text(label, style: TextStyle(color: color, fontSize: 14)),
       ],
     );
   }

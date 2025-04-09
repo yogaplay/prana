@@ -65,181 +65,252 @@ class _ActivityPageState extends ConsumerState<ActivityPage> {
     }
   }
 
+  Future<void> _loadWeekEvents(DateTime day) async {
+    final weekStart = _getWeekStart(day);
+
+    for (int i = 0; i < 7; i++) {
+      final date = weekStart.add(Duration(days: i));
+      await _loadEventsForDay(date);
+    }
+  }
+
   List<Map<String, dynamic>> _getEventsForDay(DateTime day) {
     return _events[DateTime.utc(day.year, day.month, day.day)] ?? [];
+  }
+
+  DateTime _getWeekStart(DateTime date) {
+    return date.subtract(Duration(days: date.weekday - 1));
+  }
+
+  DateTime _getWeekEnd(DateTime date) {
+    return date.add(Duration(days: 7 - date.weekday));
+  }
+
+  bool _shouldShowWeeklyReportButton(DateTime date) {
+    final weekStart = _getWeekStart(date);
+    final weekEnd = _getWeekEnd(date);
+    final now = DateTime.now();
+
+    if (now.isBefore(weekEnd.add(Duration(days: 1)))) return false;
+
+    final weekDates = List.generate(
+      7,
+      (i) => DateTime.utc(weekStart.year, weekStart.month, weekStart.day + i),
+    );
+
+    return weekDates.any((day) => _activeDates.contains(day));
   }
 
   @override
   Widget build(BuildContext context) {
     final displayDay = _selectedDay ?? _focusedDay;
 
-    return Scaffold(
-      appBar: AppBar(
-        backgroundColor: Colors.white,
-        elevation: 0,
-        title: const Text(
-          '활동',
-          style: TextStyle(
-            fontFamily: 'Pretendard',
-            fontWeight: FontWeight.bold,
-            fontSize: 24,
-          ),
-        ),
-        actions: [
-          TextButton(
-            onPressed: () {
-              final date = (_selectedDay ?? _focusedDay);
-              final formatted =
-                  "${date.year.toString().padLeft(4, '0')}-${date.month.toString().padLeft(2, '0')}-${date.day.toString().padLeft(2, '0')}";
-              print(formatted);
-              context.pushNamed(
-                "weekly_report",
-                queryParameters: {'date': formatted},
-              );
-            },
+    return SafeArea(
+      child: Scaffold(
+        appBar: AppBar(
+          titleSpacing: 0,
+          toolbarHeight: 80,
+          backgroundColor: Colors.white,
+          title: Padding(
+            padding: const EdgeInsets.only(left: 25),
             child: const Text(
-              '주간리포트',
+              '활동',
               style: TextStyle(
                 fontFamily: 'Pretendard',
                 fontWeight: FontWeight.bold,
-                fontSize: 16,
-                color: Colors.black,
+                fontSize: 24,
               ),
             ),
           ),
-        ],
-      ),
-      body: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          calendar(),
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-            child: Text(
-              '${displayDay.month}월 ${displayDay.day}일의 운동',
-              style: const TextStyle(
-                fontFamily: 'Pretendard',
-                fontSize: 16,
-                fontWeight: FontWeight.bold,
-              ),
-            ),
-          ),
-          Expanded(
-            child: _getEventsForDay(displayDay).isEmpty
-              ? const Center(
-                  child: Text(
-                    '해당 날짜의 운동 기록이 없습니다.',
-                  ) 
-              ) 
-            :ListView(
-              padding: const EdgeInsets.symmetric(horizontal: 16),
-              children:
-                  _getEventsForDay(displayDay).map((event) {
-                    final title = event['sequence_name'] ?? '제목 없음';
-                    final percentRaw = event['percent'];
-                    final parsedValue = double.tryParse(
-                      (percentRaw == null || percentRaw == 'null') ? '0' : percentRaw
-                    ) ?? 0.0;
-
-                    final percentText = '${parsedValue.toInt()}%';
-                    final imageUrl = event['image'] ?? '';
-                    final isDone = event['result_status'] == 'Y';
-
-                    return InkWell(
-                      onTap: () {
-                        // if (percentText == '100%') {
-                        //   context.push('/sequence/${event['sequeunce_id']}/result/${event['user_sequence_id']}');
-                        // } else {
-                        //   context.push('/sequence/${event['sequence_id']}');
-                        // }
-                        context.push('/sequence/${event['sequence_id']}');
-                        
-                      },
-                      child: Container(
-                        margin: const EdgeInsets.only(bottom: 16),
-                        child: Row(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Stack(
-                              alignment: Alignment.topRight,
-                              children: [
-                                ClipRRect(
-                                  borderRadius: BorderRadius.circular(12),
-                                  child: Image.network(
-                                    imageUrl,
-                                    width: 60,
-                                    height: 60,
-                                    fit: BoxFit.cover,
-                                    errorBuilder: (_, __, ___) => Image.asset(
-                                      'assets/images/Uttana_Shishosana.png',
-                                      width: 60,
-                                      height: 60,
-                                      fit: BoxFit.cover,
-                                    ),
-                                  ),
-                                ),
-                                Positioned(
-                                  top: 4,
-                                  right: 4,
-                                  child: CircleAvatar(
-                                    radius: 10,
-                                    backgroundColor: Colors.white,
-                                    child: Icon(
-                                      isDone ? Icons.check_circle : Icons.more_horiz,
-                                      size: 16,
-                                      color: isDone ? const Color(0xff7ECECA) : Colors.grey,
-                                    ),
-                                  ),
-                                ),
-                              ],
-                            ),
-                            const SizedBox(width: 12),
-                            Expanded(
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  // 제목
-                                  SingleChildScrollView(
-                                    scrollDirection: Axis.horizontal,
-                                    child: Text(
-                                      title,
-                                      style: const TextStyle(
-                                        fontSize: 16,
-                                        fontWeight: FontWeight.bold,
-                                        fontFamily: 'Pretendard',
-                                      ),
-                                    ),
-                                  ),
-                                  const SizedBox(height: 4),
-                                  // 진행률 바 + 퍼센트
-                                  Row(
-                                    children: [
-                                      Text(
-                                        percentText,
-                                        style: const TextStyle(fontSize: 12),
-                                      ),
-                                      const SizedBox(width: 8),
-                                      Expanded(
-                                        child: LinearProgressIndicator(
-                                          value: parsedValue / 100,
-                                          backgroundColor: const Color(0xffE8FAF1),
-                                          color: const Color(0xff7ECECA),
-                                          minHeight: 4,
-                                        ),
-                                      ),
-                                    ],
-                                  ),
-                                ],
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
+          actions: [
+            if (_shouldShowWeeklyReportButton(displayDay))
+              Padding(
+                padding: const EdgeInsets.only(right: 25),
+                child: TextButton(
+                  style: TextButton.styleFrom(padding: EdgeInsets.zero),
+                  onPressed: () {
+                    final date = (_selectedDay ?? _focusedDay);
+                    final formatted =
+                        "${date.year.toString().padLeft(4, '0')}-${date.month.toString().padLeft(2, '0')}-${date.day.toString().padLeft(2, '0')}";
+                    print(formatted);
+                    context.pushNamed(
+                      "weekly_report",
+                      queryParameters: {'date': formatted},
                     );
-                  }).toList(),
-            ),
+                  },
+                  child: const Text(
+                    '주간리포트',
+                    style: TextStyle(
+                      fontFamily: 'Pretendard',
+                      fontWeight: FontWeight.bold,
+                      fontSize: 16,
+                      color: Colors.black,
+                    ),
+                  ),
+                ),
+              ),
+          ],
+        ),
+        body: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 25),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              calendar(),
+              SizedBox(height: 8),
+              Padding(
+                padding: const EdgeInsets.symmetric(vertical: 8),
+                child: Text(
+                  '${displayDay.month}월 ${displayDay.day}일의 운동',
+                  style: const TextStyle(
+                    fontFamily: 'Pretendard',
+                    fontSize: 16,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+              ),
+              SizedBox(height: 8),
+              Expanded(
+                child:
+                    _getEventsForDay(displayDay).isEmpty
+                        ? const Center(child: Text('해당 날짜의 운동 기록이 없습니다.'))
+                        : ListView(
+                          children:
+                              _getEventsForDay(displayDay).map((event) {
+                                final title = event['sequence_name'] ?? '제목 없음';
+                                final percentRaw = event['percent'];
+                                final parsedValue =
+                                    double.tryParse(
+                                      (percentRaw == null ||
+                                              percentRaw == 'null')
+                                          ? '0'
+                                          : percentRaw,
+                                    ) ??
+                                    0.0;
+
+                                final percentText = '${parsedValue.toInt()}%';
+                                final imageUrl = event['image'] ?? '';
+                                final isDone = event['result_status'] == 'Y';
+
+                                return InkWell(
+                                  onTap: () {
+                                    // if (percentText == '100%') {
+                                    //   context.push('/sequence/${event['sequeunce_id']}/result/${event['user_sequence_id']}');
+                                    // } else {
+                                    //   context.push('/sequence/${event['sequence_id']}');
+                                    // }
+                                    context.push(
+                                      '/sequence/${event['sequence_id']}',
+                                    );
+                                  },
+                                  child: Container(
+                                    margin: const EdgeInsets.only(bottom: 16),
+                                    child: Row(
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
+                                      children: [
+                                        Stack(
+                                          alignment: Alignment.topRight,
+                                          children: [
+                                            ClipRRect(
+                                              borderRadius:
+                                                  BorderRadius.circular(12),
+                                              child: Image.network(
+                                                imageUrl,
+                                                width: 60,
+                                                height: 60,
+                                                fit: BoxFit.cover,
+                                                errorBuilder:
+                                                    (_, __, ___) => Image.asset(
+                                                      'assets/images/Uttana_Shishosana.png',
+                                                      width: 60,
+                                                      height: 60,
+                                                      fit: BoxFit.cover,
+                                                    ),
+                                              ),
+                                            ),
+                                            Positioned(
+                                              top: 4,
+                                              right: 4,
+                                              child: CircleAvatar(
+                                                radius: 10,
+                                                backgroundColor: Colors.white,
+                                                child: Icon(
+                                                  isDone
+                                                      ? Icons.check_circle
+                                                      : Icons.more_horiz,
+                                                  size: 16,
+                                                  color:
+                                                      isDone
+                                                          ? const Color(
+                                                            0xff7ECECA,
+                                                          )
+                                                          : Colors.grey,
+                                                ),
+                                              ),
+                                            ),
+                                          ],
+                                        ),
+                                        const SizedBox(width: 12),
+                                        Expanded(
+                                          child: Column(
+                                            crossAxisAlignment:
+                                                CrossAxisAlignment.start,
+                                            children: [
+                                              // 제목
+                                              SingleChildScrollView(
+                                                scrollDirection:
+                                                    Axis.horizontal,
+                                                child: Text(
+                                                  title,
+                                                  style: const TextStyle(
+                                                    fontSize: 16,
+                                                    fontWeight: FontWeight.bold,
+                                                    fontFamily: 'Pretendard',
+                                                  ),
+                                                ),
+                                              ),
+                                              const SizedBox(height: 4),
+                                              // 진행률 바 + 퍼센트
+                                              Row(
+                                                children: [
+                                                  Text(
+                                                    percentText,
+                                                    style: const TextStyle(
+                                                      fontSize: 12,
+                                                    ),
+                                                  ),
+                                                  const SizedBox(width: 8),
+                                                  Expanded(
+                                                    child:
+                                                        LinearProgressIndicator(
+                                                          value:
+                                                              parsedValue / 100,
+                                                          backgroundColor:
+                                                              const Color(
+                                                                0xffE8FAF1,
+                                                              ),
+                                                          color: const Color(
+                                                            0xff7ECECA,
+                                                          ),
+                                                          minHeight: 4,
+                                                        ),
+                                                  ),
+                                                ],
+                                              ),
+                                            ],
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                );
+                              }).toList(),
+                        ),
+              ),
+            ],
           ),
-        ],
+        ),
       ),
     );
   }
@@ -271,7 +342,7 @@ class _ActivityPageState extends ConsumerState<ActivityPage> {
           _focusedDay = focusedDay;
         });
 
-        await _loadEventsForDay(selectedDay);
+        await _loadWeekEvents(selectedDay);
       },
       onPageChanged: (focusedDay) {
         setState(() {
