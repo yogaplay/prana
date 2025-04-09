@@ -12,6 +12,7 @@ import 'package:frontend/features/learning/widgets/result/recommended_sequences_
 import 'package:frontend/features/learning/widgets/result/stat_card.dart';
 import 'package:frontend/features/search/models/yoga_item.dart';
 import 'package:frontend/widgets/button.dart';
+import 'package:frontend/widgets/confetti_overlay.dart';
 import 'package:go_router/go_router.dart';
 
 class SequenceResultScreen extends ConsumerWidget {
@@ -134,6 +135,7 @@ class SequenceResultScreen extends ConsumerWidget {
               ),
             ],
           ),
+          const ConfettiOverlay(),
           _buildBottomButton(context),
         ],
       ),

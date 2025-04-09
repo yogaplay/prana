@@ -18,7 +18,7 @@ class ReportHeader extends StatelessWidget {
     return Text(
       '$year년 $month월 $week주차',
       style: TextStyle(
-        fontSize: 20,
+        fontSize: 24,
         fontWeight: FontWeight.bold,
         color: AppColors.blackText,
       ),

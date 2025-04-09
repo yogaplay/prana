@@ -70,106 +70,121 @@ class _MusicSelectionScreenState extends ConsumerState<MusicSelectionScreen> {
     // 현재 재생 중인 음악 ID
     final playingMusicId = ref.watch(playingMusicIdProvider);
 
-    return Scaffold(
-      backgroundColor: AppColors.background,
-      appBar: AppBar(
+    return SafeArea(
+      child: Scaffold(
         backgroundColor: AppColors.background,
-        elevation: 0,
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back_ios, color: AppColors.blackText, size: 20,),
-          onPressed: () => Navigator.of(context).pop(),
-        ),
-        title: const Text(
-          '배경음악 선택',
-          style: TextStyle(
-            color: AppColors.blackText,
-            fontSize: 20,
-            fontWeight: FontWeight.bold,
+        appBar: AppBar(
+          titleSpacing: 0,
+          toolbarHeight: 80,
+          backgroundColor: AppColors.background,
+          elevation: 0,
+          leading: IconButton(
+            padding: EdgeInsets.only(left: 25),
+            icon: const Icon(
+              Icons.arrow_back_ios,
+              color: AppColors.blackText,
+              size: 24,
+            ),
+            onPressed: () => Navigator.of(context).pop(),
+          ),
+          title: Padding(
+            padding: const EdgeInsets.only(left: 10),
+            child: const Text(
+              '배경음악 선택',
+              style: TextStyle(
+                color: AppColors.blackText,
+                fontSize: 24,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
           ),
         ),
-      ),
-      body: Container(
-        color: AppColors.background,
-        child: musicListAsync.when(
-          data: (musicList) {
-            // 선택된 음악 ID 가져오기
-            int? selectedMusicId;
-            selectedMusicAsync.whenData((selectedMusic) {
-              if (selectedMusic != null) {
-                selectedMusicId = selectedMusic.musicId;
-                // 로컬 상태 업데이트
-                WidgetsBinding.instance.addPostFrameCallback((_) {
-                  ref.read(selectedMusicIdProvider.notifier).state =
-                      selectedMusicId;
+        body: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 25),
+          child: Container(
+            color: AppColors.background,
+            child: musicListAsync.when(
+              data: (musicList) {
+                // 선택된 음악 ID 가져오기
+                int? selectedMusicId;
+                selectedMusicAsync.whenData((selectedMusic) {
+                  if (selectedMusic != null) {
+                    selectedMusicId = selectedMusic.musicId;
+                    // 로컬 상태 업데이트
+                    WidgetsBinding.instance.addPostFrameCallback((_) {
+                      ref.read(selectedMusicIdProvider.notifier).state =
+                          selectedMusicId;
+                    });
+                  }
                 });
-              }
-            });
 
-            return ListView.separated(
-              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-              itemCount: musicList.length,
-              separatorBuilder:
-                  (context, index) =>
-                      const Divider(color: AppColors.lightGray, height: 1, thickness: 1,),
-              itemBuilder: (context, index) {
-                final music = musicList[index];
-                final isSelected = selectedMusicId == music.musicId;
-                final isPlaying = playingMusicId == music.musicId;
+                return ListView.separated(
+                  padding: const EdgeInsets.symmetric(vertical: 8),
+                  itemCount: musicList.length,
+                  separatorBuilder:
+                      (context, index) => const Divider(
+                        color: AppColors.lightGray,
+                        height: 1,
+                        thickness: 1,
+                      ),
+                  itemBuilder: (context, index) {
+                    final music = musicList[index];
+                    final isSelected = selectedMusicId == music.musicId;
+                    final isPlaying = playingMusicId == music.musicId;
 
-                return Container(
-                  decoration: BoxDecoration(
-                    color: AppColors.boxWhite,
-                    borderRadius: BorderRadius.circular(4),
-                  ),
-                  child: ListTile(
-                    contentPadding: const EdgeInsets.symmetric(
-                      horizontal: 16,
-                      vertical: 8,
-                    ),
-                    leading:
-                        isSelected
-                            ? const Icon(
-                              Icons.check_circle,
-                              color: AppColors.primary,
-                              size: 28,
-                            )
-                            : const SizedBox(width: 28),
-                    title: Text(
-                      music.name,
-                      style: const TextStyle(
-                        color: AppColors.blackText,
-                        fontSize: 16,
-                        fontWeight: FontWeight.w600,
+                    return Container(
+                      decoration: BoxDecoration(color: AppColors.boxWhite),
+                      child: ListTile(
+                        contentPadding: const EdgeInsets.symmetric(
+                          horizontal: 16,
+                          vertical: 8,
+                        ),
+                        leading:
+                            isSelected
+                                ? const Icon(
+                                  Icons.check_circle,
+                                  color: AppColors.primary,
+                                  size: 28,
+                                )
+                                : const SizedBox(width: 28),
+                        title: Text(
+                          music.name,
+                          style: const TextStyle(
+                            color: AppColors.blackText,
+                            fontSize: 16,
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
+                        trailing: IconButton(
+                          icon: Icon(
+                            isPlaying
+                                ? Icons.pause_circle_filled
+                                : Icons.play_circle_filled,
+                            color: AppColors.graytext,
+                            size: 36,
+                          ),
+                          onPressed: () => _playMusic(music),
+                        ),
+                        onTap: () => _selectMusic(music),
                       ),
-                    ),
-                    trailing: IconButton(
-                      icon: Icon(
-                        isPlaying
-                            ? Icons.pause_circle_filled
-                            : Icons.play_circle_filled,
-                        color: AppColors.graytext,
-                        size: 36,
-                      ),
-                      onPressed: () => _playMusic(music),
-                    ),
-                    onTap: () => _selectMusic(music),
-                  ),
+                    );
+                  },
                 );
               },
-            );
-          },
-          loading:
-              () => const Center(
-                child: CircularProgressIndicator(color: AppColors.primary),
-              ),
-          error:
-              (error, stack) => Center(
-                child: Text(
-                  '음악 목록을 불러오는 중 오류가 발생했습니다.\n$error',
-                  style: const TextStyle(color: Colors.red),
-                  textAlign: TextAlign.center,
-                ),
-              ),
+              loading:
+                  () => const Center(
+                    child: CircularProgressIndicator(color: AppColors.primary),
+                  ),
+              error:
+                  (error, stack) => Center(
+                    child: Text(
+                      '음악 목록을 불러오는 중 오류가 발생했습니다.\n$error',
+                      style: const TextStyle(color: Colors.red),
+                      textAlign: TextAlign.center,
+                    ),
+                  ),
+            ),
+          ),
         ),
       ),
     );

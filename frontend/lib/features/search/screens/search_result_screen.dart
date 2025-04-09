@@ -86,10 +86,10 @@ class _SearchResultScreenState extends State<SearchResultScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      body: SafeArea(
-        child: Padding(
-          padding: EdgeInsets.all(16),
+    return SafeArea(
+      child: Scaffold(
+        body: Padding(
+          padding: EdgeInsets.only(top: 25, left: 25, right: 25),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
@@ -126,10 +126,14 @@ class _SearchResultScreenState extends State<SearchResultScreen> {
                   itemBuilder: (context, index) {
                     if (index < results.length) {
                       final item = results[index];
-                      return YogaTile(
-                        imageUrl: item.image,
-                        title: item.sequenceName,
-                        tags: item.tagList,
+                      return Padding(
+                        padding: const EdgeInsets.symmetric(vertical: 4),
+                        child: YogaTile(
+                          sequenceId: item.sequenceId,
+                          imageUrl: item.image,
+                          title: item.sequenceName,
+                          tags: item.tagList,
+                        ),
                       );
                     } else {
                       return isLoading

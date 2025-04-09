@@ -33,15 +33,24 @@ class YogaCard extends StatelessWidget {
               ),
             ),
             SizedBox(height: 8),
-            Text(
-              item.title,
-              style: TextStyle(
-                fontWeight: FontWeight.bold,
-                overflow: TextOverflow.ellipsis,
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 4),
+              child: Text(
+                item.title,
+                style: TextStyle(
+                  fontWeight: FontWeight.bold,
+                  overflow: TextOverflow.ellipsis,
+                ),
               ),
             ),
             SizedBox(height: 4),
-            Text(item.duration, style: TextStyle(color: AppColors.graytext)),
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 4),
+              child: Text(
+                item.duration,
+                style: TextStyle(color: AppColors.graytext),
+              ),
+            ),
           ],
         ),
       ),

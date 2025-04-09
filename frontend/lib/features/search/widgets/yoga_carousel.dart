@@ -8,12 +8,14 @@ class YogaCarousel extends StatelessWidget {
   final String title;
   final String tagType;
   final List<YogaItem> items;
+  final EdgeInsetsGeometry padding;
 
   const YogaCarousel({
     super.key,
     required this.title,
     required this.items,
     required this.tagType,
+    this.padding = const EdgeInsets.symmetric(horizontal: 25),
   });
 
   String _getPostPosition(String word, String post1, String post2) {
@@ -54,7 +56,7 @@ class YogaCarousel extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Padding(
-          padding: EdgeInsets.symmetric(horizontal: 16),
+          padding: padding,
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
@@ -64,6 +66,9 @@ class YogaCarousel extends StatelessWidget {
               ),
               TextButton(
                 onPressed: () => _handleSeeAll(context),
+                style: TextButton.styleFrom(
+                  padding: EdgeInsets.symmetric(horizontal: 0),
+                ),
                 child: Row(
                   children: [
                     Text('전체 보기', style: TextStyle(color: AppColors.graytext)),
@@ -74,10 +79,11 @@ class YogaCarousel extends StatelessWidget {
             ],
           ),
         ),
+        SizedBox(height: 8),
         SizedBox(
           height: 170,
           child: ListView.separated(
-            padding: EdgeInsets.symmetric(horizontal: 16),
+            padding: padding,
             scrollDirection: Axis.horizontal,
             itemBuilder: (context, index) {
               return YogaCard(item: items[index]);

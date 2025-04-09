@@ -25,59 +25,78 @@ class AlarmScreen extends ConsumerWidget {
     final alarms = ref.watch(alarmProvider);
     final alarmNotifier = ref.read(alarmProvider.notifier);
 
-    return Scaffold(
-      backgroundColor: AppColors.background,
-      appBar: AppBar(
+    return SafeArea(
+      child: Scaffold(
         backgroundColor: AppColors.background,
-        elevation: 0,
-        leading: IconButton(
-          icon: const Icon(
-            Icons.arrow_back_ios,
-            color: AppColors.blackText,
-            size: 20,
-          ),
-          onPressed: () => Navigator.of(context).pop(),
-        ),
-        title: const Text(
-          '알림',
-          style: TextStyle(
-            color: AppColors.blackText,
-            fontSize: 24,
-            fontWeight: FontWeight.bold,
-          ),
-        ),
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.refresh, color: AppColors.blackText),
-            onPressed: () => alarmNotifier.loadAlarms(),
-          ),
-        ],
-      ),
-      body:
-          alarms.isEmpty
-              ? const Center(child: Text('알림이 없습니다'))
-              : ListView.separated(
-                padding: const EdgeInsets.all(16),
-                itemCount: alarms.length,
-                separatorBuilder:
-                    (context, index) => const SizedBox(height: 12),
-                itemBuilder: (context, index) {
-                  final alarm = alarms[index];
-                  return Dismissible(
-                    key: ValueKey(alarm.date),
-                    direction: DismissDirection.endToStart,
-                    background: _buildDeleteBackground(),
-                    onDismissed:
-                        (direction) => alarmNotifier.deleteAlarm(index),
-                    // 삭제 처리
-                    child: AlarmCard(
-                      alarm: alarm,
-                      index: index,
-                      onCheck: () => alarmNotifier.markAsChecked(index),
-                    ),
-                  );
-                },
+        appBar: AppBar(
+          titleSpacing: 0,
+          toolbarHeight: 80,
+          backgroundColor: AppColors.background,
+          elevation: 0,
+          leading: Padding(
+            padding: const EdgeInsets.only(left: 25),
+            child: IconButton(
+              padding: EdgeInsets.zero,
+              icon: const Icon(
+                Icons.arrow_back_ios,
+                color: AppColors.blackText,
+                size: 24,
               ),
+              onPressed: () => Navigator.of(context).pop(),
+            ),
+          ),
+          title: Padding(
+            padding: const EdgeInsets.only(left: 10),
+            child: const Text(
+              '알림',
+              style: TextStyle(
+                color: AppColors.blackText,
+                fontSize: 24,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+          ),
+          actions: [
+            Padding(
+              padding: const EdgeInsets.only(right: 25),
+              child: IconButton(
+                padding: EdgeInsets.zero,
+                constraints: BoxConstraints(),
+                icon: const Icon(Icons.refresh, color: AppColors.blackText),
+                onPressed: () => alarmNotifier.loadAlarms(),
+              ),
+            ),
+          ],
+        ),
+        body:
+            alarms.isEmpty
+                ? const Center(child: Text('알림이 없습니다'))
+                : ListView.separated(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 25,
+                    vertical: 16,
+                  ),
+                  itemCount: alarms.length,
+                  separatorBuilder:
+                      (context, index) => const SizedBox(height: 12),
+                  itemBuilder: (context, index) {
+                    final alarm = alarms[index];
+                    return Dismissible(
+                      key: ValueKey(alarm.date),
+                      direction: DismissDirection.endToStart,
+                      background: _buildDeleteBackground(),
+                      onDismissed:
+                          (direction) => alarmNotifier.deleteAlarm(index),
+                      // 삭제 처리
+                      child: AlarmCard(
+                        alarm: alarm,
+                        index: index,
+                        onCheck: () => alarmNotifier.markAsChecked(index),
+                      ),
+                    );
+                  },
+                ),
+      ),
     );
   }
 }
