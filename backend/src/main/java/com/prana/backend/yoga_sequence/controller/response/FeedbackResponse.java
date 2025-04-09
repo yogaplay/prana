@@ -11,5 +11,5 @@ import lombok.NoArgsConstructor;
 @Builder
 public class FeedbackResponse {
     private String position;
-    private int feedbackCnt;
+    private Long feedbackCnt;
 }

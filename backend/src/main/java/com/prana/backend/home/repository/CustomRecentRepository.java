@@ -40,7 +40,7 @@ public class CustomRecentRepository {
                 .join(sequence).on(userSequence.sequence.eq(sequence))
                 .where(userSequence.user.id.eq(userId))
                 .orderBy(userSequence.updatedAt.desc())
-                .limit(1)
+                .limit(3)
                 .fetch();
     }
 
