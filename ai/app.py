@@ -184,7 +184,9 @@ async def short_feedback(request: FeedbackRequest):
         # Cosine similarity 계산 및 로깅
         similarity = 1 - cosine(correct_angles, live_angles)
         logger.info(f"Cosine similarity: {similarity}")
-
+        abs_diff = np.abs(live_angles-correct_angles)
+        max_diff = np.max(abs_diff)
+        logger.info(f"maximum difference: {max_diff}")
 
         # 1. 가중치 계산 (표준편차의 역수)
         epsilon = 1e-6  # prevent zero division error
@@ -194,6 +196,7 @@ async def short_feedback(request: FeedbackRequest):
         # 2. 절대 차이 계산
         diffs = np.abs(live_angles - correct_angles)
         diffs = np.where(diffs < 10, np.exp(diffs - 10), diffs)
+
         # 3. 가중합으로 점수 계산
         weight_mul = weights * diffs
         weighted_error = np.sum(weights * diffs)
@@ -205,7 +208,7 @@ async def short_feedback(request: FeedbackRequest):
         logger.info(f"점수 : {score}")
 
 
-        result_str = "success" if similarity >= 0.95 else "fail"
+        result_str = "success" if similarity >= 0.95 and max_diff<20 else "fail"
         return JSONResponse(content={"result": result_str, "score": score})
     except Exception as e:
         logger.exception("단기 피드백 처리 중 오류 발생")
