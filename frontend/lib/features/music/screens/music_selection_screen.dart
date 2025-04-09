@@ -21,12 +21,14 @@ class _MusicSelectionScreenState extends ConsumerState<MusicSelectionScreen> {
     super.initState();
     // 화면 로드 시 선택된 음악 정보 가져오기
     WidgetsBinding.instance.addPostFrameCallback((_) {
+      ref.read(playingMusicIdProvider.notifier).state = null; // 초기화
       ref.read(selectedMusicFutureProvider);
     });
   }
 
   @override
   void dispose() {
+    _audioPlayer.stop(); // 음악도 정지
     _audioPlayer.dispose();
     super.dispose();
   }
