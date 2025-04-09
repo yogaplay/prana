@@ -22,7 +22,12 @@ class SkeletonSearchMainScreen extends StatelessWidget {
         child: ListView(
           children: [
             Padding(
-              padding: const EdgeInsets.all(16),
+              padding: const EdgeInsets.only(
+                top: 25,
+                right: 25,
+                left: 25,
+                bottom: 0,
+              ),
               child: Text(
                 '둘러보기',
                 style: TextStyle(
@@ -33,7 +38,7 @@ class SkeletonSearchMainScreen extends StatelessWidget {
               ),
             ),
             Padding(
-              padding: const EdgeInsets.all(16),
+              padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 25),
               child: SearchBarWithFilter(
                 readOnly: true,
                 onTap: onSearchTap,

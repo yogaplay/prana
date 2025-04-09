@@ -57,9 +57,14 @@ class AlarmScreen extends ConsumerWidget {
             ),
           ),
           actions: [
-            IconButton(
-              icon: const Icon(Icons.refresh, color: AppColors.blackText),
-              onPressed: () => alarmNotifier.loadAlarms(),
+            Padding(
+              padding: const EdgeInsets.only(right: 25),
+              child: IconButton(
+                padding: EdgeInsets.zero,
+                constraints: BoxConstraints(),
+                icon: const Icon(Icons.refresh, color: AppColors.blackText),
+                onPressed: () => alarmNotifier.loadAlarms(),
+              ),
             ),
           ],
         ),
@@ -67,7 +72,10 @@ class AlarmScreen extends ConsumerWidget {
             alarms.isEmpty
                 ? const Center(child: Text('알림이 없습니다'))
                 : ListView.separated(
-                  padding: const EdgeInsets.all(16),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 25,
+                    vertical: 16,
+                  ),
                   itemCount: alarms.length,
                   separatorBuilder:
                       (context, index) => const SizedBox(height: 12),

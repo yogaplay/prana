@@ -108,7 +108,6 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
 
   Widget _buildReportCard(Report report, BuildContext context) {
     return Container(
-      margin: const EdgeInsets.only(bottom: 16),
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
         color: AppColors.boxWhite,

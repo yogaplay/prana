@@ -39,21 +39,27 @@ class InfoPage extends ConsumerWidget {
                   ),
                 ),
             loading:
-                () => const Text(
-                  '반가워요 😊',
-                  style: TextStyle(
-                    color: AppColors.blackText,
-                    fontSize: 24,
-                    fontWeight: FontWeight.bold,
+                () => Padding(
+                  padding: EdgeInsets.symmetric(horizontal: 25),
+                  child: const Text(
+                    '반가워요 😊',
+                    style: TextStyle(
+                      color: AppColors.blackText,
+                      fontSize: 24,
+                      fontWeight: FontWeight.bold,
+                    ),
                   ),
                 ),
             error:
-                (_, __) => const Text(
-                  '반가워요 😊',
-                  style: TextStyle(
-                    color: AppColors.blackText,
-                    fontSize: 24,
-                    fontWeight: FontWeight.bold,
+                (_, __) => Padding(
+                  padding: EdgeInsets.symmetric(horizontal: 25),
+                  child: const Text(
+                    '반가워요 😊',
+                    style: TextStyle(
+                      color: AppColors.blackText,
+                      fontSize: 24,
+                      fontWeight: FontWeight.bold,
+                    ),
                   ),
                 ),
           ),
