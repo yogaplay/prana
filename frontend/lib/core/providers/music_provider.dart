@@ -1,5 +1,6 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:frontend/core/providers/providers.dart';
+import 'package:frontend/features/learning/providers/sequence_providers.dart';
 import 'package:frontend/features/music/models/music_model.dart';
 
 // 음악 목록을 가져오는 FutureProvider
@@ -33,5 +34,6 @@ final selectMusicProvider = Provider<Future<void> Function(int)>((ref) {
 
     // 선택된 음악 정보 갱신을 위해 FutureProvider 새로고침
     ref.invalidate(selectedMusicFutureProvider);
+    ref.invalidate(sequenceDetailProvider);
   };
 });
