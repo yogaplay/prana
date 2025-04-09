@@ -38,7 +38,7 @@ public class CustomStarRepository {
                 .join(sequence).on(star.sequence.eq(sequence))
                 .where(star.user.id.eq(userId))
                 .orderBy(sequence.id.asc())
-                .limit(1)
+                .limit(3)
                 .fetch();
 
     }

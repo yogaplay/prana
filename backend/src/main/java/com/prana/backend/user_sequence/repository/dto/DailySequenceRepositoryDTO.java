@@ -10,6 +10,7 @@ import lombok.*;
 // Calendar dailySequence 결과 추출을 위한 dto
 public class DailySequenceRepositoryDTO {
     private int userSequenceId;
+    private int sequenceId;
     private String sequenceName;
     private String resultStatus;
     private int lastPoint;

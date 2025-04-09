@@ -53,20 +53,20 @@ public class WeeklyData {
     private int week5YogaTime;
 
     // 주별 정확도 (DECIMAL(4,1))
-    @Column(name = "week1_accuracy", nullable = false)
-    private Double week1Accuracy;
+    @Column(name = "week1_score", nullable = false)
+    private Double week1Score;
 
-    @Column(name = "week2_accuracy", nullable = false)
-    private Double week2Accuracy;
+    @Column(name = "week2_score", nullable = false)
+    private Double week2Score;
 
-    @Column(name = "week3_accuracy", nullable = false)
-    private Double week3Accuracy;
+    @Column(name = "week3_score", nullable = false)
+    private Double week3Score;
 
-    @Column(name = "week4_accuracy", nullable = false)
-    private Double week4Accuracy;
+    @Column(name = "week4_score", nullable = false)
+    private Double week4Score;
 
-    @Column(name = "week5_accuracy", nullable = false)
-    private Double week5Accuracy;
+    @Column(name = "week5_score", nullable = false)
+    private Double week5Score;
 
     // 피드백 (부위별)
     @Column(name = "feedback_shoulder", nullable = false)

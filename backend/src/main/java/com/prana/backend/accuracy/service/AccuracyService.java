@@ -18,6 +18,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
 
 @Service
@@ -46,25 +48,36 @@ public class AccuracyService {
         UserSequence userSequence = userSequenceRepository.findById(userSequenceId).orElse(null);
 
         return aiFeedbackRepository.findById(userSequenceId).map(feedback -> {
+            int accuracyScore = 0;
+            if(feedback.getSuccessCount() != 0 || feedback.getFailureCount() != 0) {
+                accuracyScore = (feedback.getFeedbackSum() / (feedback.getFailureCount() + feedback.getSuccessCount()));
+            }
+
             Accuracy accuracy = Accuracy.builder()
                     .userId(userId)
                     .yogaId(yogaId)
                     .sequenceId(sequenceId)
                     .success(feedback.getSuccessCount())
                     .fail(feedback.getFailureCount())
-                    .score(feedback.getFeedbackSum())
+                    .score(accuracyScore)
                     .build();
             accuracyRepository.save(accuracy);
+
 
             SequenceYoga sequenceYoga = SequenceYoga.builder()
                     .userSequence(userSequence)
                     .yogaName(yoga.getYogaName())
                     .yogaImage(yoga.getImage())
-                    .accuracy((feedback.getSuccessCount() * 100 / (feedback.getFailureCount() + feedback.getSuccessCount())))
+                    .accuracy(accuracyScore)
                     .build();
             sequenceYogaRepository.save(sequenceYoga);
 
-            for(AiFeedback.FeedbackTotal feed : feedback.getFeedbackTotal()) {
+            List<AiFeedback.FeedbackTotal> feedbackTotals = feedback.getFeedbackTotal();
+            if (feedbackTotals == null) {
+                feedbackTotals = new ArrayList<>();
+            }
+
+            for(AiFeedback.FeedbackTotal feed : feedbackTotals) {
                 if(!StringUtils.hasText(feed.getPosition())) continue;
                 Feedback nextFeedback = Feedback.builder()
                         .user(user)

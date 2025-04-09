@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>App Preview</title>
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            background-color: #f5f5f5;
+        }
+
+        .container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            max-width: 100%;
+            padding: 20px;
+        }
+
+        .image-container {
+            width: 100%;
+            max-width: 400px;
+            margin-bottom: 20px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            border-radius: 12px;
+            overflow: hidden;
+        }
+
+        .app-image {
+            width: 100%;
+            height: auto;
+            display: block;
+        }
+
+        .install-button {
+            background-color: #7ECECA;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            font-size: 16px;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+            text-decoration: none;
+            font-weight: bold;
+        }
+
+        .install-button:hover {
+            background-color: #5ccfcb;
+        }
+
+        .error-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 40px 20px;
+            text-align: center;
+        }
+
+        .error-icon {
+            font-size: 48px;
+            color: #d32f2f;
+            margin-bottom: 16px;
+        }
+
+        .error-message {
+            color: #666;
+            font-size: 16px;
+        }
+
+        @media (min-width: 768px) {
+            .image-container {
+                max-width: 350px; /* Slightly narrower on desktop for better phone-like ratio */
+            }
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <div class="container">
+        <div class="image-container" id="imageContainer">
+            <!-- Use Thymeleaf to display the S3 image with error handling -->
+            <img
+                    class="app-image"
+                    th:src="${imageUrl}"
+                    alt="App Shared Image"
+                    onerror="handleImageError()"
+            >
+        </div>
+
+        <a th:href="${appDownloadUrl}" class="install-button">
+            prāṇa
+        </a>
+    </div>
+
+    <script th:inline="javascript">
+        function handleImageError() {
+            const container = document.getElementById('imageContainer');
+
+            // Replace the image with an error message and icon
+            container.innerHTML = `
+                <div class="error-container">
+                    <div class="error-icon">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="91" height="91" viewBox="0 0 91 91" fill="none">
+  <g clip-path="url(#clip0_1109_1642)">
+    <path d="M90.9911 36.2621C90.9152 33.8673 88.9814 31.9396 86.5852 31.8576L85.9543 31.85C84.4832 31.85 80.3987 31.9925 75.3482 32.9754C74.4443 26.1505 72.6136 21.3047 72.462 20.918C72.013 19.7608 71.1091 18.8387 69.9625 18.364C69.4044 18.1334 68.813 18.0181 68.2215 18.0181C67.5965 18.0181 66.9732 18.1469 66.3894 18.4032C66.0558 18.5504 62.3808 20.2065 57.796 23.434C53.7783 15.79 49.1299 10.8624 48.7886 10.506C47.9287 9.6081 46.7411 9.10156 45.5006 9.10156C44.26 9.10156 43.0724 9.6081 42.2139 10.5044C41.8727 10.8608 37.218 15.7961 33.1989 23.4475C28.6246 20.2291 24.9453 18.5486 24.6132 18.4016C24.0293 18.1453 23.4058 18.0165 22.7811 18.0165C22.1896 18.0165 21.5981 18.1317 21.04 18.3624C19.8935 18.8371 18.9909 19.7608 18.5405 20.9164C18.3904 21.3031 16.5597 26.1473 15.6559 32.9738C10.6024 31.9895 6.51955 31.85 5.04845 31.85L4.41448 31.8576C2.0197 31.9396 0.0843599 33.8673 0.00864548 36.2621C-0.0187255 37.1145 -0.502517 57.2966 12.0494 69.8499C23.5169 81.3175 41.512 81.8983 45.0033 81.8983L45.4703 81.8922C45.4794 81.8922 45.4885 81.8983 45.4977 81.8983C45.5068 81.8983 45.5158 81.8922 45.5251 81.8922L45.9922 81.8983C49.4836 81.8983 67.4787 81.3175 78.9461 69.8499C91.502 57.298 91.0182 37.1159 90.9911 36.2621ZM68.2215 22.5666C68.2215 22.5666 70.0445 27.3411 70.8772 34.0416C68.2412 34.7803 65.5021 35.7722 62.7828 37.0992C62.0776 33.7125 61.0204 30.5382 59.7752 27.6352C64.4222 24.2683 68.2215 22.5666 68.2215 22.5666ZM22.7793 22.5666C22.7793 22.5666 26.5785 24.2592 31.2286 27.6262C29.9804 30.5382 28.9188 33.7247 28.2135 37.1235C25.4942 35.7964 22.7596 34.7894 20.1222 34.0493C20.9547 27.3457 22.7793 22.5666 22.7793 22.5666ZM15.2688 66.6331C3.96357 55.328 4.55666 36.4062 4.55666 36.4062C4.55666 36.4062 4.728 36.4016 5.0465 36.4016C7.43061 36.4016 18.0564 36.7807 27.4732 41.8539C27.3641 43.0506 27.3003 44.2654 27.3003 45.4999C27.3003 59.5062 34.9018 71.3377 39.2561 76.9721C32.7331 76.1971 22.4654 73.8297 15.2688 66.6331ZM45.6004 77.2422C45.5125 77.2134 45.4261 77.186 45.3138 77.1452C43.7122 75.3995 31.8505 61.9028 31.8505 45.5001C31.8505 27.9098 45.5004 13.6503 45.5004 13.6503C45.5004 13.6503 59.1503 27.9098 59.1503 45.5001C59.1503 62.3789 46.6165 76.1532 45.6004 77.2422ZM75.7334 66.6331C68.5368 73.8297 58.2691 76.1971 51.7459 76.9722C56.0988 71.3379 63.7003 59.5064 63.7003 45.5001C63.7003 44.2579 63.6366 43.0355 63.5243 41.8313C72.9412 36.7627 83.5716 36.4002 85.9541 36.4002C86.2726 36.4002 86.4439 36.4048 86.4439 36.4048C86.4439 36.4048 87.037 55.328 75.7334 66.6331Z" fill="#7ECECA" stroke="#7ECECA" stroke-width="0.390623"/>
+  </g>
+  <defs>
+    <clipPath id="clip0_1109_1642">
+      <rect width="91" height="91" fill="none"/>
+    </clipPath>
+  </defs>
+</svg></div>
+                    <div class="error-message">이미지를 불러올 수 없습니다</div>
+                </div>
+            `;
+        }
+    </script>
+</div>
+</body>
+</html>
