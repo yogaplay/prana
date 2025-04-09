@@ -86,6 +86,9 @@ public class YogaSequenceService {
     }
 
     public FinishResponse finishYogaSequence(Integer userSequenceId, Integer sequenceId) {
+        UserSequence userSequence = userSequenceRepository.findById(userSequenceId).orElseThrow(UserNotFoundException::new);
+        userSequence.setResultStatus('Y');
+        userSequenceRepository.save(userSequence);
         List<AccuracyResponse> accuracyResponses = new ArrayList<>();
         List<SequenceYoga> sequenceYoga = sequenceYogaRepository.findByUserSequence_Id(userSequenceId);
         for(SequenceYoga yoga : sequenceYoga) {
