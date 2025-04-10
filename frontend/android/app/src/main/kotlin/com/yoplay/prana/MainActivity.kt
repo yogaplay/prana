@@ -1,4 +1,4 @@
-package com.ssafy.prana
+package com.yoplay.prana
 
 import io.flutter.embedding.android.FlutterActivity
 
