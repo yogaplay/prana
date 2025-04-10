@@ -7,20 +7,24 @@ enum AuthStatus { unknown, authenticated, unauthenticated, error }
 class AuthState {
   final AuthStatus status;
   final String? error;
-  final bool isFirstLogin;
+  final bool? isFirstLogin; // null일 수 있음을 명시
 
   const AuthState({
     required this.status,
     this.error,
-    this.isFirstLogin = false,
+    this.isFirstLogin, // 기본값 제거
   });
 
   // 초기 상태 (로딩 중)
   factory AuthState.unknown() => const AuthState(status: AuthStatus.unknown);
 
   // 인증됨 상태
-  factory AuthState.authenticated({bool isFirstLogin = false}) =>
+  factory AuthState.authenticated({bool? isFirstLogin}) =>
       AuthState(status: AuthStatus.authenticated, isFirstLogin: isFirstLogin);
+
+  // 인증됨 + isFirstLogin 로딩 중
+  factory AuthState.authenticatedLoading() =>
+      const AuthState(status: AuthStatus.authenticated, isFirstLogin: null);
 
   // 인증되지 않음 상태
   factory AuthState.unauthenticated() =>
@@ -29,6 +33,9 @@ class AuthState {
   // 오류 상태
   factory AuthState.error(String message) =>
       AuthState(status: AuthStatus.error, error: message);
+
+  // isFirstLogin이 결정되었는지 확인
+  bool get isFirstLoginDetermined => isFirstLogin != null;
 }
 
 class AuthStateNotifier extends StateNotifier<AuthState> {
@@ -47,21 +54,31 @@ class AuthStateNotifier extends StateNotifier<AuthState> {
 
   // 인증 상태 초기화
   Future<void> _initializeAuthState() async {
-    if (_disposed) return; // 초기에 체크
+    if (_disposed) return;
 
     try {
       final isLoggedIn = await _authService.isLoggedIn();
+      print('로그인 상태: $isLoggedIn');
 
-      if (_disposed) return; // 비동기 작업 후 체크
+      if (_disposed) return;
 
       if (isLoggedIn) {
+        // 먼저 로그인 상태만 설정하고, isFirstLogin은 아직 null로 둠
+        state = AuthState.authenticatedLoading();
+
+        // 그 다음 isFirstLogin 값을 가져옴
         final isFirstLogin = await _authService.isFirstLogin();
+        print('첫 로그인 상태: $isFirstLogin');
+
         if (!_disposed) {
+          // 이제 isFirstLogin 값도 설정
           state = AuthState.authenticated(isFirstLogin: isFirstLogin);
+          print('인증 상태 설정 완료: isFirstLogin=$isFirstLogin');
         }
       } else {
         if (!_disposed) {
           state = AuthState.unauthenticated();
+          print('비인증 상태로 설정');
         }
       }
     } catch (e) {
@@ -118,6 +135,25 @@ class AuthStateNotifier extends StateNotifier<AuthState> {
       } else {
         print('로그아웃 중 오류(dispose 상태): $e');
       }
+    }
+  }
+  // AuthStateNotifier 클래스에 다음 메서드를 추가합니다
+
+  // isFirstLogin 상태를 업데이트하는 메서드
+  Future<void> updateFirstLoginStatus(bool isFirstLogin) async {
+    if (_disposed) return;
+
+    try {
+      // 로컬 스토리지에 isFirstLogin 상태 저장 (AuthService에 해당 메서드 구현 필요)
+      await _authService.setFirstLoginStatus(isFirstLogin);
+
+      if (!_disposed) {
+        // 상태 업데이트
+        state = AuthState.authenticated(isFirstLogin: isFirstLogin);
+        print('isFirstLogin 상태 업데이트: $isFirstLogin');
+      }
+    } catch (e) {
+      print('isFirstLogin 상태 업데이트 중 오류: $e');
     }
   }
 

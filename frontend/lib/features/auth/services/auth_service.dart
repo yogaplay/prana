@@ -107,6 +107,10 @@ class AuthService {
     await _storage.write(key: _refreshToken, value: token);
   }
 
+  Future<void> setFirstLoginStatus(bool isFirstLogin) async {
+    await _storage.write(key: _isFirst, value: isFirstLogin.toString());
+  }
+
   Future<void> saveAuthData(AuthResponse authResponse) async {
     await _storage.write(
       key: _accessToken,
@@ -135,8 +139,10 @@ class AuthService {
   }
 
   Future<bool> isFirstLogin() async {
-    final isFirst = await _storage.read(key: _isFirst);
-    return isFirst == 'true';
+    final value = await _storage.read(key: _isFirst);
+
+    // 값이 없거나 'true'인 경우 true 반환
+    return value == null || value == 'true';
   }
 
   Future<bool> isLoggedIn() async {

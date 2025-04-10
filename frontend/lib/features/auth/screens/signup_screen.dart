@@ -3,7 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:frontend/constants/app_colors.dart';
 import 'package:frontend/core/providers/providers.dart';
 import 'package:frontend/features/auth/widgets/gender_selection_widget.dart';
-import 'package:frontend/features/auth/widgets/info_wheel_field.dart'; // 새로운 위젯으로 변경
+import 'package:frontend/features/auth/widgets/info_wheel_field.dart';
 import 'package:frontend/widgets/button.dart';
 import 'package:go_router/go_router.dart';
 
@@ -19,7 +19,8 @@ class _SignupScreenState extends ConsumerState<SignupScreen> {
   int? age;
   int? weight;
   int? height;
-
+  bool _isLoading = false;
+  final _scrollController = ScrollController();
   bool _attemptedSubmit = false;
 
   void _onGenderSelected(String gender) {
@@ -56,13 +57,19 @@ class _SignupScreenState extends ConsumerState<SignupScreen> {
         weight == null ||
         height == null) {
       // 스크롤을 맨 위로 올려서 모든 오류를 볼 수 있게 함
-      ScrollController().animateTo(
-        0,
-        duration: Duration(milliseconds: 300),
-        curve: Curves.easeOut,
-      );
+      if (_scrollController.hasClients) {
+        _scrollController.animateTo(
+          0,
+          duration: Duration(milliseconds: 300),
+          curve: Curves.easeOut,
+        );
+      }
       return;
     }
+
+    setState(() {
+      _isLoading = true;
+    });
 
     try {
       final signupService = ref.read(signupServiceProvider);
@@ -74,9 +81,33 @@ class _SignupScreenState extends ConsumerState<SignupScreen> {
         height: height.toString(),
       );
 
-      context.goNamed("home");
+      // 회원가입 후 isFirstLogin을 false로 설정
+      final authNotifier = ref.read(authStateNotifierProvider.notifier);
+      await authNotifier.updateFirstLoginStatus(false);
+
+      if (mounted) {
+        // 화면 전환 전 로딩 상태 해제
+        setState(() {
+          _isLoading = false;
+        });
+        context.goNamed("home");
+      }
     } catch (e) {
       print("회원가입 실패: ${e.toString()}");
+
+      if (mounted) {
+        setState(() {
+          _isLoading = false;
+        });
+
+        // 오류 메시지 표시
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('회원가입에 실패했습니다. 다시 시도해주세요.'),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
     }
   }
 
@@ -84,6 +115,7 @@ class _SignupScreenState extends ConsumerState<SignupScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       body: SingleChildScrollView(
+        controller: _scrollController,
         child: Padding(
           padding: const EdgeInsets.symmetric(horizontal: 20.0),
           child: Column(
@@ -152,16 +184,22 @@ class _SignupScreenState extends ConsumerState<SignupScreen> {
               ),
               SizedBox(height: 45),
 
-              Button(text: '확인', onPressed: _onSignup),
+              _isLoading
+                  ? CircularProgressIndicator(color: AppColors.primary)
+                  : Button(text: '확인', onPressed: _onSignup),
               SizedBox(height: 7),
               TextButton(
-                onPressed: () {
-                  context.goNamed("home");
-                },
+                onPressed:
+                    _isLoading
+                        ? null // 로딩 중에는 비활성화
+                        : () {
+                          context.goNamed("home");
+                        },
                 child: Text(
                   '나중에 입력하기',
                   style: TextStyle(
-                    color: AppColors.graytext,
+                    color:
+                        _isLoading ? AppColors.lightGray : AppColors.graytext,
                     decoration: TextDecoration.underline,
                     fontSize: 16,
                   ),
@@ -173,5 +211,11 @@ class _SignupScreenState extends ConsumerState<SignupScreen> {
         ),
       ),
     );
+  }
+
+  @override
+  void dispose() {
+    _scrollController.dispose();
+    super.dispose();
   }
 }

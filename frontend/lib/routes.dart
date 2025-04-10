@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:frontend/all/screens/see_all_screen.dart';
-import 'package:frontend/core/providers/auth_providier.dart';
+import 'package:frontend/core/providers/auth_provider.dart';
 import 'package:frontend/core/providers/providers.dart';
 import 'package:frontend/features/auth/screens/onboarding_screen.dart';
 import 'package:frontend/features/auth/screens/signup_screen.dart';
@@ -26,10 +26,16 @@ final routerProvider = Provider<GoRouter>((ref) {
     refreshListenable: notifier,
     redirect: (context, state) {
       final authState = ref.watch(authStateNotifierProvider);
-      print("Auth 상태 : $authState");
+      print("Auth 상태: $authState");
 
       if (authState.status == AuthStatus.unknown) {
-        return null; // 로딩 화면을 추가하거나, null 반환하여 현재 페이지 유지
+        return null; // 로딩 중, 현재 페이지 유지
+      }
+
+      // isFirstLogin이 아직 결정되지 않았으면 리다이렉트하지 않음
+      if (authState.status == AuthStatus.authenticated &&
+          !authState.isFirstLoginDetermined) {
+        return null; // isFirstLogin 값을 기다림
       }
 
       // 이동하려는 경로 확인
@@ -38,17 +44,18 @@ final routerProvider = Provider<GoRouter>((ref) {
 
       // 인증 상태에 따른 리다이렉트
       if (authState.status == AuthStatus.authenticated) {
+        // 첫 로그인이면 signup 페이지로 리다이렉트
+        if (authState.isFirstLogin == true && !isGoingToSignup) {
+          return '/signup';
+        }
+
         // 로그인된 상태에서 온보딩 페이지에 있으면
         if (isGoingToOnboarding) {
-          if (authState.isFirstLogin) {
-            return '/signup'; // 첫 로그인이면 회원가입 페이지로
-          } else {
-            return '/home'; // 아니면 홈 페이지로
-          }
+          return '/home'; // 홈 페이지로 리다이렉트
         }
 
         // 로그인된 상태에서 첫 로그인이 아닌데 회원가입 페이지로 가려고 하면
-        if (isGoingToSignup && !authState.isFirstLogin) {
+        if (isGoingToSignup && authState.isFirstLogin == false) {
           return '/home'; // 홈 페이지로 리다이렉트
         }
       } else if (authState.status == AuthStatus.unauthenticated) {
