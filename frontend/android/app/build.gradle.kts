@@ -1,3 +1,6 @@
+import java.util.Properties
+import java.io.FileInputStream
+
 plugins {
     id("com.android.application")
     id("kotlin-android")
@@ -33,8 +36,16 @@ try {
     println("Error reading .env file: ${e.message}")
 }
 
+// keystore 설정
+val keystoreProperties = Properties().apply {
+    val keystoreFile = rootProject.file("key.properties")
+    if (keystoreFile.exists()) {
+        load(FileInputStream(keystoreFile))
+    }
+}
+
 android {
-    namespace = "com.yoplay.prana"
+    namespace = "com.example.frontend"
     compileSdk = flutter.compileSdkVersion
     ndkVersion = "27.0.12077973"
 
@@ -67,11 +78,26 @@ android {
         manifestPlaceholders["KAKAO_NATIVE_APP_KEY"] = dartEnvironmentVariables["KAKAO_NATIVE_APP_KEY"] ?: ""
     }
 
+    println("🧪 DEBUG keystore properties")
+    println("keyAlias: ${keystoreProperties["keyAlias"]}")
+    println("keyPassword: ${keystoreProperties["keyPassword"]}")
+    println("storePassword: ${keystoreProperties["storePassword"]}")
+    println("storeFile: ${keystoreProperties["storeFile"]}")
+
+    signingConfigs {
+        create("release") {
+            keyAlias = keystoreProperties["keyAlias"] as String
+            keyPassword = keystoreProperties["keyPassword"] as String
+            storeFile = file(keystoreProperties["storeFile"] as String)
+            storePassword = keystoreProperties["storePassword"] as String
+        }
+    }
+
     buildTypes {
-        release {
-            // TODO: Add your own signing config for the release build.
-            // Signing with the debug keys for now, so `flutter run --release` works.
-            signingConfig = signingConfigs.getByName("debug")
+        getByName("release") {
+            signingConfig = signingConfigs.getByName("release")
+            isShrinkResources = false
+            isMinifyEnabled = false
         }
     }
 }
