@@ -5,7 +5,8 @@ import com.prana.backend.common.exception.sequence.SequenceNotFoundException;
 import com.prana.backend.common.exception.user.UserNotFoundException;
 import com.prana.backend.entity.*;
 import com.prana.backend.home.repository.StarRepository;
-import com.prana.backend.user_music.repository.JpaUserMusicRepository;
+import com.prana.backend.music.controller.response.MusicResponse;
+import com.prana.backend.music.repository.CustomMusicRepository;
 import com.prana.backend.sequence.repository.SequenceRepository;
 import com.prana.backend.sequence_body.repository.SequenceBodyRepository;
 import com.prana.backend.sequence_yoga.repository.SequenceYogaRepository;
@@ -37,14 +38,18 @@ public class YogaSequenceService {
     private final StarRepository starRepository;
     private final SequenceBodyRepository sequenceBodyRepository;
     private final SequenceYogaRepository sequenceYogaRepository;
-    private final JpaUserMusicRepository userMusicRepository;
+    private final CustomMusicRepository customMusicRepository;
     private final YogaFeedbackRepository yogaFeedbackRepository;
 
     public SequenceResponse getYogaSequence(Integer sequenceId, Integer userId) {
         List<YogaSequenceResponse> yogaSequence = yogaSequenceRepository.findYogaBySequenceIdOrderByOrder(sequenceId);
         Sequence sequence = sequenceRepository.findById(sequenceId).orElseThrow(SequenceNotFoundException::new);
         Star star = starRepository.findBySequence_IdAndUser_Id(sequenceId, userId).orElse(null);
-        String musicLocation = userMusicRepository.findMusicLocationsByUserId(userId);
+
+        MusicResponse musicResponse = customMusicRepository.myMusic(userId);
+        if (musicResponse == null) {
+            musicResponse = customMusicRepository.defaultMusic();
+        }
 
         return SequenceResponse.builder()
                 .sequenceId(sequence.getId())
@@ -54,7 +59,7 @@ public class YogaSequenceService {
                 .time(sequence.getTime())
                 .description(sequence.getDescription())
                 .isStar(star != null)
-                .music(musicLocation)
+                .music(musicResponse.getMusicLocation())
                 .yogaSequence(yogaSequence)
                 .build();
     }
@@ -71,7 +76,7 @@ public class YogaSequenceService {
         userSequenceRepository.save(userSequence);
 
         //만약 userSequence가 어제 있고 오늘 userSequence를 처음 저장하는거면 streak +1
-        if (userSequenceRepository.existsYesterdayUserSequence()==0 && userSequenceRepository.existsTodayUserSequence() !=0) {
+        if (userSequenceRepository.existsYesterdayUserSequence() == 0 && userSequenceRepository.existsTodayUserSequence() != 0) {
             user.setStreakDays(user.getStreakDays() + 1);
         }
         return UserSequenceResponse.builder()
@@ -91,7 +96,7 @@ public class YogaSequenceService {
         userSequenceRepository.save(userSequence);
         List<AccuracyResponse> accuracyResponses = new ArrayList<>();
         List<SequenceYoga> sequenceYoga = sequenceYogaRepository.findByUserSequence_Id(userSequenceId);
-        for(SequenceYoga yoga : sequenceYoga) {
+        for (SequenceYoga yoga : sequenceYoga) {
             accuracyResponses.add(AccuracyResponse.builder()
                     .yogaName(yoga.getYogaName())
                     .accuracy(yoga.getAccuracy())
