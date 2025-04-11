@@ -1,4 +1,4 @@
-package com.example.frontend
+package com.yoplay.prana
 
 import io.flutter.embedding.android.FlutterActivity
 

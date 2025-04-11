@@ -1,3 +1,6 @@
+.env
+key.properties
+
 # Miscellaneous
 *.class
 *.log
