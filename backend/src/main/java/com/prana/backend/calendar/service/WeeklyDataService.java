@@ -39,8 +39,8 @@ public class WeeklyDataService {
     public void insertWeeklyData(LocalDateTime today) {
         log.debug("today: {}", today);
 
-        // 일요일 자정으로 시간 고정
-        LocalDateTime start = today.minusWeeks(2).with(DayOfWeek.SUNDAY).with(LocalTime.MIDNIGHT);
+        // 월요일 자정으로 시간 고정
+        LocalDateTime start = today.minusWeeks(1).with(DayOfWeek.MONDAY).with(LocalTime.MIDNIGHT);
         LocalDateTime end = start.plusWeeks(1);
         log.debug("start: {}", start);
         log.debug("end: {}", end);
