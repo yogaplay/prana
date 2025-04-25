@@ -4,7 +4,7 @@ spring:
   config:
     import: classpath:/env.yml
   datasource:
-    url: jdbc:mysql://j12a103.p.ssafy.io:3316/prana
+    url: ${PRANA_MYSQL_URL}
     username: ${PRANA_MYSQL_USER}
     password: ${PRANA_MYSQL_PASSWORD}
   jpa:
@@ -39,16 +39,16 @@ spring:
 
 logging:
   level:
-    com.prana: trace
+    com.prana: info
     org.hibernate.SQL_SLOW: info
-    org.hibernate.SQL: debug
-    org.hibernate.orm.jdbc.bind: trace
+    org.hibernate.SQL: info
+    org.hibernate.orm.jdbc.bind: info
 
 # AI 서버의 엔드포인트 URL 설정
 ai:
   server:
-    shortFeedbackUrl : http://ai-yoga:8000/api/short-feedback
-    longFeedbackUrl : http://ai-yoga:8000/api/long-feedback
+    shortFeedbackUrl : http://prana-ai:8000/api/short-feedback
+    longFeedbackUrl : http://prana-ai:8000/api/long-feedback
 
 
 # open AI
