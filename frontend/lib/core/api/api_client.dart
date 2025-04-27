@@ -17,7 +17,7 @@ class ApiClient {
     return await _storage.read(key: _accessToken);
   }
 
-  ApiClient({this.baseUrl = 'https://j12a103.p.ssafy.io:8444/api'}) {
+  ApiClient({this.baseUrl = 'https://prana.yoplay.kr/api'}) {
     _dio = Dio(
       BaseOptions(
         baseUrl: baseUrl,
