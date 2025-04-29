@@ -9,7 +9,7 @@ import 'package:frontend/features/music/services/music_service.dart';
 
 // 기존 Provider들은 그대로 유지
 final apiClientProvider = Provider<ApiClient>((ref) {
-  return ApiClient(baseUrl: 'https://j12a103.p.ssafy.io:8444/api');
+  return ApiClient(baseUrl: 'https://prana.yoplay.kr/api');
 });
 
 final authServiceProvider = Provider<AuthService>((ref) {
