@@ -52,7 +52,7 @@ class _SequenceResultScreenState extends ConsumerState<SequenceResultScreen> {
       if (url == null) return;
       final fileName = Uri.parse(url).pathSegments.last;
       print('파일명 $fileName');
-      final viewUrl = 'https://j12a103.p.ssafy.io:8444/share/$fileName';
+      final viewUrl = 'https://prana.yoplay.kr/share/$fileName';
       print('링크 url: $viewUrl');
 
       setState(() {
