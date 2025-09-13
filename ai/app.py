@@ -56,8 +56,8 @@ angle_error_message_larger = [
     '오른쪽 팔꿈치를 더 오므려주세요',  # 2
     '왼쪽 팔을 더 오므려주세요',  # 3
     '오른쪽 팔을 더 오므려주세요',  # 4
-    '왼쪽 엉덩이를 더 올려주세요',  # 5
-    '오른쪽 엉덩이를 더 올려주세요',  # 6
+    '왼쪽 다리를 내려주세요',  # 5
+    '오른쪽 다리를 내려주세요',  # 6
     '왼쪽 무릎을 더 구부려야 합니다',  # 7
     '오른쪽 무릎을 더 구부려야 합니다',  # 8
     '왼쪽 다리를 더 오므려야 합니다',  # 9
@@ -70,10 +70,10 @@ angle_error_message_smaller = [
     '오른쪽 팔꿈치를 더 벌려주세요',  # 2
     '왼쪽 팔을 더 벌려주세요',  # 3
     '오른쪽 팔을 더 벌려주세요',  # 4
-    '왼쪽 엉덩이를 더 내리세요',  # 5
-    '오른쪽 엉덩이를 더 내리세요',  # 6
-    '왼쪽 무릎을 더 낮게 내려주세요',  # 7
-    '오른쪽 무릎을 더 낮게 내려주세요',  # 8
+    '왼쪽 다리를 올려주세요',  # 5
+    '오른쪽 다리를 올려주세요',  # 6
+    '왼쪽 무릎을 더 펴주세요',  # 7
+    '오른쪽 무릎을 더 펴주세요',  # 8
     '왼쪽 다리를 더 벌려야 합니다',  # 9
     '오른쪽 다리를 더 벌려야 합니다',  # 10
 ]
@@ -132,13 +132,12 @@ async def short_feedback(request: FeedbackRequest):
         if frame is None:
             raise HTTPException(status_code=400, detail="Invalid image data")
         image_rgb = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
-        logger.info("이미지 디코딩 성공")
 
         # 포즈 추론
         results = pose.process(image_rgb)
         if not results.pose_landmarks:
             logger.info("포즈 랜드마크 감지 실패")
-            return JSONResponse(content={"result": "fail"})
+            return JSONResponse(content={"result": "fail", "score":0})
         landmarks = results.pose_landmarks.landmark
 
         # NECK 포인트 계산 (양 어깨 중간)
@@ -149,42 +148,77 @@ async def short_feedback(request: FeedbackRequest):
                       (left_shoulder.z + right_shoulder.z) / 2)
 
         # live 각도 계산
+        live_angles_2d_list = []
+        live_angles_3d_list = []
         live_angles_list = []
+        # 정답 각도 파싱
+        correct_angles = np.array([float(x.strip()) for x in request.correct_angles.split(',')])
         for idx, (A, B, C) in enumerate(angle_definitions):
             if B == "NECK":
                 B_point = neck_point
-            else:
-                B_point = (
-                    landmarks[target_landmarks[B]].x,
-                    landmarks[target_landmarks[B]].y,
-                    landmarks[target_landmarks[B]].z
+                B_visibility = min(
+                    landmarks[mp_pose.PoseLandmark.LEFT_SHOULDER].visibility,
+                    landmarks[mp_pose.PoseLandmark.RIGHT_SHOULDER].visibility
                 )
-            A_point = (
-                landmarks[target_landmarks[A]].x,
-                landmarks[target_landmarks[A]].y,
-                landmarks[target_landmarks[A]].z
-            )
-            C_point = (
-                landmarks[target_landmarks[C]].x,
-                landmarks[target_landmarks[C]].y,
-                landmarks[target_landmarks[C]].z
-            )
-            angle_val = calculate_angle_3d(A_point, B_point, C_point)
-            live_angles_list.append(angle_val)
+            else:
+                B_landmark = landmarks[target_landmarks[B]]
+                B_point = (B_landmark.x, B_landmark.y, B_landmark.z)
+                B_visibility = B_landmark.visibility
+
+            A_landmark = landmarks[target_landmarks[A]]
+            A_point = (A_landmark.x, A_landmark.y, A_landmark.z)
+            A_visibility = A_landmark.visibility
+
+            C_landmark = landmarks[target_landmarks[C]]
+            C_point = (C_landmark.x, C_landmark.y, C_landmark.z)
+            C_visibility = C_landmark.visibility
+
+            # visibility 조건 체크
+            if A_visibility < 0.5 or B_visibility < 0.5 or C_visibility < 0.5:
+                logger.info(f"Angle {idx} skipped due to low visibility")
+                # 보정값으로 정답 각도 사용 (혹은 NaN 처리 후 나중에 제거할 수도 있음)
+                live_angles_2d_list.append(correct_angles[idx])
+                live_angles_3d_list.append(correct_angles[idx])
+                live_angles_list.append(correct_angles[idx])
+                continue
+
+            # 각도 계산
+            angle_val_2d = calculate_angle_2d(A_point, B_point, C_point)
+            angle_val_3d = calculate_angle_3d(A_point, B_point, C_point)
+
+            if idx == 0:
+                live_angles_2d_list.append(correct_angles[0])
+                live_angles_3d_list.append(correct_angles[0])
+            else:
+                live_angles_2d_list.append(angle_val_2d)
+                live_angles_3d_list.append(angle_val_3d)
+            if 1<=idx<=2 : live_angles_list.append(angle_val_2d)
+            elif idx==0 : live_angles_list.append(correct_angles[0])
+            else : live_angles_list.append(angle_val_3d)
+        live_angles_2d = np.array(live_angles_2d_list)
+        live_angles_3d = np.array(live_angles_3d_list)
         live_angles = np.array(live_angles_list)
 
-        # 정답 각도 파싱
-        correct_angles = np.array([float(x.strip()) for x in request.correct_angles.split(',')])
         logger.info(f"정답 각도: {correct_angles}")
-        logger.info(f"실제 각도: {live_angles}")
+        logger.info(f"2d 실제 각도: {live_angles_2d}")
+        logger.info(f"3d 실제 각도: {live_angles_3d}")
 
         std_value = np.array([float(x.strip()) for x in request.std.split(',')])
-        logger.info(f"표준 편차: {std_value}")
 
         # Cosine similarity 계산 및 로깅
         similarity = 1 - cosine(correct_angles, live_angles)
         logger.info(f"Cosine similarity: {similarity}")
-
+        abs_diff_2d = np.abs(live_angles_2d-correct_angles)
+        abs_diff_3d = np.abs(live_angles_3d-correct_angles)
+        # 2D와 3D 중 차이가 더 작은 값을 선택
+        final_diff = np.where(abs_diff_2d < abs_diff_3d, abs_diff_2d, abs_diff_3d)
+        logger.info(f"final difference: {final_diff}")
+        # max_diff_2d = np.max(abs_diff_2d)
+        # max_diff_3d = np.max(abs_diff_3d)
+        abs_diff = np.abs(live_angles-correct_angles)
+        # max_diff = np.max(abs_diff)
+        max_diff_final = np.max(final_diff)
+        logger.info(f"final maximum difference: {max_diff_final}")
 
         # 1. 가중치 계산 (표준편차의 역수)
         epsilon = 1e-6  # prevent zero division error
@@ -192,20 +226,23 @@ async def short_feedback(request: FeedbackRequest):
         weights = weights / weights.sum()  # 가중치 총합이 1이 되도록 정규화
 
         # 2. 절대 차이 계산
-        diffs = np.abs(live_angles - correct_angles)
-        diffs = np.where(diffs < 10, np.exp(diffs - 10), diffs)
+        diffs = np.where(final_diff < 10, np.exp(final_diff - 10), final_diff)
+
         # 3. 가중합으로 점수 계산
         weight_mul = weights * diffs
         weighted_error = np.sum(weights * diffs)
-        logger.info(f"weight : {weight_mul}")
 
         # 4. 점수를 100점 만점에서 감점 방식으로 계산 (예: max_error=30으로 설정)
-        max_error = 200
+        max_error = 100
         score = max(0, 100 * (1 - weighted_error / max_error))
         logger.info(f"점수 : {score}")
+        # 주요 landmark들의 visibility 로깅
+        # logger.info("=== 주요 포인트 visibility ===")
+        # for name, landmark_enum in target_landmarks.items():
+        #     visibility = landmarks[landmark_enum].visibility
+        #     logger.info(f"{name}: visibility = {visibility:.4f}")
 
-
-        result_str = "success" if similarity >= 0.95 else "fail"
+        result_str = "success" if score>=90 and max_diff_final < 30 else "fail"
         return JSONResponse(content={"result": result_str, "score": score})
     except Exception as e:
         logger.exception("단기 피드백 처리 중 오류 발생")
@@ -222,14 +259,13 @@ async def long_feedback(request: FeedbackRequest):
         if frame is None:
             raise HTTPException(status_code=400, detail="Invalid image data")
         image_rgb = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
-        logger.info("이미지 디코딩 성공 (long-feedback)")
 
         # 포즈 추론
         results = pose.process(image_rgb)
         if not results.pose_landmarks:
             logger.info("포즈 랜드마크 감지 실패 (long-feedback)")
             return JSONResponse(
-                content={"feedback": {"position": "", "message": "No pose landmarks detected", "count": 0}})
+                content={"feedback": {"position": "", "message": "", "count": 0}})
         landmarks = results.pose_landmarks.landmark
 
         # NECK 포인트 계산
@@ -240,53 +276,69 @@ async def long_feedback(request: FeedbackRequest):
                       (left_shoulder.z + right_shoulder.z) / 2)
 
         # live 각도 계산
-        live_angles_list = []
+        live_angles_3d_list = []
+        live_angles_2d_list = []
+        # 정답 각도 파싱
+        correct_angles = np.array([float(x.strip()) for x in request.correct_angles.split(',')])
         for idx, (A, B, C) in enumerate(angle_definitions):
             if B == "NECK":
                 B_point = neck_point
-            else:
-                B_point = (
-                    landmarks[target_landmarks[B]].x,
-                    landmarks[target_landmarks[B]].y,
-                    landmarks[target_landmarks[B]].z
+                B_visibility = min(
+                    landmarks[mp_pose.PoseLandmark.LEFT_SHOULDER].visibility,
+                    landmarks[mp_pose.PoseLandmark.RIGHT_SHOULDER].visibility
                 )
-            A_point = (
-                landmarks[target_landmarks[A]].x,
-                landmarks[target_landmarks[A]].y,
-                landmarks[target_landmarks[A]].z
-            )
-            C_point = (
-                landmarks[target_landmarks[C]].x,
-                landmarks[target_landmarks[C]].y,
-                landmarks[target_landmarks[C]].z
-            )
-            angle_val = calculate_angle_3d(A_point, B_point, C_point)
-            live_angles_list.append(angle_val)
-            logger.info(f"각도[{idx}]: live 각도 = {angle_val}")
-        live_angles = np.array(live_angles_list)
+            else:
+                B_landmark = landmarks[target_landmarks[B]]
+                B_point = (B_landmark.x, B_landmark.y, B_landmark.z)
+                B_visibility = B_landmark.visibility
 
-        # 정답 각도 파싱
-        correct_angles = np.array([float(x.strip()) for x in request.correct_angles.split(',')])
-        logger.info(f"정답 각도 (long-feedback): {correct_angles}")
-        logger.info(f"실제 각도 (long-feedback): {live_angles}")
+            A_landmark = landmarks[target_landmarks[A]]
+            A_point = (A_landmark.x, A_landmark.y, A_landmark.z)
+            A_visibility = A_landmark.visibility
 
-        # 각도 차이 계산 및 로깅
-        diff = correct_angles - live_angles
-        abs_diff = np.abs(diff)
-        logger.info(f"각도 차이: {diff}")
-        logger.info(f"절대 차이: {abs_diff}")
+            C_landmark = landmarks[target_landmarks[C]]
+            C_point = (C_landmark.x, C_landmark.y, C_landmark.z)
+            C_visibility = C_landmark.visibility
 
+            # visibility 체크
+            if A_visibility < 0.5 or B_visibility < 0.5 or C_visibility < 0.5:
+                logger.info(f"Angle {idx} skipped due to low visibility")
+                live_angles_2d_list.append(correct_angles[idx])
+                live_angles_3d_list.append(correct_angles[idx])
+                continue
+
+            # 각도 계산
+            angle_val_2d = calculate_angle_2d(A_point, B_point, C_point)
+            angle_val_3d = calculate_angle_3d(A_point, B_point, C_point)
+
+            if idx == 0:
+                live_angles_2d_list.append(correct_angles[0])
+                live_angles_3d_list.append(correct_angles[0])
+            else:
+                live_angles_2d_list.append(angle_val_2d)
+                live_angles_3d_list.append(angle_val_3d)
+        live_angles_2d = np.array(live_angles_2d_list)
+        live_angles_3d = np.array(live_angles_3d_list)
+
+        abs_diff_2d = np.abs(live_angles_2d-correct_angles)
+        abs_diff_3d = np.abs(live_angles_3d-correct_angles)
+        # 2D와 3D 중 차이가 더 작은 값을 선택
+        final_diff = np.where(abs_diff_2d < abs_diff_3d, abs_diff_2d, abs_diff_3d)
+        max_diff_final = np.max(final_diff)
         # 가장 큰 차이 항목 선택
-        final_idx = int(np.argmax(abs_diff))
+        final_idx = int(np.argmax(final_diff))
         logger.info(f"가장 큰 차이 항목 인덱스: {final_idx}")
 
         # 피드백 메시지 결정
-        if diff[final_idx] > 0:
-            feedback_msg = angle_error_message_larger[final_idx]
-        else:
+        if final_diff[final_idx] > 0:
             feedback_msg = angle_error_message_smaller[final_idx]
+        else:
+            feedback_msg = angle_error_message_larger[final_idx]
         position = position_mapping.get(final_idx, "")
         logger.info(f"피드백 메시지: {feedback_msg}, 부위: {position}")
+
+        if max_diff_final <= 30:
+            feedback_msg = ""
 
         response_payload = {
             "feedback": {

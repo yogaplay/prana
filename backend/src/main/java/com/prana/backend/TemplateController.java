@@ -15,7 +15,7 @@ public class TemplateController {
     @GetMapping("/{request}")
     public String showPreview(@PathVariable String request, Model model) {
         model.addAttribute("imageUrl", prefix + request);
-        model.addAttribute("appDownloadUrl", "market://details?id=com.example.frontend");
+        model.addAttribute("appDownloadUrl", "https://m.onestore.co.kr/ko-kr/apps/appsDetail.omp?prodId=0001000346");
         return "image-display";
     }
 
