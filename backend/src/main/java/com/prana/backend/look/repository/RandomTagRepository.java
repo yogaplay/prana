@@ -15,16 +15,21 @@ public interface RandomTagRepository extends CrudRepository<Tag, Integer> {
      * @return List<Tag>
      */
     @Query(value = """
-        SELECT t1.*
-        FROM tag t1
-        JOIN (
-            SELECT tag_type, tag_id
-            FROM (
-                SELECT tag_type, tag_id, ROW_NUMBER() OVER (PARTITION BY tag_type ORDER BY RAND()) AS rn
-                FROM tag
-            ) t
-            WHERE rn = 1
-        ) t2 ON t1.tag_id = t2.tag_id
-        """, nativeQuery = true)
+            SELECT t1.*
+            FROM tag t1
+                     JOIN (
+                SELECT tag_type, tag_id
+                FROM (
+                         SELECT tag_type, tag_id,
+                                ROW_NUMBER() OVER (
+                                    PARTITION BY tag_type
+                                    ORDER BY RAND()
+                                    ROWS BETWEEN UNBOUNDED PRECEDING AND CURRENT ROW
+                                    ) AS rn
+                         FROM tag
+                     ) t
+                WHERE rn = 1
+            ) t2 ON t1.tag_id = t2.tag_id;
+            """, nativeQuery = true)
     List<Tag> findRandomTagPerType();
 }
